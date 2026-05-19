@@ -1,0 +1,45 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    /*COLORS  */
+    --color-1: #fff;
+    --color-2: #000;
+}
+
+/* MARK: Lettertypen Courier prime en inter  */
+/* *************** */
+/*  Courier prime  */
+/* *************** */
+@font-face {
+    /* https://fonts.google.com/specimen/Courier+Prime?preview.script=Latn */
+    font-family: 'Courier Prime Regular';
+    src: url(../assets/fonts/Courier_Prime/Courier_Prime/CourierPrime-Regular.ttf);
+}
+
+@font-face {
+    font-family: 'Courier Prime Bold';
+    src: url(../assets/fonts/Courier_Prime/Courier_Prime/CourierPrime-Bold.ttf);
+}
+
+@font-face {
+    font-family: 'Courier Prime Italic';
+    src: url(../assets/fonts/Courier_Prime/Courier_Prime/CourierPrime-Italic.ttf);
+}
+
+@font-face {
+    font-family: 'Courier Prime BoldItalic';
+    src: url(../assets/fonts/Courier_Prime/Courier_Prime/CourierPrime-BoldItalic.ttf);
+}
+
+/* *************** */
+/*      Inter      */
+/* *************** */
+@font-face {
+    /* https://fonts.google.com/specimen/Inter?preview.script=Latn */
+    font-family: 'Inter';
+    src: url(../assets/fonts/Inter/Inter-VariableFont.ttf);
+}
+
