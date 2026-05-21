@@ -43,3 +43,23 @@
     src: url(../assets/fonts/Inter/Inter-VariableFont.ttf);
 }
 
+/* Layout grid styling  */
+main {
+    display: grid;
+    height: 100vh;
+    grid-template-columns: 70% 30%;
+    grid-template-rows: 90% 10%;
+    font-family: inter;
+
+    place-items: center;
+
+    > form {
+        grid-row-start: 2;
+    }
+
+    div:nth-of-type(2) {
+        height: 100%;
+        width: 100%;
+        grid-area: 1 / 2/ 3 / 2;
+    }
+}
