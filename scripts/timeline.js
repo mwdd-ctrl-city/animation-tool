@@ -31,8 +31,18 @@ timelineSlider.addEventListener("input", ()=> {
     timeline.progress(progressTimeline);
 });
 
-// To play the whole animation at once
+// To play/pause the whole animation at once
+let isPlaying = false; //Standard is false
+
 playButtonTimeline.addEventListener("click", ()=> {
-    timeline.play()
+    if(isPlaying === false) {
+        timeline.play();
+        playButtonTimeline.textContent = 'Pause';
+        isPlaying = true;
+    } else {
+        timeline.pause();
+        playButtonTimeline.textContent = 'Play';
+        isPlaying = false;
+    }
 })
 
