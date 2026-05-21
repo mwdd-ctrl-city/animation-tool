@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./styles/style.css">
+    <link rel="stylesheet" href="./styles/timeline.css">
 
     
     <title>Animation Tool</title>
@@ -11,17 +12,25 @@
 <body>
     <header></header>
     <main>
-        <!-- The output of the animation/timeline -->
-        <div class="canvas">
-            <h1 class="text">Welkom bij de typography animation tool!!!</h1>
-        </div>
+   
+            <!-- The output of the animation/timeline -->
+            <div class="canvas">
+                <h1 class="text">Welkom bij de typography animation tool!!!</h1>
+            </div>
 
-        <!-- The UI interface of the timeline -->
-        <form>
-            <button type="button" class="play-animation">Play</button>
-            <label for="timeline-slider">Tijdlijn slider</label>
-            <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any">
-        </form>
+            <!-- The UI interface of the timeline -->
+            <form class="timeline">
+                <button type="button" class="play-animation">Play</button>
+                <label for="timeline-slider">Tijdlijn slider</label>
+                <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any">
+            </form>
+   
+
+        <!-- Control panel interface -->
+        <div>
+            <!-- Insert the code forms here -->
+
+        </div>
     </main>
     <footer></footer>
     <!-- Insert the gsap library -->
