@@ -1,129 +1,114 @@
+// Source: https://gsap.com/docs/v3/GSAP/Timeline/
 
-// https://gsap.com/docs/v3/GSAP/Timeline/
-
-// Connect the interface to the engine
-const timelineSlider = document.querySelector("#timeline-slider");
-
-// Get play button
-const playButtonTimeline = document.querySelector('.play-animation');
-
-// Define the timeline
-const timeline = gsap.timeline({
-    paused: true, //Making timeline that starts paused
-    onUpdate: ()=>{ //When the animation automatically plays the slider updates on the progress of the animation duration
-        if(timelineSlider) {
-            timelineSlider.value = timeline.progress() * 100
-        } 
-    },
-    repeat: -1 //Loop the animation
-});
-
+// TODO Remove/edit
 let keyframes = [
-    { progress: 0, x: 0, rotation: 0, scaleY: 1 }, // progress 0%
-    { progress: 1, x: 0, rotation: 0, scaleY: 1 }  // progress 100%
+  { progress: 0, x: 0, rotation: 0, scaleY: 1 }, // progress 0%
+  { progress: 1, x: 0, rotation: 0, scaleY: 1 }, // progress 100%
 ];
 
 // animation builder
 function buildAnimation() {
-    // store current progress before clearing the timeline so it can be set back after rebuilding
-    const currentProgress = timeline.progress() || 0;
+  // store current progress before clearing the timeline so it can be set back after rebuilding
+  const currentProgress = timeline.progress() || 0;
+  timeline.progress(currentProgress);
+  timeline.clear();
 
-    // set timeline back to current progress after rebuilding
-    timeline.progress(currentProgress);
+  // order keyframes by progress
+  keyframes.sort((a, b) => a.progress - b.progress);
 
-    // clear the timeline
-    timeline.clear();
+  // set initial state of the animation to the first keyframe
+  /* TODO: do not hardcode text class */
+  gsap.set(".text", {
+    x: keyframes[0].x,
+    rotation: keyframes[0].rotation /* TODO: do not hardcode properties */,
+    scaleY: keyframes[0].scaleY,
+  });
 
-    // order keyframes by progress
-    keyframes.sort((a, b) => a.progress - b.progress);
+  // loop through keyframes and create timeline segments based on the time difference between keyframes
+  for (let i = 1; i < keyframes.length; i++) {
+    let last = keyframes[i - 1];
+    let current = keyframes[i];
 
-    // set initial state of the animation to the first keyframe
-    gsap.set(".text", { 
-        x: keyframes[0].x, 
-        rotation: keyframes[0].rotation, 
-        scaleY: keyframes[0].scaleY 
+    // calculate time difference between current and last keyframe
+    let timeDifferenceSeconds = (current.progress - last.progress) * totalDurationSeconds;
+
+    /* TODO: do not hardcode text class */
+    timeline.to(".text", {
+      x: current.x /* TODO: do not hardcode properties */,
+      rotation: current.rotation,
+      scaleY: current.scaleY,
+      duration: timeDifferenceSeconds,
+      ease: "none",
     });
+  }
+}
 
-    const totalDuration = 3;
+function setKeyframe(className, propertyName, value) {
+  // round current time to 2 decimal to avoid precision issues
+  const currentTime = Math.round(timeline.progress() * 100) / 100; /* TODO set to frames */
 
-    // loop through keyframes and create timeline segments based on the time difference between keyframes
-    for (let i = 1; i < keyframes.length; i++) {
-        let last = keyframes[i - 1];
-        let current = keyframes[i];
-        
-        // calculate time difference between current and last keyframe
-        let timeDifference = (current.progress - last.progress) * totalDuration;
-        
-        timeline.to(".text", {
-            x: current.x,
-            rotation: current.rotation,
-            scaleY: current.scaleY,
-            duration: timeDifference,
-            ease: "none",
-        });
-    }
-};
+  // check if there's already a keyframe at the current time
+  let keyframe = keyframes.find((kf) => kf.progress === currentTime); /* TODO set to frames */
 
-// Controls
+  // make new keyframe is there isn't one at the current time
+  if (!keyframe) {
+    keyframe = {
+      progress: currentTime,
+      // get current values of the properties
+      x: gsap.getProperty(".text", "x") /* TODO: do not hardcode properties */,
+      rotation: gsap.getProperty(".text", "rotation"),
+      scaleY: gsap.getProperty(".text", "scaleY"),
+    };
+    keyframes.push(keyframe);
+  }
+
+  // update value of the property in the keyframe
+  keyframe[propertyName] = value;
+
+  buildAnimation();
+}
+
+const totalDurationSeconds = 3;
+
+const timelineSlider = document.querySelector("#timeline-slider");
+const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
 
-animationControls.forEach(control => {
-    control.addEventListener('input', (event) => {
-        const propertyName = event.target.dataset.property;
-        const newValue = parseFloat(event.target.value);
-        
-        // round current time to 2 decimal to avoid precision issues
-        const currentTime = Math.round(timeline.progress() * 100) / 100;
-
-        // check if there's already a keyframe at the current time
-        let keyframe = keyframes.find(kf => kf.progress === currentTime);
-
-        // make new keyframe is there isn't one at the current time
-        if (!keyframe) {
-            keyframe = {
-                progress: currentTime,
-                // get current values of the properties
-                x: gsap.getProperty(".text", "x"),
-                rotation: gsap.getProperty(".text", "rotation"),
-                scaleY: gsap.getProperty(".text", "scaleY")
-            };
-            keyframes.push(keyframe);
-        }
-
-        // update value of the property in the keyframe
-        keyframe[propertyName] = newValue;
-
-        buildAnimation();
-    });
+// Define the timeline
+const timeline = gsap.timeline({
+  paused: true,
+  repeat: -1, // Loop the animation indefinitely
+  onUpdate: () => onTimelineUpdate(),
 });
 
 // Initial build of the animation
 buildAnimation();
 
+//When the animation automatically plays the slider updates on the progress of the animation duration
+function onTimelineUpdate() {
+  if (timelineSlider) {
+    timelineSlider.value = timeline.progress() * 100;
+  }
+}
+
+animationControls.forEach((control) => {
+  control.addEventListener("input", (event) => {
+    const propertyName = event.target.dataset.property;
+    const value = parseFloat(event.target.value); /* Todo: Should this be float */
+
+    setKeyframe(".text", propertyName, value);
+  });
+});
+
 // create the update when input changes
-timelineSlider.addEventListener("input", ()=> {
-    const progressTimeline = timelineSlider.value / 100;
-
-    timeline.progress(progressTimeline);
+timelineSlider.addEventListener("input", () => {
+  // slide is between 0 - 100, timeline between 0 - 1
+  const progressTimeline = timelineSlider.value / 100;
+  timeline.progress(progressTimeline);
 });
 
-// To play/pause the whole animation at once
-let isPlaying = false; //Standard is false
-
-playButtonTimeline.addEventListener("click", ()=> {
-
-    // reset timeline to beginning if it has reached the end
-    if(timeline.progress() === 1) {
-        timeline.progress(0);
-    }
-    if(isPlaying === false) {
-        timeline.play();
-        playButtonTimeline.textContent = 'Pause';
-        isPlaying = true;
-    } else {
-        timeline.pause();
-        playButtonTimeline.textContent = 'Play';
-        isPlaying = false;
-    }
+playButtonTimeline.addEventListener("click", () => {
+  isPlaying = timeline.paused();
+  playButtonTimeline.textContent = isPlaying ? "Pause" : "play";
+  timeline.paused(!isPlaying);
 });
-
