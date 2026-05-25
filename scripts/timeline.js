@@ -1,78 +1,7 @@
 // Source: https://gsap.com/docs/v3/GSAP/Timeline/
 
-// TODO Remove/edit
-let keyframes = [
-  { progress: 0, x: 0, rotation: 0, scaleY: 1 }, // progress 0%
-  { progress: 1, x: 0, rotation: 0, scaleY: 1 }, // progress 100%
-];
-
-// animation builder
-function buildAnimation() {
-  // store current progress before clearing the timeline so it can be set back after rebuilding
-  const currentProgress = timeline.progress() || 0;
-  timeline.progress(currentProgress);
-  timeline.clear();
-
-  // order keyframes by progress
-  keyframes.sort((a, b) => a.progress - b.progress);
-
-  // set initial state of the animation to the first keyframe
-  /* TODO: do not hardcode text class */
-  gsap.set(".text", {
-    x: keyframes[0].x,
-    rotation: keyframes[0].rotation /* TODO: do not hardcode properties */,
-    scaleY: keyframes[0].scaleY,
-  });
-
-  // loop through keyframes and create timeline segments based on the time difference between keyframes
-  for (let i = 1; i < keyframes.length; i++) {
-    let last = keyframes[i - 1];
-    let current = keyframes[i];
-
-    // calculate time difference between current and last keyframe
-    let timeDifferenceSeconds = (current.progress - last.progress) * totalDurationSeconds;
-
-    /* TODO: do not hardcode text class */
-    timeline.to(".text", {
-      x: current.x /* TODO: do not hardcode properties */,
-      rotation: current.rotation,
-      scaleY: current.scaleY,
-      duration: timeDifferenceSeconds,
-      ease: "none",
-    });
-  }
-}
-
-function setKeyframe(className, propertyName, value) {
-  // round current time to 2 decimal to avoid precision issues
-  const currentTime = Math.round(timeline.progress() * 100) / 100; /* TODO set to frames */
-
-  // check if there's already a keyframe at the current time
-  let keyframe = keyframes.find((kf) => kf.progress === currentTime); /* TODO set to frames */
-
-  // make new keyframe is there isn't one at the current time
-  if (!keyframe) {
-    keyframe = {
-      progress: currentTime,
-      // get current values of the properties
-      x: gsap.getProperty(".text", "x") /* TODO: do not hardcode properties */,
-      rotation: gsap.getProperty(".text", "rotation"),
-      scaleY: gsap.getProperty(".text", "scaleY"),
-    };
-    keyframes.push(keyframe);
-  }
-
-  // update value of the property in the keyframe
-  keyframe[propertyName] = value;
-
-  buildAnimation();
-}
-
 const totalDurationSeconds = 3;
-
-const timelineSlider = document.querySelector("#timeline-slider");
-const playButtonTimeline = document.querySelector(".play-animation");
-const animationControls = document.querySelectorAll(".animation-control");
+const canvas = document.querySelector(".canvas");
 
 // Define the timeline
 const timeline = gsap.timeline({
@@ -81,8 +10,129 @@ const timeline = gsap.timeline({
   onUpdate: () => onTimelineUpdate(),
 });
 
-// Initial build of the animation
-buildAnimation();
+let timelineData;
+
+fetch("./scripts/animation.json")
+  .then((res) => res.json())
+  .then((data) => {
+    timelineData = data;
+    buildAnimation(timelineData);
+  });
+
+// animation builder
+function buildAnimation(animationData) {
+  const currentProgress = timeline.progress() || 0;
+  timeline.clear();
+  buildElements(animationData.elements);
+  buildAnimations(animationData.animations);
+
+  timeline.progress(currentProgress);
+}
+
+function buildElements(elementsData) {
+  // Clear all elements
+  canvas.innerHTML = "";
+
+  // Create all elements
+  elementsData.forEach((elementData) => {
+    const element = document.createElement("h1");
+    element.classList.add(elementData.group, elementData.id);
+    element.textContent = elementData.content;
+    canvas.appendChild(element);
+  });
+}
+
+function buildAnimations(animationsData) {
+  animationsData.forEach((animationData) => {
+    const target = animationData.target;
+
+    animationData.properties.forEach((propertyData) => {
+      const property = propertyData.property;
+      const keyframes = propertyData.keyframes;
+      keyframes.sort((a, b) => a.progress - b.progress);
+
+      // If only one keyframe exists, make it a "constant" property value
+      if (keyframes.length === 1) {
+        gsap.set(`.${target}`, {
+          [property]: keyframes[0].value,
+        });
+      }
+
+      // loop through keyframes and create timeline segments based on the time difference between keyframes
+      for (let i = 1; i < keyframes.length; i++) {
+        let last = keyframes[i - 1];
+        let current = keyframes[i];
+
+        let timeDifferenceSeconds = (current.progress - last.progress) * totalDurationSeconds;
+
+        // Set the animation
+        timeline.to(
+          `.${target}`,
+          {
+            [property]: current.value,
+            duration: timeDifferenceSeconds,
+            ease: current.ease ? current.ease : "none",
+          },
+          last.progress * totalDurationSeconds,
+        );
+      }
+    });
+  });
+}
+
+function setKeyframe(targetName, propertyName, value) {
+  let animation = timelineData.animations.find((animation) => animation.target === targetName);
+
+  // Create animation if it doesn't exist
+  if (!animation) {
+    animation = {
+      target: targetName,
+      properties: [],
+    };
+
+    timelineData.animations.push(animation);
+  }
+
+  // Find property entry
+  let propertyEntry = animation.properties.find((property) => property.property === propertyName);
+
+  // Create property if it doesn't exist
+  if (!propertyEntry) {
+    propertyEntry = {
+      property: propertyName,
+      keyframes: [],
+    };
+
+    animation.properties.push(propertyEntry);
+  }
+
+  const currentTime = Math.round(timeline.progress() * 100) / 100;
+
+  // Find existing keyframe
+  let keyframe = propertyEntry.keyframes.find((keyframe) => keyframe.progress === currentTime);
+
+  // Create keyframe if it doesn't exist
+  if (!keyframe) {
+    keyframe = {
+      progress: currentTime,
+      value,
+    };
+
+    propertyEntry.keyframes.push(keyframe);
+  }
+
+  // Update value
+  keyframe.value = value;
+  buildAnimation(timelineData);
+}
+
+/* **** */
+/*  UI  */
+/* **** */
+
+const timelineSlider = document.querySelector("#timeline-slider");
+const playButtonTimeline = document.querySelector(".play-animation");
+const animationControls = document.querySelectorAll(".animation-control");
 
 //When the animation automatically plays the slider updates on the progress of the animation duration
 function onTimelineUpdate() {
@@ -96,7 +146,7 @@ animationControls.forEach((control) => {
     const propertyName = event.target.dataset.property;
     const value = parseFloat(event.target.value); /* Todo: Should this be float */
 
-    setKeyframe(".text", propertyName, value);
+    setKeyframe("el-1", propertyName, value); /* Todo: do not hardcode .el-1*/
   });
 });
 
