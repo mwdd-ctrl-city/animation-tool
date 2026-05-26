@@ -5,6 +5,7 @@ export default class AnimationBuilder {
     this.canvas = canvas;
     this.durationSeconds = durationSeconds;
 
+    // Create an empty json structure with timeline data
     this.timelineData = {
       elements: [],
       animations: [],
@@ -13,6 +14,7 @@ export default class AnimationBuilder {
     // Optional external update listener
     this.onUpdateListener;
 
+    // Create the Gsap timeline
     this.timeline = gsap.timeline({
       paused: true,
       repeat: -1, // Loop the animation indefinitely
@@ -25,12 +27,14 @@ export default class AnimationBuilder {
   }
 
   buildAnimation() {
+    // Store the current timeline progress and reset the timeline animations
     const currentProgress = this.timeline.progress() || 0;
     this.timeline.clear();
 
     this.buildElements();
     this.buildAnimations();
 
+    // Set the timeline progress back where the user left off.
     this.timeline.progress(currentProgress);
   }
 
@@ -50,12 +54,16 @@ export default class AnimationBuilder {
   }
 
   buildAnimations() {
+    // Loop over every element's animations
     this.timelineData.animations.forEach((animationData) => {
       const target = animationData.target;
 
+      // Loop over every property of the element
       animationData.properties.forEach((propertyData) => {
         const property = propertyData.property;
         const keyframes = propertyData.keyframes;
+
+        // Sort the keyframes such that the first keyframe chronologically is first in the list
         keyframes.sort((a, b) => a.progress - b.progress);
 
         // If only one keyframe exists, make it a "constant" property value
@@ -72,9 +80,10 @@ export default class AnimationBuilder {
           let last = keyframes[i - 1];
           let current = keyframes[i];
 
+          // The time in seconds between keyframes is the difference in progress times the total timeline duration 
           let timeDifferenceSeconds = (current.progress - last.progress) * this.durationSeconds;
 
-          // Set the animation
+          // Set the animation keyframe in Gsap
           this.timeline.to(
             `.${target}`,
             {
@@ -90,9 +99,11 @@ export default class AnimationBuilder {
   }
 
   setKeyframe(targetName, propertyName, value) {
+
+    // Search if the element already has animation data
     let animation = this.timelineData.animations.find((animation) => animation.target === targetName);
 
-    // Create animation if it doesn't exist
+    // Create animation data if it doesn't exist
     if (!animation) {
       animation = {
         target: targetName,
@@ -102,7 +113,7 @@ export default class AnimationBuilder {
       this.timelineData.animations.push(animation);
     }
 
-    // Find property entry
+    // Search if the element already has an animation on the given property
     let propertyEntry = animation.properties.find((property) => property.property === propertyName);
 
     // Create property if it doesn't exist
@@ -117,7 +128,7 @@ export default class AnimationBuilder {
 
     const currentTime = Math.round(this.timeline.progress() * 100) / 100;
 
-    // Find existing keyframe
+    // Search if the current time already contains a keyframe
     let keyframe = propertyEntry.keyframes.find((keyframe) => keyframe.progress === currentTime);
 
     // Create keyframe if it doesn't exist
@@ -130,15 +141,17 @@ export default class AnimationBuilder {
       propertyEntry.keyframes.push(keyframe);
     }
 
-    // Update value
+    // Update the value of te keyframe
     keyframe.value = value;
     this.buildAnimation();
   }
 
+  // Add a callback function that runs if the timeline is updated
   setOnUpdateListener(listener) {
     this.onUpdateListener = listener;
   }
 
+  // remove callback function that runs if the timeline is updated
   removeOnUpdateListener() {
     this.onUpdateListener = null;
   }
@@ -155,6 +168,10 @@ export default class AnimationBuilder {
     this.timeline.paused(!this.timeline.paused());
   }
 
+  isPaused() {
+    return this.timeline.paused();
+  }
+
   setProgress(value) {
     this.timeline.progress(value);
   }
@@ -163,6 +180,7 @@ export default class AnimationBuilder {
     return this.timeline.progress();
   }
 
+  // Load te animation data from a given filepath
   loadAnimation(filePath) {
     fetch(filePath)
       .then((result) => result.json())
