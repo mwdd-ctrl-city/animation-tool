@@ -3,11 +3,6 @@
   "duration": 5,
 
   "elements": [
-    {
-      "id": "el-1",
-      "group": "group-1",
-      "content": "placeholder-content"
-    }
   ],
 
   "groups": [
