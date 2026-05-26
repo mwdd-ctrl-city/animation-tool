@@ -190,7 +190,7 @@ export default class AnimationBuilder {
       });
   }
 
-  saveAnimation(filePath) {
-    // TODO
+  getAnimationData() {
+    return this.timelineData;
   }
 }
