@@ -24,6 +24,9 @@ export default class AnimationBuilder {
         }
       },
     });
+
+    
+
   }
 
   buildAnimation() {
@@ -33,9 +36,11 @@ export default class AnimationBuilder {
 
     this.buildElements();
     this.buildAnimations();
+    this.buildVisualizer();
 
     // Set the timeline progress back where the user left off.
     this.timeline.progress(currentProgress);
+
   }
 
   buildElements() {
@@ -193,4 +198,44 @@ export default class AnimationBuilder {
   saveAnimation(filePath) {
     // TODO
   }
+
+
+buildVisualizer() {
+  const visualizerContainer = document.querySelector(".timeline-container"); // jouw DOM-element
+  visualizerContainer.innerHTML = " "
+
+  // Get the data from the json
+  this.timelineData.animations.forEach((animationData) => {
+    animationData.properties.forEach((propertyData) => {
+
+      // Create elements to create for each functionality a row
+      const row = document.createElement("div");
+      row.classList.add("row");
+
+      const track = document.createElement("div");
+      track.classList.add("track");
+
+      const trackText = document.createElement("p");
+      trackText.classList.add("track-label");
+
+      row.append(trackText, track)
+
+      trackText.innerHTML = `<span>${propertyData.property}</span>`;
+
+      // Create for each keyframe point a point on the row
+      propertyData.keyframes.forEach((keyframe) => {
+        const point = document.createElement("div");
+        point.classList.add("keyframe");
+        point.style.left = `calc(${keyframe.progress * 100}% - 7px)`;
+        track.appendChild(point);
+      });
+
+    // Add the elements to the html
+      visualizerContainer.appendChild(row);
+    });
+  });
+};
+
 }
+
+
