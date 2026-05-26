@@ -63,6 +63,8 @@ export default class AnimationBuilder {
           gsap.set(`.${target}`, {
             [property]: keyframes[0].value,
           });
+
+          return;
         }
 
         // loop through keyframes and create timeline segments based on the time difference between keyframes
