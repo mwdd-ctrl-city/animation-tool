@@ -1,56 +1,69 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="stylesheet" href="./styles/style.css" />
-    <link rel="stylesheet" href="./styles/timeline.css" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
-    <script src="./scripts/script.js" defer></script>
-    <script src="./scripts/timeline.js" type="module" defer></script>
+  <link rel="stylesheet" href="./styles/style.css" />
+  <link rel="stylesheet" href="./styles/timeline.css" />
+  <link rel="stylesheet" href="./styles/canvas.css" />
 
-    <title>Animation Tool</title>
-  </head>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
+  <script src="./scripts/script.js" defer></script>
+  <script src="./scripts/timeline.js" type="module" defer></script>
 
-  <body>
-    <header></header>
-    <main>
-      <!-- The output of the animation/timeline -->
-      <div class="canvas">
-      </div>
+  <title>Animation Tool</title>
+</head>
 
- 
-      <!-- The UI interface of the timeline -->
-      <form class="timeline">
-        <button type="button" class="play-animation">Play</button>
-        <label for="timeline-slider">Timeline slider</label>
-        <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
+<body>
+  <header></header>
+  <main>
+    <!-- The output of the animation/timeline -->
+    <div class="canvas">
+    </div>
 
-                   <div class="timeline-container">
+
+    <!-- The UI interface of the timeline -->
+    <form class="timeline">
+      <button type="button" class="play-animation">Play</button>
+      <label for="timeline-slider">Timeline slider</label>
+      <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
+
+      <div class="timeline-container">
         <div class="track">
-            <div class="bar"></div>
+          <div class="bar"></div>
         </div>
       </div>
-      </form>
+    </form>
 
 
 
-      <!-- Control panel interface -->
-      <div class="controls-panel">
-        <!-- Insert the code forms here -->
-        <label>X</label>
-        <input type="range" class="animation-control" data-property="x" min="0" max="1000" value="0" />
+    <!-- Control panel interface -->
+    <div class="controls-panel">
+      <!-- Insert the code forms here -->
+      <label>X</label>
+      <input type="range" class="animation-control" data-property="x" min="0" max="1000" value="0" />
 
-        <label>Rotation</label>
-        <input type="range" class="animation-control" data-property="rotation" min="0" max="360" value="0" />
+      <label>Rotation</label>
+      <input type="range" class="animation-control" data-property="rotation" min="0" max="360" value="0" />
 
-        <label>ScaleY</label>
-        <input type="range" class="animation-control" data-property="scaleY" min="1" max="5" value="1" step="0.1" />
+      <label>ScaleY</label>
+      <input type="range" class="animation-control" data-property="scaleY" min="1" max="5" value="1" step="0.1" />
+
+      <div class="animation-direction">
+        <label>Direction</label>
+        <select id="animation-direction">
+          <option value="normal">Normal</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+          <option value="reverse">Reverse</option>
+        </select>
       </div>
-    </main>
-    <footer></footer>
-  </body>
+    </div>
+  </main>
+  <footer></footer>
+</body>
+
 </html>
