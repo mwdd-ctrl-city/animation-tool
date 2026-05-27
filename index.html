@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="./styles/timeline.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
     <script src="./scripts/script.js" defer></script>
     <script src="./scripts/timeline.js" type="module" defer></script>
 
@@ -21,12 +22,21 @@
       <div class="canvas">
       </div>
 
+ 
       <!-- The UI interface of the timeline -->
       <form class="timeline">
         <button type="button" class="play-animation">Play</button>
         <label for="timeline-slider">Timeline slider</label>
         <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
+
+                   <div class="timeline-container">
+        <div class="track">
+            <div class="bar"></div>
+        </div>
+      </div>
       </form>
+
+
 
       <!-- Control panel interface -->
       <div class="controls-panel">

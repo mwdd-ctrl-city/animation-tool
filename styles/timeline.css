@@ -50,3 +50,43 @@
         }
     }
 }
+
+
+
+/* Styling for the timeline/keyframe bars  */
+.timeline-container {
+    height: 80%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    grid-column: 1 / -1;
+
+    display: grid;
+    grid-template-columns: subgrid;
+}
+
+.row {
+    height: 25px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
+
+    .track-label {
+        grid-column: 1 / 2;
+    }
+
+    .track {
+        position: relative;
+        grid-column: 2 / -1;
+        background-color: cornflowerblue;
+    }
+    
+}
+
+.keyframe {
+  position: absolute;
+  border: solid 7px #000;
+  corner-shape: bevel;
+  border-radius: 50%;
+  top: calc(50% - 7px);
+}
