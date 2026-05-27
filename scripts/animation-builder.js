@@ -58,6 +58,7 @@ export default class AnimationBuilder {
     this.timelineData.animations.forEach((animationData) => {
       const target = animationData.target;
 
+
       // Loop over every property of the element
       animationData.properties.forEach((propertyData) => {
         const property = propertyData.property;
@@ -68,9 +69,21 @@ export default class AnimationBuilder {
 
         // If only one keyframe exists, make it a "constant" property value
         if (keyframes.length === 1) {
+
+          let value = keyframes[0].value;
+   
+          // gsap.set(`.${target}`, {
+          //   [property]: keyframes[0].value,
+          // });
+
+          if (property === "letterSpacing") {
+            value += "px"; //TODO: Om al die functionaliteiten te laten werken moet het object van de keyframes uit de json gehaald worden.
+          }
+
           gsap.set(`.${target}`, {
-            [property]: keyframes[0].value,
+            [property]: value
           });
+              
 
           return;
         }
@@ -193,4 +206,7 @@ export default class AnimationBuilder {
   saveAnimation(filePath) {
     // TODO
   }
+
+
+
 }

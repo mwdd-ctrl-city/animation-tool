@@ -22,7 +22,6 @@ animationControls.forEach((control) => {
     // Gather slider property and value
     const propertyName = event.target.dataset.property;
     const value = parseFloat(event.target.value); /* Todo: Should not be float for all values*/
-
     // Set a new keyframe for the given property with the given value
     animationBuilder.setKeyframe("el-1", propertyName, value); /* Todo: do not hardcode .el-1*/
   });
