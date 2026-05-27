@@ -1,4 +1,5 @@
 import AnimationBuilder from "./animation-builder.js";
+import { getElements } from './script.js';
 
 const timelineSlider = document.querySelector("#timeline-slider");
 const playButtonTimeline = document.querySelector(".play-animation");
