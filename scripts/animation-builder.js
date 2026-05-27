@@ -228,6 +228,32 @@ buildVisualizer() {
         point.classList.add("keyframe");
         point.style.left = `calc(${keyframe.progress * 100}% - 7px)`;
         track.appendChild(point);
+
+        // Save This in self, because in draggable from gsap he doesn't recognize this as our class/object
+        const self = this
+        // Create a drag for the keyframe and update the value
+        Draggable.create(point, {
+          // Type of way you can dragg the element on the x axis
+          type: 'x',
+          bounds: track,
+          onClick() {
+            // Use offsetwidth to get the length in pixels of the track   
+            const trackWidth = track.offsetWidth;
+            // To get the new position "what point was starting point" + "the point i dragged it to"
+            const pointX = this.x + (trackWidth * keyframe.progress);
+
+            // So it stayes inside the track. math min so it doesn't get above the 1 and below 0
+            keyframe.progress = Math.max(0, Math.min(1, pointX / trackWidth));
+          },
+          onDragEnd(){
+            const trackWidth = track.offsetWidth;
+            const pointX = this.x + (trackWidth * keyframe.progress)
+            keyframe.progress = Math.max(0, Math.min(1, pointX / trackWidth));
+
+            // Rebuild the animation to the new keypoints 
+            self.buildAnimation();
+          }
+        });
       });
 
     // Add the elements to the html
