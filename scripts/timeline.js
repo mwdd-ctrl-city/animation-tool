@@ -5,6 +5,9 @@ const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
 const canvas = document.querySelector(".canvas");
 
+const undoButton = document.querySelector(".undo-button");
+const redoButton = document.querySelector(".undo-button");
+
 // Create the animationbuilder with the given container to animate with a default timeline of 5 seconds
 const animationBuilder = new AnimationBuilder(canvas, 5);
 
@@ -16,9 +19,26 @@ animationBuilder.setOnUpdateListener((timeline) => {
   timelineSlider.value = timeline.progress() * 100;
 });
 
+undoButton.addEventListener("click", () => {
+  animationBuilder.undo();
+})
+
+redoButton.addEventListener("click", () => {
+  animationBuilder.redo();
+})
+
 // Connect all sliders to te animation builder
 animationControls.forEach((control) => {
   control.addEventListener("input", (event) => {
+    // Gather slider property and value
+    const propertyName = event.target.dataset.property;
+    const value = parseFloat(event.target.value); /* Todo: Should not be float for all values*/
+
+    // Set a new keyframe for the given property with the given value
+    animationBuilder.setKeyframe("el-1", propertyName, value, false); /* Todo: do not hardcode .el-1*/
+  });
+
+  control.addEventListener("change", (event) => {
     // Gather slider property and value
     const propertyName = event.target.dataset.property;
     const value = parseFloat(event.target.value); /* Todo: Should not be float for all values*/
@@ -73,26 +93,37 @@ function buildVisualizer() {
       trackText.innerHTML = `<span>${propertyData.property}</span>`;
 
       // Create for each keyframe point a point on the row
-      propertyData.keyframes.forEach((keyframe) => {
-        const point = document.createElement("div");
-        point.classList.add("keyframe");
-        point.style.setProperty("--p", keyframe.progress);
-        track.appendChild(point);
+propertyData.keyframes.forEach((keyframe) => {
+  const point = document.createElement("div");
+  point.classList.add("keyframe");
+  point.style.setProperty("--p", keyframe.progress);
+  track.appendChild(point);
 
-        // Create a drag for the keyframe and update the value
-        Draggable.create(point, {
-          // Type of way you can dragg the element on the x axis
-          type: 'x',
-          bounds: track,
-          onDragEnd() {
-            const trackWidth = track.offsetWidth;
-            const pointX = this.x + (trackWidth * keyframe.progress);
-            const toProgress = Math.max(0, Math.min(1, pointX / trackWidth));
+  let currentProgress = keyframe.progress; // track separately
+let dragStartProgress;
 
-            animationBuilder.moveKeyframe("el-1", propertyData.property, keyframe.progress, toProgress);
-          }
-        });
-      });
+Draggable.create(point, {
+  type: 'x',
+  bounds: track,
+  onDragStart() {
+    dragStartProgress = currentProgress;
+  },
+  onDrag() {
+    const trackWidth = track.offsetWidth;
+    const toProgress = Math.max(0, Math.min(1, (trackWidth * dragStartProgress + this.x) / trackWidth));
+
+    animationBuilder.moveKeyframe("el-1", propertyData.property, currentProgress, toProgress, false);
+    currentProgress = toProgress;
+  },
+  onDragEnd() {
+    const trackWidth = track.offsetWidth;
+    const toProgress = Math.max(0, Math.min(1, (trackWidth * dragStartProgress + this.x) / trackWidth));
+
+    animationBuilder.moveKeyframe("el-1", propertyData.property, currentProgress, toProgress);
+    currentProgress = toProgress;
+  }
+});
+});
 
     // Add the elements to the html
       visualizerContainer.appendChild(row);

@@ -1,5 +1,7 @@
-// Source: https://gsap.com/docs/v3/GSAP/Timeline/
+import Memento from "./memento.js";
+import History from "./history.js";
 
+// Source: https://gsap.com/docs/v3/GSAP/Timeline/
 export default class AnimationBuilder extends EventTarget {
   // Private fields
   #canvas;
@@ -7,6 +9,7 @@ export default class AnimationBuilder extends EventTarget {
   #timelineData;
   #timeline;
   #onUpdateListener;
+  #history;
 
   constructor(canvas, durationSeconds) {
     super();
@@ -19,6 +22,8 @@ export default class AnimationBuilder extends EventTarget {
       elements: [],
       animations: [],
     };
+
+    this.#history = new History();
 
     // Optional external update listener
     this.#onUpdateListener = null;
@@ -95,7 +100,60 @@ export default class AnimationBuilder extends EventTarget {
     });
   }
 
-  #getOrCreateAnimation(targetName) {
+  #getCurrentProgress() {
+    return Math.round(this.#timeline.progress() * 100) / 100;
+  }
+  
+  updateAnimation() {
+    const memento = this.save();
+    this.#history.addMemento(memento);
+    
+    this.buildAnimation();
+    this.dispatchEvent(new Event("updateAnimation"));
+  }
+
+  save() {
+    const stateCopy = JSON.parse(JSON.stringify(this.#timelineData));
+    return new Memento(stateCopy);
+  }
+
+  restore(memento) {
+    if (!memento) return;
+    this.#timelineData = JSON.parse(JSON.stringify(memento.state));
+    this.buildAnimation();
+  }
+
+  undo() {
+    const memento = this.#history.undo();
+    this.restore(memento);
+  }
+
+  canUndo() {
+    return this.#history.canUndo();
+  }
+  
+  redo() {
+    const memento = this.#history.redo();
+    this.restore(memento);
+  }
+
+  canRedo() {
+    return this.#history.canRedo();
+  }
+
+  buildAnimation() {
+    // Store the current timeline progress and reset the timeline animations
+    const currentProgress = this.#timeline.progress() || 0;
+    this.#timeline.clear();
+
+    this.#buildElements();
+    this.#buildAnimations();
+
+    // Set the timeline progress back where the user left off.
+    this.#timeline.progress(currentProgress);
+  }
+
+   #getOrCreateAnimation(targetName) {
     // Search if the element already has animation data
     let animation = this.#timelineData.animations.find((animation) => animation.target === targetName);
 
@@ -129,23 +187,7 @@ export default class AnimationBuilder extends EventTarget {
     return propertyEntry;
   }
 
-  #getCurrentProgress() {
-    return Math.round(this.#timeline.progress() * 100) / 100;
-  }
-
-  buildAnimation() {
-    // Store the current timeline progress and reset the timeline animations
-    const currentProgress = this.#timeline.progress() || 0;
-    this.#timeline.clear();
-
-    this.#buildElements();
-    this.#buildAnimations();
-
-    // Set the timeline progress back where the user left off.
-    this.#timeline.progress(currentProgress);
-  }
-
-  setKeyframe(targetName, propertyName, value) {
+  setKeyframe(targetName, propertyName, value, commit = true) {
     const animation = this.#getOrCreateAnimation(targetName);
     const propertyEntry = this.#getOrCreateProperty(animation, propertyName);
 
@@ -166,23 +208,28 @@ export default class AnimationBuilder extends EventTarget {
 
     // Update the value of te keyframe
     keyframe.value = value;
-    this.buildAnimation();
-    this.dispatchEvent(new Event("updateAnimation"));
-  }
 
-  moveKeyframe(targetName, propertyName, fromProgress, toProgress) {
+    if (commit) {
+      this.updateAnimation(); // saves history + rebuilds + dispatches event
+    } else {
+      this.buildAnimation(); // rebuild only
+    }
+  }
+  
+  moveKeyframe(targetName, propertyName, fromProgress, toProgress, commit = true) {
     const animation = this.#getOrCreateAnimation(targetName);
     const propertyEntry = this.#getOrCreateProperty(animation, propertyName);
- 
-    // Search for the keyframe at the given progress
-    const keyframe = propertyEntry.keyframes.find((keyframe) => keyframe.progress === fromProgress);
- 
+    const keyframe = propertyEntry.keyframes.find((kf) => kf.progress === fromProgress);
+    
     if (!keyframe) return;
- 
-    // Update the progress of the keyframe
+    
     keyframe.progress = toProgress;
-    this.buildAnimation();
-    this.dispatchEvent(new Event("updateAnimation"));
+    
+    if (commit) {
+      this.updateAnimation(); // saves history + rebuilds + dispatches event
+    } else {
+      this.buildAnimation(); // rebuild only
+    }
   }
 
   // Add a callback function that runs if the timeline is updated
@@ -229,8 +276,7 @@ export default class AnimationBuilder extends EventTarget {
       .then((result) => result.json())
       .then((data) => {
         this.#timelineData = data;
-        this.buildAnimation();
-        this.dispatchEvent(new Event("updateAnimation"));
+         this.updateAnimation()
       });
   }
 
