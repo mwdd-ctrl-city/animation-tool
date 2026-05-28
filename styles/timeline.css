@@ -79,14 +79,18 @@
         position: relative;
         grid-column: 2 / -1;
         background-color: cornflowerblue;
+        display: grid;
     }
     
 }
 
 .keyframe {
   position: absolute;
-  border: solid 7px #000;
-  corner-shape: bevel;
-  border-radius: 50%;
-  top: calc(50% - 7px);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  background-color: black;
+  --keyframe-size: 1em;
+  width: var(--keyframe-size);
+  left: calc(var(--p) * 100% - var(--keyframe-size) / 2);
+  aspect-ratio: 1;
+  align-self: center;
 }
