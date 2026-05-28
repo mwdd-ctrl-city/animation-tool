@@ -1,3 +1,4 @@
+//! Animation direction
 const canvas = document.querySelector('.canvas');
 const directionSelect = document.getElementById('animation-direction');
 
@@ -15,3 +16,18 @@ directionSelect.addEventListener('change', (e) => {
 
 // Set inital direction to normal
 canvas.classList.add('dir-normal');
+
+//! Text casing
+const textCaseRadios = document.querySelectorAll('input[name="text-case"]');
+
+// Function that executes when the value of the text case radios changes
+textCaseRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        const chosenCase = e.target.value;
+        canvas.classList.remove('case-initial', 'case-capitalize', 'case-lowercase', 'case-uppercase');
+        canvas.classList.add(`case-${chosenCase}`);
+    });
+});
+
+// Set initial text case to initial
+canvas.classList.add('case-initial');

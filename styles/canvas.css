@@ -6,6 +6,7 @@
     transform-origin: center center;
 }
 
+/* animation direction (rotate canvas) */
 .canvas.dir-normal {
     transform: rotate(0deg);
 }
@@ -20,4 +21,21 @@
 
 .canvas.dir-reverse {
     transform: rotate(180deg);
+}
+
+/* text casing */
+.case-initial {
+    text-transform: none;
+}
+
+.case-capitalize {
+    text-transform: capitalize;
+}
+
+.case-lowercase {
+    text-transform: lowercase;
+}
+
+.case-uppercase {
+    text-transform: uppercase;
 }
