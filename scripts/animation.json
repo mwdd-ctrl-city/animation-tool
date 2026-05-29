@@ -22,11 +22,29 @@
       "target": "el-1",
       "properties": [
         {
-          "property": "x",
+          "property": "scaleY",
           "keyframes": [
             { "progress": 0, "value": 0 },
-            { "progress": 0.5, "value": 150, "ease": "elastic.out(1,0.3)" },
-            { "progress": 1, "value": 200 }
+            { "progress": 1, "value": 5 }
+          ]
+        },
+        {
+          "property": "rotation",
+          "keyframes": [
+            { "progress": 0, "value": 0 },
+            { "progress": 1, "value": 360 }
+          ]
+        }
+      ]
+    }, 
+    {
+      "target": "el-2",
+      "properties": [
+        {
+          "property": "scaleY",
+          "keyframes": [
+            { "progress": 0, "value": 0 },
+            { "progress": 1, "value": 5 }
           ]
         },
         {
