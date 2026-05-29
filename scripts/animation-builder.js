@@ -179,6 +179,7 @@ export default class AnimationBuilder extends EventTarget {
 
     // Update the value of te keyframe
     keyframe.value = value;
+
     this.buildAnimation();
     this.dispatchEvent(new Event("updateAnimation"));
   }
