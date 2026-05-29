@@ -4,6 +4,7 @@ export default class AnimationBuilder extends EventTarget {
   // Private fields
   #canvas;
   #durationSeconds;
+  #selectedText;
   #timelineData;
   #timeline;
   #onUpdateListener;
@@ -13,6 +14,8 @@ export default class AnimationBuilder extends EventTarget {
 
     this.#canvas = canvas;
     this.#durationSeconds = durationSeconds;
+
+    this.#selectedText = null; 
 
     // Create an empty json structure with timeline data
     this.#timelineData = {
@@ -36,6 +39,7 @@ export default class AnimationBuilder extends EventTarget {
   }
 
   #buildElements() {
+    gsap.registerPlugin(Draggable);
     const elementsData = this.#timelineData.elements;
 
     // Clear all elements
@@ -47,6 +51,15 @@ export default class AnimationBuilder extends EventTarget {
       element.classList.add(elementData.group, elementData.id);
       element.textContent = elementData.content;
       this.#canvas.appendChild(element);
+
+      Draggable.create(element, {
+        bounds: this.#canvas,
+
+        onClick: () => { 
+          this.#selectedText = elementData.id;
+          element.style.backgroundColor = element.style.backgroundColor === "deeppink" ? "transparent" : "deeppink";
+        }
+      });
     });
   }
 
@@ -252,6 +265,10 @@ export default class AnimationBuilder extends EventTarget {
 
   get timelineData() {
     return this.#timelineData;
+  }
+
+  get selectedText() {
+    return this.#selectedText;
   }
 
   // Load te animation data from a given filepath
