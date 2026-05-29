@@ -151,12 +151,16 @@ function updateRangeInputs () {
     control.value = currentValue
   })
 }
+
 textButton.addEventListener("click", () => {
-    addText(textInput.value); 
+  if(textInput.value === "") return; 
+  addText(textInput.value); 
 })
 
 //Add input value with enter key
 textInput.addEventListener('keypress', (event) => {
+    if(textInput.value === "") return; 
+
     if (event.key === 'Enter') {
         addText(textInput.value); 
     }
