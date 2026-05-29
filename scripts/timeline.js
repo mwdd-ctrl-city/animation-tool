@@ -24,6 +24,8 @@ animationBuilder.setOnUpdateListener((timeline) => {
   // Get the timelines current number / get the duration of the timeline
   document.querySelector('.tl-time-start').textContent = `${current}s`
   document.querySelector('.tl-time-end').textContent = ` ${timeline.duration().toFixed(2)}s`
+
+    updateRangeInputs()
 });
 
 // Connect all sliders to te animation builder
@@ -41,6 +43,7 @@ animationControls.forEach((control) => {
 timelineSlider.addEventListener("input", (e) => {
   const progress = e.target.value / 100;
   animationBuilder.setProgress(progress);
+
 });
 
 // Connect the play/pause button with the animationBuilder
@@ -108,3 +111,40 @@ function buildVisualizer() {
     });
   });
 };
+
+function updateRangeInputs () {
+  const animations = animationBuilder.timelineData.animations;
+  const currentProgress = animationBuilder.getProgress();
+  
+
+  // Search for all the controls 
+  animationControls.forEach((control) => {
+    const propertyName = control.dataset.property
+
+    //First search for the animation in JSON
+    const animation = animations.find(
+      (animation) => animation.target === "el-1" //TODO ook voor andere stukken tekst die je dan selecteerd aanpassen. 
+    );
+
+    if (!animation) {
+      // Let the rangevalue be 0
+      control.value = 0;
+      return;
+    }
+
+    //Second look for the property in JSON
+    const property = animation.properties.find(
+      (property) => property.property === propertyName
+    );
+
+    if (!property) {
+      control.value = 0;
+      return;
+    }
+
+    const target = document.querySelector(".el-1");
+    const currentValue = gsap.getProperty(target, propertyName)
+
+    control.value = currentValue
+  })
+}
