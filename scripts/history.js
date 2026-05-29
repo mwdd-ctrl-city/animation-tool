@@ -20,8 +20,8 @@ export default class History {
   // Get the previous memento
   undo() {
     if (this.#currentIndex <= 0) return null;
-
     this.#currentIndex--;
+    console.log(this.#currentIndex);
     return this.#mementos[this.#currentIndex];
   }
 

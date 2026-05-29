@@ -24,6 +24,7 @@ export default class AnimationBuilder extends EventTarget {
     };
 
     this.#history = new History();
+    this.#history.addMemento(this.save());
 
     // Optional external update listener
     this.#onUpdateListener = null;
@@ -104,13 +105,10 @@ export default class AnimationBuilder extends EventTarget {
     return Math.round(this.#timeline.progress() * 100) / 100;
   }
   
-  updateAnimation() {
-    const memento = this.save();
-    this.#history.addMemento(memento);
-    
-    this.buildAnimation();
-    this.dispatchEvent(new Event("updateAnimation"));
-  }
+updateAnimation() {
+  this.buildAnimation();
+  this.dispatchEvent(new Event("updateAnimation"));
+}
 
   save() {
     const stateCopy = JSON.parse(JSON.stringify(this.#timelineData));
@@ -120,6 +118,7 @@ export default class AnimationBuilder extends EventTarget {
   restore(memento) {
     if (!memento) return;
     this.#timelineData = JSON.parse(JSON.stringify(memento.state));
+    console.log(this.#timelineData);
     this.buildAnimation();
   }
 
@@ -141,17 +140,27 @@ export default class AnimationBuilder extends EventTarget {
     return this.#history.canRedo();
   }
 
-  buildAnimation() {
-    // Store the current timeline progress and reset the timeline animations
-    const currentProgress = this.#timeline.progress() || 0;
-    this.#timeline.clear();
+buildAnimation() {
+  // Store the current timeline progress
+  const currentProgress = this.#timeline.progress() || 0;
 
-    this.#buildElements();
-    this.#buildAnimations();
+  // Kill everything GSAP knows about this timeline
+  this.#timeline.kill();
+  this.#timeline = gsap.timeline({
+    paused: true,
+    repeat: -1,
+    onUpdate: () => {
+      if (this.#onUpdateListener) {
+        this.#onUpdateListener(this.#timeline);
+      }
+    },
+  });
 
-    // Set the timeline progress back where the user left off.
-    this.#timeline.progress(currentProgress);
-  }
+  this.#buildElements();
+  this.#buildAnimations();
+
+  this.#timeline.progress(currentProgress);
+}
 
    #getOrCreateAnimation(targetName) {
     // Search if the element already has animation data
@@ -187,50 +196,58 @@ export default class AnimationBuilder extends EventTarget {
     return propertyEntry;
   }
 
-  setKeyframe(targetName, propertyName, value, commit = true) {
-    const animation = this.#getOrCreateAnimation(targetName);
-    const propertyEntry = this.#getOrCreateProperty(animation, propertyName);
+setKeyframe(targetName, propertyName, value, commit = true) {
+  const animation = this.#getOrCreateAnimation(targetName);
+  const propertyEntry = this.#getOrCreateProperty(animation, propertyName);
 
-    const currentTime = this.#getCurrentProgress();
+  const currentTime = this.#getCurrentProgress();
 
-    // Search if the current time already contains a keyframe
-    let keyframe = propertyEntry.keyframes.find((keyframe) => keyframe.progress === currentTime);
+  // Search if the current time already contains a keyframe
+  let keyframe = propertyEntry.keyframes.find(
+    (keyframe) => keyframe.progress === currentTime
+  );
 
-    // Create keyframe if it doesn't exist
-    if (!keyframe) {
-      keyframe = {
-        progress: currentTime,
-        value,
-      };
+  // Create keyframe if it doesn't exist
+  if (!keyframe) {
+    keyframe = {
+      progress: currentTime,
+      value,
+    };
 
-      propertyEntry.keyframes.push(keyframe);
-    }
-
-    // Update the value of te keyframe
-    keyframe.value = value;
-
-    if (commit) {
-      this.updateAnimation(); // saves history + rebuilds + dispatches event
-    } else {
-      this.buildAnimation(); // rebuild only
-    }
+    propertyEntry.keyframes.push(keyframe);
   }
-  
+
+  // Update value
+  keyframe.value = value;
+
+  // FIRST rebuild animation so state is stable
+  this.updateAnimation();
+
+  // THEN store history snapshot AFTER everything is consistent
+  if (commit) {
+    this.#history.addMemento(this.save());
+  }
+}
+
   moveKeyframe(targetName, propertyName, fromProgress, toProgress, commit = true) {
-    const animation = this.#getOrCreateAnimation(targetName);
-    const propertyEntry = this.#getOrCreateProperty(animation, propertyName);
-    const keyframe = propertyEntry.keyframes.find((kf) => kf.progress === fromProgress);
-    
-    if (!keyframe) return;
-    
-    keyframe.progress = toProgress;
-    
-    if (commit) {
-      this.updateAnimation(); // saves history + rebuilds + dispatches event
-    } else {
-      this.buildAnimation(); // rebuild only
-    }
+  const animation = this.#getOrCreateAnimation(targetName);
+  const propertyEntry = this.#getOrCreateProperty(animation, propertyName);
+  const keyframe = propertyEntry.keyframes.find(
+    (kf) => kf.progress === fromProgress
+  );
+
+  if (!keyframe) return;
+
+  keyframe.progress = toProgress;
+
+  // FIRST rebuild animation so GSAP matches state
+  this.updateAnimation();
+
+  // THEN snapshot clean state
+  if (commit) {
+    this.#history.addMemento(this.save());
   }
+}
 
   // Add a callback function that runs if the timeline is updated
   setOnUpdateListener(listener) {
