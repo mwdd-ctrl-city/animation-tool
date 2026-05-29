@@ -51,7 +51,7 @@ export default class AnimationBuilder extends EventTarget {
   }
 
   setText(text) {
-    let newTextElement = {"id": `el-${this.timelineData.elements.length}`, "group": "group-1", "content": `${text}`}
+    let newTextElement = {"id": `el-${(this.timelineData.elements.length + 1)}`, "group": "group-1", "content": `${text}`}
 
     this.timelineData.elements.push(newTextElement);
     this.buildAnimation();
