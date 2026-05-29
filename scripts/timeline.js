@@ -38,7 +38,7 @@ animationControls.forEach((control) => {
     const propertyName = event.target.dataset.property;
     const value = parseFloat(event.target.value); /* Todo: Should not be float for all values*/
     // Set a new keyframe for the given property with the given value
-    animationBuilder.setKeyframe("el-1", propertyName, value); /* Todo: do not hardcode .el-1*/
+    animationBuilder.setKeyframe(animationBuilder.selectedText, propertyName, value);
   });
 });
 
@@ -159,11 +159,11 @@ textButton.addEventListener("click", () => {
 
 //Add input value with enter key
 textInput.addEventListener('keypress', (event) => {
-    if(textInput.value === "") return; 
+  if(textInput.value === "") return; 
 
-    if (event.key === 'Enter') {
-        addText(textInput.value); 
-    }
+  if (event.key === 'Enter') {
+    addText(textInput.value); 
+  }
 });
 
 function addText(text) {
