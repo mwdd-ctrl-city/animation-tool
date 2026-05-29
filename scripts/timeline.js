@@ -6,6 +6,9 @@ const animationControls = document.querySelectorAll(".animation-control");
 const tracksContainer = document.querySelector('.timeline-container');
 const canvas = document.querySelector(".canvas");
 
+const textInput = document.getElementById("input-text");
+const textButton = document.getElementById('input-button');
+
 // Create the animationbuilder with the given container to animate with a default timeline of 5 seconds
 const animationBuilder = new AnimationBuilder(canvas, 5);
 
@@ -152,8 +155,8 @@ function updateRangeInputs () {
 
 // PLayhead element on the timeline increases it/s length when the a track is added
 function updatePlayheadHeight() {
-// Get the height from the container that needs to be trackt for the height
-// https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
+  // Get the height from the container that needs to be trackt for the height
+  // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
   const containerBottom = tracksContainer.getBoundingClientRect().bottom;
   const sliderTop = timelineSlider.getBoundingClientRect().top;
 
@@ -164,7 +167,22 @@ function updatePlayheadHeight() {
 
 // API that tracks if an element changes size
 // https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
-  const observer = new ResizeObserver(updatePlayheadHeight);
-  observer.observe(tracksContainer);
+const observer = new ResizeObserver(updatePlayheadHeight);
+observer.observe(tracksContainer);
 
 updatePlayheadHeight();
+textButton.addEventListener("click", () => {
+    addText(textInput.value); 
+})
+
+//Add input value with enter key
+textInput.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+        addText(textInput.value); 
+    }
+});
+
+function addText(text) {
+    animationBuilder.setText(text); 
+    textInput.value = ''; //Clear input field
+}
