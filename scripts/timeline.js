@@ -1,10 +1,12 @@
 import AnimationBuilder from "./animation-builder.js";
-import { getElements } from './script.js';
 
 const timelineSlider = document.querySelector("#timeline-slider");
 const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
 const canvas = document.querySelector(".canvas");
+
+const textInput = document.getElementById("input-text");
+const textButton = document.getElementById('input-button');
 
 // Create the animationbuilder with the given container to animate with a default timeline of 5 seconds
 const animationBuilder = new AnimationBuilder(canvas, 5);
@@ -148,4 +150,19 @@ function updateRangeInputs () {
 
     control.value = currentValue
   })
+}
+textButton.addEventListener("click", () => {
+    addText(textInput.value); 
+})
+
+//Add input value with enter key
+textInput.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+        addText(textInput.value); 
+    }
+});
+
+function addText(text) {
+    animationBuilder.setText(text); 
+    textInput.value = ''; //Clear input field
 }
