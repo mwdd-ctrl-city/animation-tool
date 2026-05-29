@@ -3,6 +3,7 @@ import AnimationBuilder from "./animation-builder.js";
 const timelineSlider = document.querySelector("#timeline-slider");
 const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
+const tracksContainer = document.querySelector('.timeline-container');
 const canvas = document.querySelector(".canvas");
 
 const textInput = document.getElementById("input-text");
@@ -151,6 +152,25 @@ function updateRangeInputs () {
     control.value = currentValue
   })
 }
+
+// PLayhead element on the timeline increases it/s length when the a track is added
+function updatePlayheadHeight() {
+  // Get the height from the container that needs to be trackt for the height
+  // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
+  const containerBottom = tracksContainer.getBoundingClientRect().bottom;
+  const sliderTop = timelineSlider.getBoundingClientRect().top;
+
+  // Devide by eachother so it doesn't get the wholee height
+  const height = containerBottom - sliderTop;
+  timelineSlider.style.setProperty('--height-playhead', `${height}px`);
+}
+
+// API that tracks if an element changes size
+// https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
+const observer = new ResizeObserver(updatePlayheadHeight);
+observer.observe(tracksContainer);
+
+updatePlayheadHeight();
 textButton.addEventListener("click", () => {
     addText(textInput.value); 
 })
