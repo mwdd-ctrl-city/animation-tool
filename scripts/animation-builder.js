@@ -50,6 +50,20 @@ export default class AnimationBuilder extends EventTarget {
     });
   }
 
+  setText(text) {
+    let newTextElement = {"id": `el-${this.timelineData.elements.length}`, "group": "group-1", "content": `${text}`}
+
+    this.timelineData.elements.push(newTextElement);
+    this.buildAnimation();
+  }
+
+  setText(text) {
+    let newTextElement = {"id": `el-${this.timelineData.elements.length}`, "group": "group-1", "content": `${text}`}
+
+    this.timelineData.elements.push(newTextElement);
+    this.#buildAnimation();
+  }
+
   #buildAnimations() {
     // Loop over every element's animations
     this.#timelineData.animations.forEach((animationData) => {
