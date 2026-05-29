@@ -14,6 +14,16 @@ animationBuilder.loadAnimation("./scripts/animation.json");
 // When the animation automatically plays the slider updates on the progress of the animation duration
 animationBuilder.setOnUpdateListener((timeline) => {
   timelineSlider.value = timeline.progress() * 100;
+
+  // Timeline timer 
+  // Save the current progress in a const
+  const progress = timeline.progress();
+  // Use a number to show into a string .tofixed(2) the 2 is for the decimals
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed
+  const current = (progress * timeline.duration()).toFixed(2)
+  // Get the timelines current number / get the duration of the timeline
+  document.querySelector('.tl-time-start').textContent = `${current}s`
+  document.querySelector('.tl-time-end').textContent = ` ${timeline.duration().toFixed(2)}s`
 });
 
 // Connect all sliders to te animation builder
