@@ -1,61 +1,58 @@
 // Source: https://gsap.com/docs/v3/GSAP/Timeline/
 
-export default class AnimationBuilder {
+export default class AnimationBuilder extends EventTarget {
+  // Private fields
+  #canvas;
+  #durationSeconds;
+  #timelineData;
+  #timeline;
+  #onUpdateListener;
+
   constructor(canvas, durationSeconds) {
-    this.canvas = canvas;
-    this.durationSeconds = durationSeconds;
+    super();
+
+    this.#canvas = canvas;
+    this.#durationSeconds = durationSeconds;
 
     // Create an empty json structure with timeline data
-    this.timelineData = {
+    this.#timelineData = {
       elements: [],
       animations: [],
     };
 
     // Optional external update listener
-    this.onUpdateListener;
+    this.#onUpdateListener = null;
 
     // Create the Gsap timeline
-    this.timeline = gsap.timeline({
+    this.#timeline = gsap.timeline({
       paused: true,
       repeat: -1, // Loop the animation indefinitely
       onUpdate: () => {
-        if (this.onUpdateListener) {
-          this.onUpdateListener(this.timeline);
+        if (this.#onUpdateListener) {
+          this.#onUpdateListener(this.#timeline);
         }
       },
     });
   }
 
-  buildAnimation() {
-    // Store the current timeline progress and reset the timeline animations
-    const currentProgress = this.timeline.progress() || 0;
-    this.timeline.clear();
-
-    this.buildElements();
-    this.buildAnimations();
-
-    // Set the timeline progress back where the user left off.
-    this.timeline.progress(currentProgress);
-  }
-
-  buildElements() {
-    const elementsData = this.timelineData.elements;
+  #buildElements() {
+    const elementsData = this.#timelineData.elements;
 
     // Clear all elements
-    this.canvas.innerHTML = "";
+    this.#canvas.innerHTML = "";
 
     // Create all elements
     elementsData.forEach((elementData) => {
       const element = document.createElement("h1");
       element.classList.add(elementData.group, elementData.id);
       element.textContent = elementData.content;
-      this.canvas.appendChild(element);
+      this.#canvas.appendChild(element);
     });
   }
 
-  buildAnimations() {
+  #buildAnimations() {
     // Loop over every element's animations
-    this.timelineData.animations.forEach((animationData) => {
+    this.#timelineData.animations.forEach((animationData) => {
       const target = animationData.target;
 
 
@@ -94,27 +91,26 @@ export default class AnimationBuilder {
           let current = keyframes[i];
 
           // The time in seconds between keyframes is the difference in progress times the total timeline duration 
-          let timeDifferenceSeconds = (current.progress - last.progress) * this.durationSeconds;
+          let timeDifferenceSeconds = (current.progress - last.progress) * this.#durationSeconds;
 
           // Set the animation keyframe in Gsap
-          this.timeline.to(
+          this.#timeline.to(
             `.${target}`,
             {
               [property]: current.value,
               duration: timeDifferenceSeconds,
               ease: current.ease ? current.ease : "none",
             },
-            last.progress * this.durationSeconds,
+            last.progress * this.#durationSeconds,
           );
         }
       });
     });
   }
 
-  setKeyframe(targetName, propertyName, value) {
-
+  #getOrCreateAnimation(targetName) {
     // Search if the element already has animation data
-    let animation = this.timelineData.animations.find((animation) => animation.target === targetName);
+    let animation = this.#timelineData.animations.find((animation) => animation.target === targetName);
 
     // Create animation data if it doesn't exist
     if (!animation) {
@@ -123,9 +119,13 @@ export default class AnimationBuilder {
         properties: [],
       };
 
-      this.timelineData.animations.push(animation);
+      this.#timelineData.animations.push(animation);
     }
 
+    return animation;
+  }
+
+  #getOrCreateProperty(animation, propertyName) {
     // Search if the element already has an animation on the given property
     let propertyEntry = animation.properties.find((property) => property.property === propertyName);
 
@@ -139,7 +139,30 @@ export default class AnimationBuilder {
       animation.properties.push(propertyEntry);
     }
 
-    const currentTime = Math.round(this.timeline.progress() * 100) / 100;
+    return propertyEntry;
+  }
+
+  #getCurrentProgress() {
+    return Math.round(this.#timeline.progress() * 100) / 100;
+  }
+
+  buildAnimation() {
+    // Store the current timeline progress and reset the timeline animations
+    const currentProgress = this.#timeline.progress() || 0;
+    this.#timeline.clear();
+
+    this.#buildElements();
+    this.#buildAnimations();
+
+    // Set the timeline progress back where the user left off.
+    this.#timeline.progress(currentProgress);
+  }
+
+  setKeyframe(targetName, propertyName, value) {
+    const animation = this.#getOrCreateAnimation(targetName);
+    const propertyEntry = this.#getOrCreateProperty(animation, propertyName);
+
+    const currentTime = this.#getCurrentProgress();
 
     // Search if the current time already contains a keyframe
     let keyframe = propertyEntry.keyframes.find((keyframe) => keyframe.progress === currentTime);
@@ -157,40 +180,60 @@ export default class AnimationBuilder {
     // Update the value of te keyframe
     keyframe.value = value;
     this.buildAnimation();
+    this.dispatchEvent(new Event("updateAnimation"));
+  }
+
+  moveKeyframe(targetName, propertyName, fromProgress, toProgress) {
+    const animation = this.#getOrCreateAnimation(targetName);
+    const propertyEntry = this.#getOrCreateProperty(animation, propertyName);
+ 
+    // Search for the keyframe at the given progress
+    const keyframe = propertyEntry.keyframes.find((keyframe) => keyframe.progress === fromProgress);
+ 
+    if (!keyframe) return;
+ 
+    // Update the progress of the keyframe
+    keyframe.progress = toProgress;
+    this.buildAnimation();
+    this.dispatchEvent(new Event("updateAnimation"));
   }
 
   // Add a callback function that runs if the timeline is updated
   setOnUpdateListener(listener) {
-    this.onUpdateListener = listener;
+    this.#onUpdateListener = listener;
   }
 
   // remove callback function that runs if the timeline is updated
   removeOnUpdateListener() {
-    this.onUpdateListener = null;
+    this.#onUpdateListener = null;
   }
 
   play() {
-    this.timeline.play();
+    this.#timeline.play();
   }
 
   pause() {
-    this.timeline.pause();
+    this.#timeline.pause();
   }
 
   togglePlay() {
-    this.timeline.paused(!this.timeline.paused());
+    this.#timeline.paused(!this.#timeline.paused());
   }
 
   isPaused() {
-    return this.timeline.paused();
+    return this.#timeline.paused();
   }
 
   setProgress(value) {
-    this.timeline.progress(value);
+    this.#timeline.progress(value);
   }
 
   getProgress() {
-    return this.timeline.progress();
+    return this.#timeline.progress();
+  }
+
+  get timelineData() {
+    return this.#timelineData;
   }
 
   // Load te animation data from a given filepath
@@ -198,8 +241,9 @@ export default class AnimationBuilder {
     fetch(filePath)
       .then((result) => result.json())
       .then((data) => {
-        this.timelineData = data;
+        this.#timelineData = data;
         this.buildAnimation();
+        this.dispatchEvent(new Event("updateAnimation"));
       });
   }
 

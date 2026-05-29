@@ -1,35 +1,47 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="stylesheet" href="./styles/style.css" />
-    <link rel="stylesheet" href="./styles/timeline.css" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js" defer></script>
-    <script src="./scripts/script.js" defer></script>
-    <script src="./scripts/timeline.js" type="module" defer></script>
+  <link rel="stylesheet" href="./styles/style.css" />
+  <link rel="stylesheet" href="./styles/timeline.css" />
+  <link rel="stylesheet" href="./styles/canvas.css" />
 
-    <title>Animation Tool</title>
-  </head>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
+  <script src="./scripts/script.js" defer></script>
+  <script src="./scripts/timeline.js" type="module" defer></script>
 
-  <body>
-    <header></header>
-    <main>
-      <!-- The output of the animation/timeline -->
-      <div class="canvas">
+  <title>Animation Tool</title>
+</head>
+
+<body>
+  <header></header>
+  <main>
+    <!-- The output of the animation/timeline -->
+    <div class="canvas">
+    </div>
+
+
+    <!-- The UI interface of the timeline -->
+    <form class="timeline">
+      <button type="button" class="play-animation">Play</button>
+      <label for="timeline-slider">Timeline slider</label>
+      <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
+
+      <div class="timeline-container">
+        <div class="track">
+          <div class="bar"></div>
+        </div>
       </div>
+    </form>
 
-      <!-- The UI interface of the timeline -->
-      <form class="timeline">
-        <button type="button" class="play-animation">Play</button>
-        <label for="timeline-slider">Timeline slider</label>
-        <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
-      </form>
 
-      <!-- Control panel interface -->
-      <div class="controls-panel">
+
+    <!-- Control panel interface -->
+    <div class="controls-panel">
         <!-- Insert the code forms here -->
         <label>X</label>
         <input type="range" class="animation-control" data-property="x" min="0" max="1000" value="0" />
@@ -39,7 +51,7 @@
 
         <label>ScaleY</label>
         <input type="range" class="animation-control" data-property="scaleY" min="1" max="5" value="1" step="0.1" />
-        
+
         <label>Font Weight</label>
         <input type="range" class="animation-control" data-property="fontWeight" min="100" max="900" value="100" step="100" />
 
@@ -48,8 +60,27 @@
 
         <label>Letter spacing</label>
         <input type="range" class="animation-control" data-property="letterSpacing" min="-5" max="20" value="3" step="1" />
-      </div>
-    </main>
-    <footer></footer>
-  </body>
+
+        <div class="animation-direction">
+            <label>Direction</label>
+            <select id="animation-direction">
+            <option value="normal">Normal</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+            <option value="reverse">Reverse</option>
+            </select>
+        </div>
+
+        <div class="text-casing">
+            <label>Text Casing</label>
+            <label><input type="radio" name="text-case" value="initial" checked> Initial</label>
+            <label><input type="radio" name="text-case" value="capitalize"> Capitalize</label>
+            <label><input type="radio" name="text-case" value="lowercase"> lowercase</label>
+            <label><input type="radio" name="text-case" value="uppercase"> UPPERCASE</label>
+        </div>    
+    </div>
+  </main>
+  <footer></footer>
+</body>
+
 </html>

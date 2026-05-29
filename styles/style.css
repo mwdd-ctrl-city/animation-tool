@@ -1,6 +1,7 @@
 * {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 :root {
@@ -48,16 +49,17 @@ main {
     display: grid;
     height: 100vh;
     grid-template-columns: 70% 30%;
-    grid-template-rows: 90% 10%;
+    grid-template-rows: 70% 10% 20%;
     font-family: inter;
 
     place-items: center;
 
     > form {
-        grid-row-start: 2;
+        grid-row-start: 3;
+        grid-column: 1 / -1;
     }
 
-    div:nth-of-type(2) {
+    .controls-panel {
         height: 100%;
         width: 100%;
         grid-area: 1 / 2/ 3 / 2;
