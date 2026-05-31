@@ -35,7 +35,7 @@
             width: 100%;
             height: 1rem;
             cursor: pointer;
-            background:rgb(206, 206, 206);
+            background: rgb(206, 206, 206);
             border-radius: 5px;
         }
 
@@ -47,7 +47,8 @@
             height: var(--height-playhead, 80px);
             width: 5px;
             border-radius: 5px;
-            background: #535353; /* Kleur van het schuifje */
+            background: #535353;
+            /* Kleur van het schuifje */
             cursor: pointer;
             top: -.5rem;
         }
@@ -67,7 +68,7 @@
 /* Styling for the timeline/keyframe bars  */
 .timeline-container {
     /* Voor het tonen alle tracks, height 100% */
-    height: 80%; 
+    height: 80%;
     overflow-y: scroll;
     overflow-x: hidden;
     grid-column: 1 / -1;
@@ -93,16 +94,20 @@
         background-color: cornflowerblue;
         display: grid;
     }
-    
+
 }
 
 .keyframe {
-  position: absolute;
-  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-  background-color: black;
-  --keyframe-size: 1em;
-  width: var(--keyframe-size);
-  left: calc(var(--p) * 100% - var(--keyframe-size) / 2);
-  aspect-ratio: 1;
-  align-self: center;
+    position: absolute;
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    background-color: black;
+    --keyframe-size: 1em;
+    width: var(--keyframe-size);
+    left: calc(var(--p) * 100% - var(--keyframe-size) / 2);
+    aspect-ratio: 1;
+    align-self: center;
+}
+
+.active-keyframe {
+    background-color: red;
 }

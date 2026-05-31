@@ -1,188 +1,223 @@
-import AnimationBuilder from "./animation-builder.js";
+import Animation from "./animations/animation.js";
+import AnimationPlayer from "./animations/animation-player.js";
 
 const timelineSlider = document.querySelector("#timeline-slider");
 const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
-const tracksContainer = document.querySelector('.timeline-container');
+const tracksContainer = document.querySelector(".timeline-container");
 const canvas = document.querySelector(".canvas");
 
 const textInput = document.getElementById("input-text");
-const textButton = document.getElementById('input-button');
+const textButton = document.getElementById("input-button");
 
-// Create the animationbuilder with the given container to animate with a default timeline of 5 seconds
-const animationBuilder = new AnimationBuilder(canvas, 5);
+let activeKeyframe = null;
 
-// Load in the JSON data from a file (TODO: later this should become user controllable)
-animationBuilder.loadAnimation("./scripts/animation.json");
+// -----------------------
+// Load
+// -----------------------
 
-// When the animation automatically plays the slider updates on the progress of the animation duration
-animationBuilder.setOnUpdateListener((timeline) => {
-  timelineSlider.value = timeline.progress() * 100;
+async function loadAnimation(filePath) {
+  const response = await fetch(filePath);
+  const data = await response.json();
 
-  // Timeline timer 
-  // Save the current progress in a const
-  const progress = timeline.progress();
-  // Use a number to show into a string .tofixed(2) the 2 is for the decimals
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed
-  const current = (progress * timeline.duration()).toFixed(2)
-  // Get the timelines current number / get the duration of the timeline
-  document.querySelector('.tl-time-start').textContent = `${current}s`
-  document.querySelector('.tl-time-end').textContent = ` ${timeline.duration().toFixed(2)}s`
+  const animation = new Animation(data.name, data.duration);
 
-    updateRangeInputs()
-});
-
-// Connect all sliders to te animation builder
-animationControls.forEach((control) => {
-  control.addEventListener("input", (event) => {
-    // Gather slider property and value
-    const propertyName = event.target.dataset.property;
-    const value = parseFloat(event.target.value); /* Todo: Should not be float for all values*/
-    // Set a new keyframe for the given property with the given value
-    animationBuilder.setKeyframe("el-1", propertyName, value); /* Todo: do not hardcode .el-1*/
+  // Recreate elements, keeping a map from old id → new uuid
+  const idMap = {};
+  Object.entries(data.elements).forEach(([id, content]) => {
+    idMap[id] = animation.createElement(content);
   });
+
+  // Recreate groups
+  Object.entries(data.groups).forEach(([, group]) => {
+    const groupId = animation.createGroup(group.name);
+    group.members.forEach(oldId => {
+      animation.addToGroup(groupId, idMap[oldId]);
+    });
+  });
+
+  // Recreate keyframes
+  Object.entries(data.animations).forEach(([oldTargetId, properties]) => {
+    const newTargetId = idMap[oldTargetId];
+    Object.entries(properties).forEach(([propertyName, keyframes]) => {
+      keyframes.forEach(({ progress, value, ease }) => {
+        animation.setKeyframe(newTargetId, propertyName, progress, value, ease);
+      });
+    });
+  });
+
+  return animation;
+}
+
+// -----------------------
+// Init
+// -----------------------
+
+const animation = await loadAnimation("./scripts/animation.json");
+const player = new AnimationPlayer(canvas, animation);
+
+function getFirstElementId() {
+  return Object.keys(animation.getElements())[0] ?? null;
+}
+
+// -----------------------
+// Player listeners
+// -----------------------
+
+player.setOnUpdateListener((timeline) => {
+  const progress = timeline.progress();
+  const current = (progress * timeline.duration()).toFixed(2);
+
+  timelineSlider.value = progress * 100;
+
+  document.querySelector(".tl-time-start").textContent = `${current}s`;
+  document.querySelector(".tl-time-end").textContent = ` ${timeline.duration().toFixed(2)}s`;
+
+  updateRangeInputs();
 });
 
-// Allow to scrub through the timeline
-timelineSlider.addEventListener("input", (e) => {
-  const progress = e.target.value / 100;
-  animationBuilder.setProgress(progress);
+// -----------------------
+// Animation change listener
+// -----------------------
 
-});
-
-// Connect the play/pause button with the animationBuilder
-playButtonTimeline.addEventListener("click", () => {
-  const isPaused = animationBuilder.isPaused();
-  playButtonTimeline.textContent = isPaused ? "Pause" : "play";
-  animationBuilder.togglePlay();
-});
-
-
-// Data in the animationBuilder has changed
-animationBuilder.addEventListener("updateAnimation", () => {
+animation.addEventListener("change", () => {
   buildVisualizer();
 });
 
+// -----------------------
+// Controls
+// -----------------------
+
+animationControls.forEach((control) => {
+  control.addEventListener("input", (event) => {
+    const elementId = getFirstElementId(); // TODO change this to "active" element
+    if (!elementId) return;
+
+    player.pause();
+
+    const propertyName = event.target.dataset.property;
+    const value = parseFloat(event.target.value); // TODO: should not be float for all values
+
+    animation.setKeyframe(elementId, propertyName, player.getProgress(), value);
+  });
+});
+
+timelineSlider.addEventListener("input", (e) => {
+  player.setProgress(e.target.value / 100);
+});
+
+playButtonTimeline.addEventListener("click", () => {
+  const isPaused = player.isPaused();
+  playButtonTimeline.textContent = isPaused ? "Pause" : "Play";
+  player.togglePlay();
+});
+
+// -----------------------
+// Visualizer
+// -----------------------
+
 function buildVisualizer() {
   const visualizerContainer = document.querySelector(".timeline-container");
-  visualizerContainer.innerHTML = ""
+  visualizerContainer.innerHTML = "";
 
-  // Get the animationData from the animationBuilder
-  const timelineData = animationBuilder.timelineData;
+  const elementId = getFirstElementId();  // TODO change this to "active" element
+  if (!elementId) return;
 
-  // Get the data from the json
-  timelineData.animations.forEach((animationData) => {
-    animationData.properties.forEach((propertyData) => {
+  const properties = animation.getProperties(elementId);
 
-      // Create elements to create for each functionality a row
-      const row = document.createElement("div");
-      row.classList.add("row");
+  properties.forEach((propertyName) => {
+    const keyframes = animation.getKeyframes(elementId, propertyName);
 
-      const track = document.createElement("div");
-      track.classList.add("track");
+    const row = document.createElement("div");
+    row.classList.add("row");
 
-      const trackText = document.createElement("p");
-      trackText.classList.add("track-label");
+    const track = document.createElement("div");
+    track.classList.add("track");
 
-      row.append(trackText, track)
+    const trackText = document.createElement("p");
+    trackText.classList.add("track-label");
+    trackText.innerHTML = `<span>${propertyName}</span>`;
 
-      trackText.innerHTML = `<span>${propertyData.property}</span>`;
+    row.append(trackText, track);
 
-      // Create for each keyframe point a point on the row
-      propertyData.keyframes.forEach((keyframe) => {
-        const point = document.createElement("div");
-        point.classList.add("keyframe");
-        point.style.setProperty("--p", keyframe.progress);
-        track.appendChild(point);
+    keyframes.forEach((keyframe) => {
+      const point = document.createElement("div");
+      point.classList.add("keyframe");
+      point.style.setProperty("--p", keyframe.progress);
+      track.appendChild(point);
 
-        // Create a drag for the keyframe and update the value
-        Draggable.create(point, {
-          // Type of way you can dragg the element on the x axis
-          type: 'x',
-          bounds: track,
-          onDragEnd() {
-            const trackWidth = track.offsetWidth;
-            const pointX = this.x + (trackWidth * keyframe.progress);
-            const toProgress = Math.max(0, Math.min(1, pointX / trackWidth));
+      Draggable.create(point, {
+        type: "x",
+        bounds: track,
+        onDragEnd() {
+          const trackWidth = track.offsetWidth;
+          const pointX = this.x + trackWidth * keyframe.progress;
+          const toProgress = Math.max(0, Math.min(1, pointX / trackWidth));
 
-            animationBuilder.moveKeyframe("el-1", propertyData.property, keyframe.progress, toProgress);
-          }
-        });
+          animation.moveKeyframe(elementId, propertyName, keyframe.progress, toProgress);
+        }
       });
-
-    // Add the elements to the html
-      visualizerContainer.appendChild(row);
     });
+
+    visualizerContainer.appendChild(row);
   });
-};
-
-function updateRangeInputs () {
-  const animations = animationBuilder.timelineData.animations;
-  const currentProgress = animationBuilder.getProgress();
-  
-
-  // Search for all the controls 
-  animationControls.forEach((control) => {
-    const propertyName = control.dataset.property
-
-    //First search for the animation in JSON
-    const animation = animations.find(
-      (animation) => animation.target === "el-1" //TODO ook voor andere stukken tekst die je dan selecteerd aanpassen. 
-    );
-
-    if (!animation) {
-      // Let the rangevalue be 0
-      control.value = 0;
-      return;
-    }
-
-    //Second look for the property in JSON
-    const property = animation.properties.find(
-      (property) => property.property === propertyName
-    );
-
-    if (!property) {
-      control.value = 0;
-      return;
-    }
-
-    const target = document.querySelector(".el-1");
-    const currentValue = gsap.getProperty(target, propertyName)
-
-    control.value = currentValue
-  })
 }
 
-// PLayhead element on the timeline increases it/s length when the a track is added
+// -----------------------
+// Range input sync
+// -----------------------
+
+function updateRangeInputs() {
+  const elementId = getFirstElementId();  // TODO change this to "active" element
+  if (!elementId) return;
+
+  const currentProgress = player.getProgress();
+
+  animationControls.forEach((control) => {
+    const propertyName = control.dataset.property;
+    const keyframes = animation.getKeyframes(elementId, propertyName);
+
+    if (!keyframes || keyframes.length === 0) {
+      control.value = 0;
+      return;
+    }
+
+    const target = canvas.querySelector(`.el-${elementId}`);
+    if (!target) return;
+
+    control.value = gsap.getProperty(target, propertyName);
+  });
+}
+
+// -----------------------
+// Text input
+// -----------------------
+
+textButton.addEventListener("click", () => addText(textInput.value));
+
+textInput.addEventListener("keypress", (event) => {
+  if (event.key === "Enter") addText(textInput.value);
+});
+
+function addText(text) {
+  if (!text.trim()) return;
+  animation.createElement(text);
+  textInput.value = "";
+}
+
+// -----------------------
+// Playhead height
+// -----------------------
+
 function updatePlayheadHeight() {
-  // Get the height from the container that needs to be trackt for the height
-  // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
   const containerBottom = tracksContainer.getBoundingClientRect().bottom;
   const sliderTop = timelineSlider.getBoundingClientRect().top;
-
-  // Devide by eachother so it doesn't get the wholee height
   const height = containerBottom - sliderTop;
-  timelineSlider.style.setProperty('--height-playhead', `${height}px`);
+  timelineSlider.style.setProperty("--height-playhead", `${height}px`);
 }
 
-// API that tracks if an element changes size
-// https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
 const observer = new ResizeObserver(updatePlayheadHeight);
 observer.observe(tracksContainer);
 
 updatePlayheadHeight();
-textButton.addEventListener("click", () => {
-    addText(textInput.value); 
-})
-
-//Add input value with enter key
-textInput.addEventListener('keypress', (event) => {
-    if (event.key === 'Enter') {
-        addText(textInput.value); 
-    }
-});
-
-function addText(text) {
-    animationBuilder.setText(text); 
-    textInput.value = ''; //Clear input field
-}
+buildVisualizer();
