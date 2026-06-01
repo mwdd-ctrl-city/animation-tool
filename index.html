@@ -2,93 +2,205 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="stylesheet" href="./styles/style.css" />
-  <link rel="stylesheet" href="./styles/timeline.css" />
-  <link rel="stylesheet" href="./styles/canvas.css" />
+    <link rel="stylesheet" href="/styles/style.css" />
+    <link rel="stylesheet" href="/styles/main-layout.css" />
+    <link rel="stylesheet" href="/styles/timeline.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js" defer></script>
-    <script src="./scripts/script.js" type="module" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="/scripts/script.js" defer></script>
+    <script src="/scripts/main-layout.js" defer></script>
     <script src="./scripts/timeline.js" type="module" defer></script>
 
-  <title>Animation Tool</title>
+    <title>Animation Tool</title>
 </head>
 
 <body>
-  <header></header>
-  <main>
-    <!-- The output of the animation/timeline -->
-    <div class="canvas">
-    </div>
-
-
-    <!-- The UI interface of the timeline -->
-    <form class="timeline">
-      <button type="button" class="play-animation">Play</button>
-      <label for="timeline-slider">Timeline slider</label>
-      <div class="tl-time">
-        <input type="number" value="0.00" step="0.01" class="tl-time-start">
-        <input type="number" value="4.00" step="0.01" class="tl-time-end">
-        <span>seconds</span>
-      </div>
-      <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
-      
-      <div class="timeline-container">
-        <div class="track">
-          <div class="bar"></div>
-        </div>
-      </div>
-    </form>
-
-
-
-    <!-- Control panel interface -->
-    <div class="controls-panel">
-        <!-- Insert the code forms here -->
-        <input type="text" id="input-text"> 
-        <button type="button" id="input-button">Verstuur</button>
-
-        <label>X</label>
-        <input type="range" class="animation-control" data-property="x" min="0" max="1000" value="0" />
-
-        <label>Rotation</label>
-        <input type="range" class="animation-control" data-property="rotation" min="0" max="360" value="0" />
-
-        <label>ScaleY</label>
-        <input type="range" class="animation-control" data-property="scaleY" min="1" max="5" value="1" step="0.1" />
-
-        <label>Font Weight</label>
-        <input type="range" class="animation-control" data-property="fontWeight" min="100" max="900" value="100" step="100" />
-
-        <label>Font size</label>
-        <input type="range" class="animation-control" data-property="fontSize" min="10" max="1000" value="100" step="10" />
-
-        <label>Letter spacing</label>
-        <input type="range" class="animation-control" data-property="letterSpacing" min="-5" max="20" value="3" step="1" />
-
-        <div class="animation-direction">
-            <label>Direction</label>
-            <select id="animation-direction">
-            <option value="normal">Normal</option>
-            <option value="left">Left</option>
-            <option value="right">Right</option>
-            <option value="reverse">Reverse</option>
-            </select>
+    <header class="topbar">
+        <div class="project-name-place">
+            <span id="project-name">Untitled Project</span>
+            <input id="project-name-input" type="text" value="Untitled Project">
         </div>
 
-        <div class="text-casing">
-            <label>Text Casing</label>
-            <label><input type="radio" name="text-case" value="initial" checked> Initial</label>
-            <label><input type="radio" name="text-case" value="capitalize"> Capitalize</label>
-            <label><input type="radio" name="text-case" value="lowercase"> lowercase</label>
-            <label><input type="radio" name="text-case" value="uppercase"> UPPERCASE</label>
-        </div>    
-    </div>
-  </main>
-  <footer></footer>
+        <button class="preview-button">Preview</button>
+        <button class="save-button">Save</button>
+    </header>
+
+
+    <main>
+        <div role="toolbar" aria-label="Tools" class="toolbar-panel">
+            <ul>
+                <li>
+                    <button type="button" class="action-button add-text-button" aria-label="Add text" title="Add text">
+                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M4 4h16v3.5h-2V6H13v13h1.5v2h-5v-2H11V6H6v1.5H4V4z" fill="currentColor" />
+                        </svg>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="control-button" aria-label="Undo" title="Undo">
+                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="control-button" aria-label="Redo" title="Redo">
+                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                            style="transform: scaleX(-1);">
+                            <path d="M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </li>
+            </ul>
+
+        </div>
+
+        <!--  CONTENT CONTAINER    -->
+        <section class="content-panel">
+            <div class="content-canvas">
+                <!-- The output of the animation/timeline -->
+                <div class="canvas"></div>
+            </div>
+        </section>
+
+        <!--   ITEMS CONTAINER  -->
+        <section class="items-panel">
+            <div class="resize-handle handle-left"></div>
+
+            <details open class="fieldset-container">
+                <summary>Typography</summary>
+
+                <fieldset class="item item-typography">
+                    <legend class="visually-hidden">Typography</legend>
+
+                    <!-- <input type="text" id="input-text">
+                    <button type="button" id="input-button">Verstuur</button> -->
+
+                    <label>
+                        Font size
+                        <input type="range" class="animation-control" data-property="fontSize" min="10" max="1000"
+                            value="100" step="10" />
+                    </label>
+
+                    <label>
+                        Font weight
+                        <input type="range" class="animation-control" data-property="fontWeight" min="100" max="900"
+                            value="100" step="100" />
+                    </label>
+
+                    <label>
+                        Letterspacing
+                        <input type="range" class="animation-control" data-property="letterSpacing" min="-5" max="20"
+                            value="3" step="1" />
+                    </label>
+                </fieldset>
+            </details>
+
+            <details open class="fieldset-container">
+                <summary>Transform</summary>
+
+                <fieldset class="item item-typography">
+                    <legend class="visually-hidden">Transform</legend>
+
+                    <label>
+                        ScaleY
+                        <input type="range" class="animation-control" data-property="scaleY" min="1" max="5" value="1"
+                            step="0.1" />
+                    </label>
+
+                    <label>
+                        Translate X
+                        <input type="range" class="animation-control" data-property="x" min="0" max="1000" value="0" />
+                    </label>
+
+                    <label>
+                        Rotation
+                        <input type="range" class="animation-control" data-property="rotation" min="0" max="360"
+                            value="0" />
+                    </label>
+                </fieldset>
+            </details>
+
+            <details open class="fieldset-container">
+                <summary>Color</summary>
+
+                <fieldset class="item item-typography">
+                    <legend class="visually-hidden">Color</legend>
+
+                    <label>
+                        Rotation
+                        <input type="range" class="animation-control" min="0" max="360" value="0" />
+                    </label>
+
+                </fieldset>
+            </details>
+
+            <details open class="fieldset-container">
+                <summary>Animation functions</summary>
+
+                <fieldset class="item item-typography">
+                    <legend class="visually-hidden">Animation functions</legend>
+
+                    <div class="animation-direction">
+                        <label>Direction</label>
+                        <select id="animation-direction">
+                            <option value="normal">Normal</option>
+                            <option value="left">Left</option>
+                            <option value="right">Right</option>
+                            <option value="reverse">Reverse</option>
+                        </select>
+                    </div>
+
+                    <div class="text-casing">
+                        <label>Text Casing</label>
+                        <label><input type="radio" name="text-case" value="initial" checked> Initial</label>
+                        <label><input type="radio" name="text-case" value="capitalize"> Capitalize</label>
+                        <label><input type="radio" name="text-case" value="lowercase"> lowercase</label>
+                        <label><input type="radio" name="text-case" value="uppercase"> UPPERCASE</label>
+                    </div>
+
+                </fieldset>
+            </details>
+
+        </section>
+
+
+        <!--   TIMELINE   -->
+        <div class="timeline-panel">
+            <div class="resize-handle handle-top"></div>
+
+            <div class="timeline-content">
+                <form class="timeline">
+                    <button type="button" class="play-animation">Play</button>
+
+                    <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
+                    <div class="tl-time">
+                        <input type="number" value="0.00" step="0.01" class="tl-time-start">
+                        <input type="number" value="4.00" step="0.01" class="tl-time-end">
+                        <span>seconds</span>
+                    </div>
+                    <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
+
+                    <div class="timeline-container">
+                        <div class="track">
+                            <div class="bar"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </main>
 </body>
+
+
+
 
 </html>

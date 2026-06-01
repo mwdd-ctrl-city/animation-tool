@@ -1,0 +1,381 @@
+/* MARK: OPLOSSEN!
+/* !!!!! VOOR NU EVEN !!!!! */
+/* ************************ */
+h1 {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+}
+
+/* ------------ */
+/* MARK: Topbar 
+/* ------------ */
+.topbar {
+    background-color: var(--color-bg-topbar);
+    color: var(--color-text-one);
+    margin: 0;
+    padding: 0 0 0 .5em;
+    height: var(--size-topbar);
+    display: flex;
+    justify-content: end;
+    align-items: stretch;
+
+    position: relative;
+    z-index: 1000;
+
+    & .preview-button {
+        border: 1.25px solid var(--color-border-button);
+        border-radius: 2em;
+        background-color: transparent;
+        color: var(--color-text-one);
+        padding: .5em 1.3em;
+        height: 2.5em;
+        align-self: center;
+
+        display: flex;
+        align-items: center;
+
+        &:hover {
+            background-color: var(--color-details);
+            border: 1px solid var(--color-details);
+        }
+    }
+
+    & .project-name-place {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    & #project-name-input {
+        display: none;
+    }
+
+    & #project-name {
+        display: flex;
+        align-items: center;
+    }
+
+    & .preview-button {
+        margin-left: auto;
+        margin-right: .85em;
+    }
+
+    & .save-button {
+        border: none;
+        height: 100%;
+        padding: 0 2em;
+        background-color: var(--color-details);
+        color: var(--color-text-one);
+
+        &:hover {
+            background-color: var(--color-hover-one);
+        }
+    }
+}
+
+/* ------------- */
+/* MARK: Toolbar 
+/* ------------- */
+.toolbar-panel {
+    position: fixed;
+
+    font-size: 1.25rem;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+
+    width: 2.5em;
+    margin: .5em;
+    padding: .5em;
+    z-index: 1000;
+    background-color: var(--color-bg-container);
+
+    border-radius: 10px;
+    box-shadow: 0 0 5px var(--color-boxshadow-one);
+
+    & ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+
+        width: 100%;
+
+        & li {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+    }
+
+    & button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.25em;
+        aspect-ratio: 1/1;
+        border-radius: 5px;
+        cursor: pointer;
+
+        transition:
+            background 0.15s ease,
+            color 0.15s ease;
+
+        & svg {
+            width: 2em;
+            aspect-ratio: 1/1;
+        }
+    }
+
+    & .action-button {
+        border: 1px solid var(--color-border-button);
+        background: transparent;
+        color: var(--color-text-two);
+        margin-bottom: .75em;
+
+        &:hover {
+            background: var(--color-hover-two);
+            border-color: var(--color-border-button);
+        }
+
+        &:active {
+            background: var(--color-bg-canvas);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-details);
+            outline-offset: 2px;
+        }
+    }
+
+    & .control-button {
+        border: none;
+        background: transparent;
+        color: var(--color-text-three);
+        cursor: pointer;
+
+        &:hover {
+            background: var(--color-hover-two);
+            color: var(--color-text-two);
+        }
+    }
+
+    /*  https://www.a11yproject.com/posts/how-to-hide-content/  */
+    & .label {
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+}
+
+/* -------------------- */
+/* MARK: Content canvas 
+/* -------------------- */
+.content-panel {
+    position: fixed;
+    top: var(--size-topbar);
+    left: 0;
+    right: var(--size-items);
+    bottom: 0;
+
+    height: 100svh;
+
+    overflow: hidden;
+
+    & .content-canvas {
+        width: 35em;
+        aspect-ratio: 1/1;
+
+        background-color: var(--color-bg-container);
+        border: .75px solid var(--color-border-canvas);
+        transform-origin: 0 0;
+        position: absolute;
+
+        overflow: clip;
+    }
+}
+
+
+/* ----------------- */
+/* MARK: Items panel 
+/* ----------------- */
+.items-panel {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    padding: var(--size-topbar) 0 0 0;
+    width: 18em;
+    min-width: 15em;
+    max-width: 30em;
+    height: 100svh;
+    overflow-y: auto;
+
+    container-type: inline-size;
+
+    font-weight: 400;
+
+    &::after {
+        content: '';
+        display: block;
+        height: var(--size-timeline);
+    }
+
+    & .handle-left {
+        position: absolute;
+        left: 0;
+        height: 100%;
+
+        cursor: ew-resize;
+    }
+
+    & .item {
+        height: min-content;
+        padding: 1em 1em 0 1em;
+
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+
+    & legend {
+        margin-left: -2.5px;
+    }
+
+    & label {
+        margin-bottom: 1em;
+        font-size: clamp(1em, 1vw, 1.5em);
+        font-weight: 300;
+        color: var(--color-text-three);
+        white-space: nowrap;
+
+        display: grid;
+        align-items: center;
+        gap: .5em;
+
+        @container (width > 20em) {
+            grid-template-columns: minmax(5em, 7em) 1fr;
+        }
+    }
+
+    & input[type="range"] {
+        appearance: none;
+
+        border-radius: 5rem;
+
+        accent-color: var(--color-details);
+        background: var(--color-bg-canvas);
+    }
+}
+
+.fieldset-container {
+  background-color: var(--color-bg-container);
+  padding-top: .25em;
+  margin: .5em;
+  border-radius: 10px;
+  box-shadow: 0 0 5px var(--color-boxshadow-one);
+  padding: 10px;
+  overflow: hidden;
+  
+  & summary {
+    gap: 10px;
+    display: flex;
+    align-items: center;
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+    padding: 4px 4px 0 4px;
+  }
+
+  & summary::-webkit-details-marker {
+    display: none;
+  }
+
+  & summary::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-bottom: 2px solid #2B2B2B;
+    border-right: 2px solid #2B2B2B;
+    transform: rotate(-45deg);
+    transition: transform 0.3s ease;
+  }
+
+  &[open] summary::before {
+    transform: rotate(45deg);
+  }
+}
+
+details::details-content {
+  block-size: 0;
+  transition: block-size 1s, content-visibility 1s;
+  transition-behavior: allow-discrete;
+}
+
+details[open]::details-content {
+  block-size: auto;
+}
+
+
+
+/* -------------- */
+/* MARK: Timeline 
+/* -------------- */
+.timeline-panel {
+    position: fixed;
+    bottom: 0;
+    width: 100vw;
+    height: 15em;
+    min-height: 10em;
+    box-shadow: 0 0 25px var(--color-boxshadow-one);
+    z-index: 100;
+
+    background-color: #FFFFFF;
+    border-top: 1px solid var(--color-border-container);
+
+    display: flex;
+    flex-direction: column;
+
+    & .handle-top {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+
+        /* ChatGPT: how do I make sure my cursor changes to show it is draggable up and down? */
+        cursor: ns-resize;
+    }
+
+    & .timeline-content {
+        overflow-y: auto;
+
+        height: 100%;
+        width: 100vw;
+    }
+}
+
+/* ----- Handle for resizing (items panel and timeline panel ----- */
+.resize-handle {
+    height: 10px;
+    width: 10px;
+}
