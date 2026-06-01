@@ -10,12 +10,12 @@
     <link rel="stylesheet" href="/styles/timeline.css" />
     <link rel="stylesheet" href="/styles/canvas.css" />
 
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="/scripts/script.js" defer></script>
-    <script src="/scripts/main-layout.js" defer></script>
-    <script src="./scripts/timeline.js" type="module" defer></script>
+  <script src="/scripts/main-layout.js" defer></script>
+  <script src="./scripts/timeline.js" type="module" defer></script>
 
     <title>Animation Tool</title>
 </head>
@@ -149,6 +149,15 @@
                 <fieldset class="item item-typography">
                     <legend class="visually-hidden">Animation functions</legend>
 
+      <div class="animation-direction">
+        <label>Direction</label>
+        <select id="animation-direction">
+          <option value="normal">Normal</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+          <option value="reverse">Reverse</option>
+        </select>
+      </div>
                     <div class="animation-direction">
                         <label>Direction</label>
                         <select id="animation-direction">

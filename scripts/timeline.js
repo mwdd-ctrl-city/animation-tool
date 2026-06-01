@@ -9,6 +9,9 @@ const canvas = document.querySelector(".canvas");
 const textInput = document.getElementById("input-text");
 const textButton = document.getElementById('input-button');
 
+const numberInput = document.getElementById('numberInput');
+const duplicateBtn = document.getElementById('duplicateBtn');
+
 // Create the animationbuilder with the given container to animate with a default timeline of 5 seconds
 const animationBuilder = new AnimationBuilder(canvas, 5);
 
@@ -201,3 +204,32 @@ function addText(text) {
     animationBuilder.setText(text); 
     textInput.value = ''; //Clear input field
 }
+
+// Duplicate text with button
+duplicateBtn.addEventListener('click', () => {
+  // select the elemenent you want to dubplicate the text of
+    const selectedItem = document.querySelector(".el-1");
+
+    // Check if element exists
+    if (!selectedItem) {
+        return;
+    }
+    
+    // Get the number, if not a number or less than/equal to 0 return
+    const number = parseInt(numberInput.value, 10);
+    if (isNaN(number) || number <= 0) return;
+
+    if (!selectedItem.dataset.originalText) {
+        selectedItem.dataset.originalText = selectedItem.textContent;
+    }
+
+    // Use the original text content as the basis for duplication
+    const originalText = selectedItem.dataset.originalText;
+
+    // Add the original text to the element the specified number of times
+    for (let i = 0; i < number; i++) {
+        selectedItem.textContent += " " + originalText;
+    }
+
+    numberInput.value = '';
+});
