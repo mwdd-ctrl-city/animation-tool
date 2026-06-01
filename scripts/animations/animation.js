@@ -8,11 +8,22 @@ export default class Animation extends EventTarget {
     constructor(name = "Untitled", durationSeconds = 10) {
         super();
 
+        this.#name = "Untitled";
+        this.#durationSeconds = 10;
+        this.#elements = new Map();
+        this.#groups = new Map();
+        this.#animations = new Map();
+
+        if (typeof name === "object" && name !== null) {
+            this.load(name);
+            return;
+        }
+
         if (!this.#isValidDuration(durationSeconds)) {
             throw new RangeError("durationSeconds must be a positive number");
         }
+
         this.#name = name;
-        this.#durationSeconds = durationSeconds;
     }
 
     // -----------------------
@@ -298,7 +309,27 @@ export default class Animation extends EventTarget {
         };
     }
 
+    // In Animation class
+    load(animation) {
+        this.#name = animation.name;
+        this.#durationSeconds = animation.duration;
+        this.#elements = new Map(Object.entries(animation.elements));
+        this.#groups = new Map(Object.entries(animation.groups));
+        this.#animations = new Map(
+            Object.entries(animation.animations).map(([id, props]) => [
+                id,
+                new Map(Object.entries(props).map(([k, v]) => [k, v]))
+            ])
+        );
+
+        this.dispatchEvent(new Event("change"));
+    }
+
     toJSON() {
         return JSON.stringify(this.animation);
+    }
+
+    formJSON() {
+        // TODO
     }
 }
