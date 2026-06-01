@@ -55,6 +55,7 @@ export default class AnimationBuilder extends EventTarget {
 
     this.timelineData.elements.push(newTextElement);
     this.buildAnimation();
+
   }
 
   setText(text) {
@@ -160,13 +161,22 @@ export default class AnimationBuilder extends EventTarget {
     return Math.round(this.#timeline.progress() * 100) / 100;
   }
 
+  setDuration(newTime){
+    this.#durationSeconds = newTime;
+    this.#timelineData.duration = newTime;
+    this.buildAnimation()
+  }
+
   buildAnimation() {
+    
     // Store the current timeline progress and reset the timeline animations
     const currentProgress = this.#timeline.progress() || 0;
     this.#timeline.clear();
 
     this.#buildElements();
     this.#buildAnimations();
+
+    this.#timeline.duration(this.#durationSeconds);
 
     // Set the timeline progress back where the user left off.
     this.#timeline.progress(currentProgress);

@@ -26,10 +26,22 @@ animationBuilder.setOnUpdateListener((timeline) => {
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed
   const current = (progress * timeline.duration()).toFixed(2)
   // Get the timelines current number / get the duration of the timeline
-  document.querySelector('.tl-time-start').textContent = `${current}s`
-  document.querySelector('.tl-time-end').textContent = ` ${timeline.duration().toFixed(2)}s`
+  document.querySelector('.tl-time-start').value = current;
+  
 
-    updateRangeInputs()
+  updateRangeInputs()
+});
+
+// Set the value from the input end time to the setDuration
+document.querySelector('.tl-time-end').addEventListener('change', (e) => {
+  animationBuilder.setDuration(parseFloat(e.target.value));
+});
+
+// Input starting point when the value is changed devide with the duration and set the new progress to te playhead
+document.querySelector('.tl-time-start').addEventListener('change', (e) => {
+  const time = parseFloat(e.target.value);
+  const progress = time / animationBuilder.timelineData.duration;
+  animationBuilder.setProgress(progress);
 });
 
 // Connect all sliders to te animation builder
