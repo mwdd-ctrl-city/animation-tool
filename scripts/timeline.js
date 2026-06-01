@@ -29,7 +29,7 @@ animationBuilder.setOnUpdateListener((timeline) => {
   document.querySelector('.tl-time-start').textContent = `${current}s`
   document.querySelector('.tl-time-end').textContent = ` ${timeline.duration().toFixed(2)}s`
 
-    updateRangeInputs()
+  updateRangeInputs()
 });
 
 // Connect all sliders to te animation builder
@@ -49,6 +49,7 @@ timelineSlider.addEventListener("input", (e) => {
   animationBuilder.setProgress(progress);
 
 });
+
 
 // Connect the play/pause button with the animationBuilder
 playButtonTimeline.addEventListener("click", () => {
