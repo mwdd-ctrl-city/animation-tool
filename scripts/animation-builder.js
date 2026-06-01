@@ -15,7 +15,7 @@ export default class AnimationBuilder extends EventTarget {
     this.#canvas = canvas;
     this.#durationSeconds = durationSeconds;
 
-    this.#selectedText = null; 
+    this.#selectedText = "el-1"; 
 
     // Create an empty json structure with timeline data
     this.#timelineData = {
@@ -58,9 +58,23 @@ export default class AnimationBuilder extends EventTarget {
         onClick: () => { 
           this.#selectedText = elementData.id;
           element.style.backgroundColor = element.style.backgroundColor === "deeppink" ? "transparent" : "deeppink";
+
+          this.#updateInputTarget(); 
         }
       });
     });
+  }
+
+  #updateInputTarget() {
+    const animationControls = document.querySelectorAll(".animation-control");
+
+    animationControls.forEach((control) => {
+      const propertyName = control.dataset.property
+      const target = document.querySelector(`.${this.#selectedText}`);
+      const currentValue = gsap.getProperty(target, propertyName)
+
+      control.value = currentValue
+    })
   }
 
   setText(text) {
@@ -181,6 +195,7 @@ export default class AnimationBuilder extends EventTarget {
 
     this.#buildElements();
     this.#buildAnimations();
+    this.#updateInputTarget(); 
 
     this.#timeline.duration(this.#durationSeconds);
 
