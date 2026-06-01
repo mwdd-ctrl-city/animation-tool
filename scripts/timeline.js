@@ -54,7 +54,6 @@ playButtonTimeline.addEventListener("click", () => {
   const isPaused = animationBuilder.isPaused();
   playButtonTimeline.textContent = isPaused ? "Pause" : "play";
   animationBuilder.togglePlay();
-  // console.log(animationBuilder.timelineData.animations[0].target)
 });
 
 
@@ -76,7 +75,7 @@ function buildVisualizer() {
   // console.log(timelineData)
 
   // Get the data from the json
-  timelineData.animations.forEach((animationData) => {
+  timelineData.animations.filter(animationData => animationData.target === animationBuilder.selectedText).forEach((animationData) => {
     animationData.properties.forEach((propertyData) => {
       console.log(animationData.target)
 
@@ -116,16 +115,16 @@ function buildVisualizer() {
         });
       });
 
-    // Add the elements to the html
+      // Add the elements to the html
       visualizerContainer.appendChild(row);
     });
   });
 };
 
-function updateRangeInputs () {
+function updateRangeInputs() {
   const animations = animationBuilder.timelineData.animations;
   const currentProgress = animationBuilder.getProgress();
-  
+
 
   // Search for all the controls 
   animationControls.forEach((control) => {
@@ -149,20 +148,20 @@ function updateRangeInputs () {
 }
 
 textButton.addEventListener("click", () => {
-  if(textInput.value === "") return; 
-  addText(textInput.value); 
+  if (textInput.value === "") return;
+  addText(textInput.value);
 })
 
 //Add input value with enter key
 textInput.addEventListener('keypress', (event) => {
-  if(textInput.value === "") return; 
+  if (textInput.value === "") return;
 
   if (event.key === 'Enter') {
-    addText(textInput.value); 
+    addText(textInput.value);
   }
 });
 
 function addText(text) {
-    animationBuilder.setText(text); 
-    textInput.value = ''; //Clear input field
+  animationBuilder.setText(text);
+  textInput.value = ''; //Clear input field
 }
