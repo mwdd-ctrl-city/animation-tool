@@ -70,6 +70,7 @@ playButtonTimeline.addEventListener("click", () => {
   const isPaused = animationBuilder.isPaused();
   playButtonTimeline.textContent = isPaused ? "Pause" : "play";
   animationBuilder.togglePlay();
+  // console.log(animationBuilder.timelineData.animations[0].target)
 });
 
 
@@ -84,10 +85,16 @@ function buildVisualizer() {
 
   // Get the animationData from the animationBuilder
   const timelineData = animationBuilder.timelineData;
+  // const timelineData = animationBuilder.timelineData.animations.target.find(
+  //   animations => animations.target === animationBuilder.selectedText
+  // );
+
+  // console.log(timelineData)
 
   // Get the data from the json
   timelineData.animations.forEach((animationData) => {
     animationData.properties.forEach((propertyData) => {
+      console.log(animationData.target)
 
       // Create elements to create for each functionality a row
       const row = document.createElement("div");
@@ -142,26 +149,15 @@ function updateRangeInputs () {
 
     //First search for the animation in JSON
     const animation = animations.find(
-      (animation) => animation.target === "el-1" //TODO ook voor andere stukken tekst die je dan selecteerd aanpassen. 
+      (animation) => animation.target === animationBuilder.selectedText
     );
-
-    if (!animation) {
-      // Let the rangevalue be 0
-      control.value = 0;
-      return;
-    }
 
     //Second look for the property in JSON
     const property = animation.properties.find(
       (property) => property.property === propertyName
     );
 
-    if (!property) {
-      control.value = 0;
-      return;
-    }
-
-    const target = document.querySelector(".el-1");
+    const target = document.querySelector(`.${animationBuilder.selectedText}`);
     const currentValue = gsap.getProperty(target, propertyName)
 
     control.value = currentValue
