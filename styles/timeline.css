@@ -1,9 +1,8 @@
 /* Styling section timeline */
-
 .timeline {
     /* styling section timeline layout */
     border: 1px solid rgb(225, 225, 225);
-    width: 40rem;
+    width: 90%;
     padding: 1rem;
     margin-bottom: 2rem;
     border-radius: 1rem;
@@ -25,9 +24,11 @@
     /* Disable the default styling timeline bar */
     input[type=range] {
         appearance: none;
+        position: relative;
         width: 100%;
         background: transparent;
         grid-column-start: 2;
+        padding-top: 1rem;
 
         /* Create/design for new background from the track */
         &::-webkit-slider-runnable-track {
@@ -41,21 +42,32 @@
         /* Styling slider element */
         &::-webkit-slider-thumb {
             -webkit-appearance: none;
-            height: 24px;
+            position: relative;
+            z-index: 10;
+            height: var(--height-playhead, 80px);
             width: 5px;
             border-radius: 5px;
             background: #535353; /* Kleur van het schuifje */
             cursor: pointer;
-            margin-top: -4px; 
+            top: -.5rem;
         }
     }
 }
 
+.tl-time {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-content: center;
 
+    .tl-time-end {
+        place-self: end;
+    }
+}
 
 /* Styling for the timeline/keyframe bars  */
 .timeline-container {
-    height: 80%;
+    /* Voor het tonen alle tracks, height 100% */
+    height: 80%; 
     overflow-y: scroll;
     overflow-x: hidden;
     grid-column: 1 / -1;
@@ -79,14 +91,18 @@
         position: relative;
         grid-column: 2 / -1;
         background-color: cornflowerblue;
+        display: grid;
     }
     
 }
 
 .keyframe {
   position: absolute;
-  border: solid 7px #000;
-  corner-shape: bevel;
-  border-radius: 50%;
-  top: calc(50% - 7px);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  background-color: black;
+  --keyframe-size: 1em;
+  width: var(--keyframe-size);
+  left: calc(var(--p) * 100% - var(--keyframe-size) / 2);
+  aspect-ratio: 1;
+  align-self: center;
 }

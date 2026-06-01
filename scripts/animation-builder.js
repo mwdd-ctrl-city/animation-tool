@@ -1,67 +1,74 @@
 // Source: https://gsap.com/docs/v3/GSAP/Timeline/
 
-export default class AnimationBuilder {
+export default class AnimationBuilder extends EventTarget {
+  // Private fields
+  #canvas;
+  #durationSeconds;
+  #timelineData;
+  #timeline;
+  #onUpdateListener;
+
   constructor(canvas, durationSeconds) {
-    this.canvas = canvas;
-    this.durationSeconds = durationSeconds;
+    super();
+
+    this.#canvas = canvas;
+    this.#durationSeconds = durationSeconds;
 
     // Create an empty json structure with timeline data
-    this.timelineData = {
+    this.#timelineData = {
       elements: [],
       animations: [],
     };
 
     // Optional external update listener
-    this.onUpdateListener;
+    this.#onUpdateListener = null;
 
     // Create the Gsap timeline
-    this.timeline = gsap.timeline({
+    this.#timeline = gsap.timeline({
       paused: true,
       repeat: -1, // Loop the animation indefinitely
       onUpdate: () => {
-        if (this.onUpdateListener) {
-          this.onUpdateListener(this.timeline);
+        if (this.#onUpdateListener) {
+          this.#onUpdateListener(this.#timeline);
         }
       },
     });
-
-    
-
   }
 
-  buildAnimation() {
-    // Store the current timeline progress and reset the timeline animations
-    const currentProgress = this.timeline.progress() || 0;
-    this.timeline.clear();
-
-    this.buildElements();
-    this.buildAnimations();
-    this.buildVisualizer();
-
-    // Set the timeline progress back where the user left off.
-    this.timeline.progress(currentProgress);
-
-  }
-
-  buildElements() {
-    const elementsData = this.timelineData.elements;
+  #buildElements() {
+    const elementsData = this.#timelineData.elements;
 
     // Clear all elements
-    this.canvas.innerHTML = "";
+    this.#canvas.innerHTML = "";
 
     // Create all elements
     elementsData.forEach((elementData) => {
       const element = document.createElement("h1");
       element.classList.add(elementData.group, elementData.id);
       element.textContent = elementData.content;
-      this.canvas.appendChild(element);
+      this.#canvas.appendChild(element);
     });
   }
 
-  buildAnimations() {
+  setText(text) {
+    let newTextElement = {"id": `el-${(this.timelineData.elements.length + 1)}`, "group": "group-1", "content": `${text}`}
+
+    this.timelineData.elements.push(newTextElement);
+    this.buildAnimation();
+  }
+
+  setText(text) {
+    let newTextElement = {"id": `el-${this.timelineData.elements.length}`, "group": "group-1", "content": `${text}`}
+
+    this.timelineData.elements.push(newTextElement);
+    this.buildAnimation();
+  }
+
+  #buildAnimations() {
     // Loop over every element's animations
-    this.timelineData.animations.forEach((animationData) => {
+    this.#timelineData.animations.forEach((animationData) => {
       const target = animationData.target;
+
 
       // Loop over every property of the element
       animationData.properties.forEach((propertyData) => {
@@ -73,9 +80,21 @@ export default class AnimationBuilder {
 
         // If only one keyframe exists, make it a "constant" property value
         if (keyframes.length === 1) {
+
+          let value = keyframes[0].value;
+   
+          // gsap.set(`.${target}`, {
+          //   [property]: keyframes[0].value,
+          // });
+
+          if (property === "letterSpacing") {
+            value += "px"; //TODO: Om al die functionaliteiten te laten werken moet het object van de keyframes uit de json gehaald worden.
+          }
+
           gsap.set(`.${target}`, {
-            [property]: keyframes[0].value,
+            [property]: value
           });
+              
 
           return;
         }
@@ -86,27 +105,26 @@ export default class AnimationBuilder {
           let current = keyframes[i];
 
           // The time in seconds between keyframes is the difference in progress times the total timeline duration 
-          let timeDifferenceSeconds = (current.progress - last.progress) * this.durationSeconds;
+          let timeDifferenceSeconds = (current.progress - last.progress) * this.#durationSeconds;
 
           // Set the animation keyframe in Gsap
-          this.timeline.to(
+          this.#timeline.to(
             `.${target}`,
             {
               [property]: current.value,
               duration: timeDifferenceSeconds,
               ease: current.ease ? current.ease : "none",
             },
-            last.progress * this.durationSeconds,
+            last.progress * this.#durationSeconds,
           );
         }
       });
     });
   }
 
-  setKeyframe(targetName, propertyName, value) {
-
+  #getOrCreateAnimation(targetName) {
     // Search if the element already has animation data
-    let animation = this.timelineData.animations.find((animation) => animation.target === targetName);
+    let animation = this.#timelineData.animations.find((animation) => animation.target === targetName);
 
     // Create animation data if it doesn't exist
     if (!animation) {
@@ -115,9 +133,13 @@ export default class AnimationBuilder {
         properties: [],
       };
 
-      this.timelineData.animations.push(animation);
+      this.#timelineData.animations.push(animation);
     }
 
+    return animation;
+  }
+
+  #getOrCreateProperty(animation, propertyName) {
     // Search if the element already has an animation on the given property
     let propertyEntry = animation.properties.find((property) => property.property === propertyName);
 
@@ -131,7 +153,30 @@ export default class AnimationBuilder {
       animation.properties.push(propertyEntry);
     }
 
-    const currentTime = Math.round(this.timeline.progress() * 100) / 100;
+    return propertyEntry;
+  }
+
+  #getCurrentProgress() {
+    return Math.round(this.#timeline.progress() * 100) / 100;
+  }
+
+  buildAnimation() {
+    // Store the current timeline progress and reset the timeline animations
+    const currentProgress = this.#timeline.progress() || 0;
+    this.#timeline.clear();
+
+    this.#buildElements();
+    this.#buildAnimations();
+
+    // Set the timeline progress back where the user left off.
+    this.#timeline.progress(currentProgress);
+  }
+
+  setKeyframe(targetName, propertyName, value) {
+    const animation = this.#getOrCreateAnimation(targetName);
+    const propertyEntry = this.#getOrCreateProperty(animation, propertyName);
+
+    const currentTime = this.#getCurrentProgress();
 
     // Search if the current time already contains a keyframe
     let keyframe = propertyEntry.keyframes.find((keyframe) => keyframe.progress === currentTime);
@@ -148,41 +193,62 @@ export default class AnimationBuilder {
 
     // Update the value of te keyframe
     keyframe.value = value;
+
     this.buildAnimation();
+    this.dispatchEvent(new Event("updateAnimation"));
+  }
+
+  moveKeyframe(targetName, propertyName, fromProgress, toProgress) {
+    const animation = this.#getOrCreateAnimation(targetName);
+    const propertyEntry = this.#getOrCreateProperty(animation, propertyName);
+ 
+    // Search for the keyframe at the given progress
+    const keyframe = propertyEntry.keyframes.find((keyframe) => keyframe.progress === fromProgress);
+ 
+    if (!keyframe) return;
+ 
+    // Update the progress of the keyframe
+    keyframe.progress = toProgress;
+    this.buildAnimation();
+    this.dispatchEvent(new Event("updateAnimation"));
   }
 
   // Add a callback function that runs if the timeline is updated
   setOnUpdateListener(listener) {
-    this.onUpdateListener = listener;
+    this.#onUpdateListener = listener;
   }
 
   // remove callback function that runs if the timeline is updated
   removeOnUpdateListener() {
-    this.onUpdateListener = null;
+    this.#onUpdateListener = null;
   }
 
   play() {
-    this.timeline.play();
+    this.#timeline.play();
   }
 
   pause() {
-    this.timeline.pause();
+    this.#timeline.pause();
   }
 
   togglePlay() {
-    this.timeline.paused(!this.timeline.paused());
+    this.#timeline.paused(!this.#timeline.paused());
   }
 
   isPaused() {
-    return this.timeline.paused();
+    return this.#timeline.paused();
   }
 
   setProgress(value) {
-    this.timeline.progress(value);
+    this.#timeline.progress(value);
   }
 
   getProgress() {
-    return this.timeline.progress();
+    return this.#timeline.progress();
+  }
+
+  get timelineData() {
+    return this.#timelineData;
   }
 
   // Load te animation data from a given filepath
@@ -190,8 +256,9 @@ export default class AnimationBuilder {
     fetch(filePath)
       .then((result) => result.json())
       .then((data) => {
-        this.timelineData = data;
+        this.#timelineData = data;
         this.buildAnimation();
+        this.dispatchEvent(new Event("updateAnimation"));
       });
   }
 
@@ -200,68 +267,5 @@ export default class AnimationBuilder {
   }
 
 
-buildVisualizer() {
-  const visualizerContainer = document.querySelector(".timeline-container"); // jouw DOM-element
-  visualizerContainer.innerHTML = " "
-
-  // Get the data from the json
-  this.timelineData.animations.forEach((animationData) => {
-    animationData.properties.forEach((propertyData) => {
-
-      // Create elements to create for each functionality a row
-      const row = document.createElement("div");
-      row.classList.add("row");
-
-      const track = document.createElement("div");
-      track.classList.add("track");
-
-      const trackText = document.createElement("p");
-      trackText.classList.add("track-label");
-
-      row.append(trackText, track)
-
-      trackText.innerHTML = `<span>${propertyData.property}</span>`;
-
-      // Create for each keyframe point a point on the row
-      propertyData.keyframes.forEach((keyframe) => {
-        const point = document.createElement("div");
-        point.classList.add("keyframe");
-        point.style.left = `calc(${keyframe.progress * 100}% - 7px)`;
-        track.appendChild(point);
-
-        // Save This in self, because in draggable from gsap he doesn't recognize this as our class/object
-        const self = this
-        // Create a drag for the keyframe and update the value
-        Draggable.create(point, {
-          // Type of way you can dragg the element on the x axis
-          type: 'x',
-          bounds: track,
-          onClick() {
-            // Use offsetwidth to get the length in pixels of the track   
-            const trackWidth = track.offsetWidth;
-            // To get the new position "what point was starting point" + "the point i dragged it to"
-            const pointX = this.x + (trackWidth * keyframe.progress);
-
-            // So it stayes inside the track. math min so it doesn't get above the 1 and below 0
-            keyframe.progress = Math.max(0, Math.min(1, pointX / trackWidth));
-          },
-          onDragEnd(){
-            const trackWidth = track.offsetWidth;
-            const pointX = this.x + (trackWidth * keyframe.progress)
-            keyframe.progress = Math.max(0, Math.min(1, pointX / trackWidth));
-
-            // Rebuild the animation to the new keypoints 
-            self.buildAnimation();
-          }
-        });
-      });
-
-    // Add the elements to the html
-      visualizerContainer.appendChild(row);
-    });
-  });
-};
 
 }
-
-
