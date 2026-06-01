@@ -221,3 +221,35 @@ observer.observe(tracksContainer);
 
 updatePlayheadHeight();
 buildVisualizer();
+
+
+
+
+//! Animation direction
+const directionSelect = document.getElementById('animation-direction');
+
+// Set inital direction to normal
+canvas.classList.add('dir-normal');
+
+// Set initial text case to initial
+canvas.classList.add('case-initial');
+
+// Function that executes when the value of the direction select changes
+directionSelect.addEventListener('change', (e) => {
+
+  const propertyName = e.target.dataset.property;
+  const value = parseFloat(e.target.value); // TODO: should not be float for all values
+  animation.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
+});
+
+//! Text casing
+const textCaseRadios = document.querySelectorAll('input[name="text-case"]');
+
+// Function that executes when the value of the text case radios changes
+textCaseRadios.forEach(radio => {
+  radio.addEventListener('change', (e) => {
+    const propertyName = e.target.dataset.property;
+    const value = e.target.value;
+    animation.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
+  });
+});
