@@ -36,12 +36,9 @@
             width: 100%;
             height: .75rem;
             cursor: pointer;
-            <<<<<<< HEAD background: rgb(206, 206, 206);
-            border-radius: 5px;
-            =======background: var(--color-bar);
+            background: var(--color-bar);
             border-radius: 10px;
             align-self: end;
-            >>>>>>>dev
         }
 
         /* Styling slider element */
@@ -52,10 +49,8 @@
             height: var(--height-playhead, 80px);
             width: 5px;
             border-radius: 5px;
-            <<<<<<< HEAD background: #535353;
-            /* Kleur van het schuifje */
-            =======background: deeppink;
-            >>>>>>>dev cursor: pointer;
+            background: deeppink;
+            cursor: pointer;
             top: -.5rem;
         }
     }
@@ -74,9 +69,8 @@
 /* Styling for the timeline/keyframe bars  */
 .timeline-container {
     /* Voor het tonen alle tracks, height 100% */
-    <<<<<<< HEAD height: 80%;
-    =======height: 100%;
-    >>>>>>>dev overflow-y: scroll;
+    height: 100%;
+    overflow-y: scroll;
     overflow-x: hidden;
     grid-column: 1 / -1;
     grid-row: 4;
