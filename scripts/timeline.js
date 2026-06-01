@@ -1,5 +1,6 @@
 import Animation from "./animations/animation.js";
 import AnimationPlayer from "./animations/animation-player.js";
+import History from "./memento/history.js";
 
 const timelineSlider = document.querySelector("#timeline-slider");
 const playButtonTimeline = document.querySelector(".play-animation");
@@ -9,6 +10,9 @@ const canvas = document.querySelector(".canvas");
 
 const textInput = document.getElementById("input-text");
 const textButton = document.getElementById("input-button");
+
+const undoButton = document.querySelector(".undo");
+const redoButton = document.querySelector(".redo");
 
 let activeKeyframe = null;
 
@@ -54,11 +58,30 @@ async function loadAnimation(filePath) {
 // -----------------------
 
 const animation = await loadAnimation("./scripts/animation.json");
+const history = new History();
+history.addMemento(structuredClone(animation.animation));
+
 const player = new AnimationPlayer(canvas, animation);
 
 function getFirstElementId() {
   return Object.keys(animation.getElements())[0] ?? null;
 }
+
+undoButton.addEventListener("click", () => {
+  const state = history.undo();
+
+  if (state !== null) {
+    animation.load(state);
+  }
+});
+
+redoButton.addEventListener("click", () => {
+  const state = history.redo();
+
+  if (state !== null) {
+    animation.load(state);
+  }
+})
 
 // -----------------------
 // Player listeners
@@ -99,6 +122,10 @@ animationControls.forEach((control) => {
     const value = parseFloat(event.target.value); // TODO: should not be float for all values
 
     animation.setKeyframe(elementId, propertyName, player.getProgress(), value);
+  });
+
+  control.addEventListener("change", (event) => {
+    history.addMemento(structuredClone(animation.animation));
   });
 });
 
@@ -203,6 +230,7 @@ function addText(text) {
   if (!text.trim()) return;
   animation.createElement(text);
   textInput.value = "";
+  history.addMemento(structuredClone(animation.animation));
 }
 
 // -----------------------
