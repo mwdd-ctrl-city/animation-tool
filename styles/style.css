@@ -10,7 +10,7 @@
     --size-topbar: 3.5em;
     --size-items: 18em;
     --size-timeline: 15em;
-    --gap-timeline: 1.5em;
+    --gap-timeline: .5em;
 
     /* COLORS */
     --color-bg-canvas: #F2F1F3;
@@ -28,6 +28,8 @@
     --color-hover-one: #4C78D0;
     --color-hover-two: rgba(200, 200, 200, 0.4);
     --color-bar: #eaeaea;
+    --color-track: #EEF4FF;
+    --color-playhead: #FF1493;
 
     interpolate-size: allow-keywords;
 }
@@ -70,6 +72,7 @@
 body {
     font-family: "Inter", sans-serif;
     background-color: var(--color-bg-canvas);
+    color: var(--color-text-two);
 }
 
 /* https://www.a11yproject.com/posts/how-to-hide-content/ */

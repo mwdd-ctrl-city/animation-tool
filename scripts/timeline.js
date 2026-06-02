@@ -27,7 +27,7 @@ animationBuilder.setOnUpdateListener((timeline) => {
   const current = (progress * timeline.duration()).toFixed(2)
   // Get the timelines current number / get the duration of the timeline
   document.querySelector('.tl-time-start').value = current;
-  
+
 
   updateRangeInputs()
 });
@@ -122,16 +122,18 @@ function buildVisualizer() {
         });
       });
 
-    // Add the elements to the html
+      // Add the elements to the html
       visualizerContainer.appendChild(row);
     });
   });
+
+  updatePlayheadHeight();
 };
 
-function updateRangeInputs () {
+function updateRangeInputs() {
   const animations = animationBuilder.timelineData.animations;
   const currentProgress = animationBuilder.getProgress();
-  
+
 
   // Search for all the controls 
   animationControls.forEach((control) => {
@@ -165,17 +167,22 @@ function updateRangeInputs () {
   })
 }
 
-// PLayhead element on the timeline increases it/s length when the a track is added
+
+// // PLayhead element on the timeline increases it/s length when the a track is added
 function updatePlayheadHeight() {
+  const lastRow = tracksContainer.querySelector('.row:last-of-type');
+  if (!lastRow) return;
+
   // Get the height from the container that needs to be trackt for the height
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
-  const containerBottom = tracksContainer.getBoundingClientRect().bottom;
+  const rowBottom = lastRow.getBoundingClientRect().bottom;
   const sliderTop = timelineSlider.getBoundingClientRect().top;
 
-  // Devide by eachother so it doesn't get the wholee height
-  const height = containerBottom - sliderTop;
+  // Divide by eachother so it doesn't get the whole height. Add 20 to make sure it goes a little below the row.
+  const height = rowBottom - sliderTop + 20;
   timelineSlider.style.setProperty('--height-playhead', `${height}px`);
 }
+
 
 // API that tracks if an element changes size
 // https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
@@ -184,17 +191,17 @@ observer.observe(tracksContainer);
 
 updatePlayheadHeight();
 textButton.addEventListener("click", () => {
-    addText(textInput.value); 
+  addText(textInput.value);
 })
 
 //Add input value with enter key
 textInput.addEventListener('keypress', (event) => {
-    if (event.key === 'Enter') {
-        addText(textInput.value); 
-    }
+  if (event.key === 'Enter') {
+    addText(textInput.value);
+  }
 });
 
 function addText(text) {
-    animationBuilder.setText(text); 
-    textInput.value = ''; //Clear input field
+  animationBuilder.setText(text);
+  textInput.value = ''; //Clear input field
 }

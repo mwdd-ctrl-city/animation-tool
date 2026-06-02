@@ -288,52 +288,52 @@ fieldset {
 }
 
 .fieldset-container {
-  background-color: var(--color-bg-container);
-  padding-top: .25em;
-  margin: .5em;
-  border-radius: 10px;
-  box-shadow: 0 0 5px var(--color-boxshadow-one);
-  padding: 10px;
-  overflow: hidden;
-  
-  & summary {
-    gap: 10px;
-    display: flex;
-    align-items: center;
-    list-style: none;
-    cursor: pointer;
-    user-select: none;
-    padding: 4px 4px 0 4px;
-  }
+    background-color: var(--color-bg-container);
+    padding-top: .25em;
+    margin: .5em;
+    border-radius: 10px;
+    box-shadow: 0 0 5px var(--color-boxshadow-one);
+    padding: 10px;
+    overflow: hidden;
 
-  & summary::-webkit-details-marker {
-    display: none;
-  }
+    & summary {
+        gap: 10px;
+        display: flex;
+        align-items: center;
+        list-style: none;
+        cursor: pointer;
+        user-select: none;
+        padding: 4px 4px 0 4px;
+    }
 
-  & summary::before {
-    content: '';
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    border-bottom: 2px solid #2B2B2B;
-    border-right: 2px solid #2B2B2B;
-    transform: rotate(-45deg);
-    transition: transform 0.3s ease;
-  }
+    & summary::-webkit-details-marker {
+        display: none;
+    }
 
-  &[open] summary::before {
-    transform: rotate(45deg);
-  }
+    & summary::before {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-bottom: 2px solid #2B2B2B;
+        border-right: 2px solid #2B2B2B;
+        transform: rotate(-45deg);
+        transition: transform 0.3s ease;
+    }
+
+    &[open] summary::before {
+        transform: rotate(45deg);
+    }
 }
 
 details::details-content {
-  block-size: 0;
-  transition: block-size 1s, content-visibility 1s;
-  transition-behavior: allow-discrete;
+    block-size: 0;
+    transition: block-size 1s, content-visibility 1s;
+    transition-behavior: allow-discrete;
 }
 
 details[open]::details-content {
-  block-size: auto;
+    block-size: auto;
 }
 
 
@@ -349,6 +349,7 @@ details[open]::details-content {
     min-height: 10em;
     box-shadow: 0 0 25px var(--color-boxshadow-one);
     z-index: 100;
+    padding: 1rem 1rem 0 1rem;
 
     background-color: #FFFFFF;
     border-top: 1px solid var(--color-border-container);
@@ -367,7 +368,7 @@ details[open]::details-content {
     }
 
     & .timeline-content {
-        overflow-y: auto;
+        /* overflow-y: auto; */
 
         height: 100%;
         width: 100vw;
