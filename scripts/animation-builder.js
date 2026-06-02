@@ -51,6 +51,7 @@ export default class AnimationBuilder extends EventTarget {
       const element = document.createElement("h1");
       element.classList.add(elementData.group, elementData.id);
       element.textContent = elementData.content;
+      element.contentEditable = false; //https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/contentEditable
       this.#canvas.appendChild(element);
 
       Draggable.create(element, {
@@ -59,11 +60,27 @@ export default class AnimationBuilder extends EventTarget {
         onClick: () => { 
           this.#selectedText = elementData.id;
           element.style.backgroundColor = element.style.backgroundColor === "deeppink" ? "transparent" : "deeppink";
+          element.contentEditable = true;
 
           this.#updateInputTarget(); 
           buildVisualizer(); 
         }
       });
+
+      element.addEventListener("dblclick", () => {
+        const dragInstance = Draggable.get(element);
+        if (dragInstance) dragInstance.disable();  //Disable gsap drag on element if in edit mode
+
+        element.contentEditable = true;
+        element.focus();
+      })
+
+      element.addEventListener("blur", () => {
+        element.contentEditable = false; 
+
+        const dragInstance = Draggable.get(element);
+        if (dragInstance) dragInstance.enable();  //Enable drag after leaving edit mode
+      })
     });
   }
 
@@ -84,7 +101,6 @@ export default class AnimationBuilder extends EventTarget {
 
     this.timelineData.elements.push(newTextElement);
     this.buildAnimation();
-
   }
 
   #buildAnimations() {
