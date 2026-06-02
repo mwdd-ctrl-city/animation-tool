@@ -58,12 +58,19 @@ export default class AnimationBuilder extends EventTarget {
         bounds: this.#canvas,
 
         onClick: () => { 
-          this.#selectedText = elementData.id;
+          this.#selectedText = elementData.id; 
           element.style.backgroundColor = element.style.backgroundColor === "deeppink" ? "transparent" : "deeppink";
           element.contentEditable = true;
 
           this.#updateInputTarget(); 
           buildVisualizer(); 
+        },
+
+        ondragend: function () {
+          console.log(`X: ${this.x} Y: ${this.y}`)
+          setKeyframe(this.#selectedText, x, this.x)
+          setKeyframe(this.#selectedText, y, this.y)
+          // targetName, propertyName, value
         }
       });
 
