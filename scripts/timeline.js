@@ -126,7 +126,7 @@ function buildVisualizer() {
             const pointX = this.x + (trackWidth * keyframe.progress);
             const toProgress = Math.max(0, Math.min(1, pointX / trackWidth));
 
-            animationBuilder.moveKeyframe("el-1", propertyData.property, keyframe.progress, toProgress);
+            animationBuilder.moveKeyframe(animationBuilder.selectedText, propertyData.property, keyframe.progress, toProgress);
           }
         });
       });
