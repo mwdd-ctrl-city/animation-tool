@@ -90,7 +90,6 @@ export function buildVisualizer() {
   // Get the data from the json
   timelineData.animations.filter(animationData => animationData.target === animationBuilder.selectedText).forEach((animationData) => {
     animationData.properties.forEach((propertyData) => {
-      console.log(animationData.target)
 
       // Create elements to create for each functionality a row
       const row = document.createElement("div");
@@ -193,10 +192,10 @@ updatePlayheadHeight();
 //   }
 // });
 
-function addText(text) {
-  animationBuilder.setText(text);
-  textInput.value = ''; //Clear input field
-}
+// function addText(text) {
+//   animationBuilder.setText(text);
+//   textInput.value = ''; //Clear input field
+// }
 
 // Duplicate text with button
 duplicateBtn.addEventListener('click', () => {
@@ -228,6 +227,5 @@ duplicateBtn.addEventListener('click', () => {
 });
 
 addTextButton.addEventListener("click", () => {
-  console.log("sup")
   animationBuilder.setText("type something here...");
 })  
