@@ -17,6 +17,8 @@ const endTimeInput = document.querySelector(".tl-time-end");
 const undoButton = document.querySelector(".undo");
 const redoButton = document.querySelector(".redo");
 
+const easeSelect = document.querySelector('#animation-select-ease')
+
 let activeKeyframe = null;
 
 // -----------------------
@@ -127,6 +129,23 @@ player.setOnUpdateListener((timeline) => {
 // Controls (keyframes)
 // -----------------------
 
+easeSelect.addEventListener('change', ()=>{
+  // The ? stands for a undefined property that doesn't exist in the dom so it doesn't give a undefined
+  const ease = easeSelect?.value ?? "none";
+
+    animation.setKeyframe(
+      activeElementId,
+      activePropertyName,
+      player.getProgress(),
+      activeValue,
+      ease
+    );
+})
+
+let activeElementId = null;
+let activePropertyName = null;
+let activeValue = null;
+
 animationControls.forEach((control) => {
   control.addEventListener("input", (event) => {
     const elementId = getFirstElementId();
@@ -136,12 +155,16 @@ animationControls.forEach((control) => {
 
     const propertyName = event.target.dataset.property;
     const value = parseFloat(event.target.value);
+    
+    activeElementId = elementId;
+    activePropertyName = event.target.dataset.property;
+    activeValue = parseFloat(event.target.value);
 
     animation.setKeyframe(
-      elementId,
-      propertyName,
+      activeElementId,
+      activePropertyName,
       player.getProgress(),
-      value
+      activeValue
     );
   });
 
@@ -166,6 +189,24 @@ playButtonTimeline.addEventListener("click", () => {
   const isPaused = player.isPaused();
   playButtonTimeline.textContent = isPaused ? "Pause" : "Play";
   player.togglePlay();
+});
+
+// -----------------------
+// Input change timeline time
+// -----------------------
+// Input starting point when the value is changed devide with the duration and set the new progress to te playhead
+document.querySelector('.tl-time-start').addEventListener('change', (e) => {
+  const time = parseFloat(e.target.value);
+  // const progress = time / animationBuilder.timelineData.duration;
+  const progress = time / animation.getDuration()
+  player.setProgress(progress);
+});
+
+document.querySelector('.tl-time-end').addEventListener('change', (e) => {
+  const time = parseFloat(e.target.value);
+  animation.setDuration(time)
+
+  history.addMemento(structuredClone(animation.animation))
 });
 
 // -----------------------
