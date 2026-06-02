@@ -78,17 +78,12 @@ animationBuilder.addEventListener("updateAnimation", () => {
   buildVisualizer();
 });
 
-function buildVisualizer() {
+export function buildVisualizer() {
   const visualizerContainer = document.querySelector(".timeline-container");
   visualizerContainer.innerHTML = ""
 
   // Get the animationData from the animationBuilder
   const timelineData = animationBuilder.timelineData;
-  // const timelineData = animationBuilder.timelineData.animations.target.find(
-  //   animations => animations.target === animationBuilder.selectedText
-  // );
-
-  // console.log(timelineData)
 
   // Get the data from the json
   timelineData.animations.filter(animationData => animationData.target === animationBuilder.selectedText).forEach((animationData) => {

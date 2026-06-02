@@ -1,4 +1,5 @@
 // Source: https://gsap.com/docs/v3/GSAP/Timeline/
+import { buildVisualizer } from "./timeline.js"
 
 export default class AnimationBuilder extends EventTarget {
   // Private fields
@@ -60,6 +61,7 @@ export default class AnimationBuilder extends EventTarget {
           element.style.backgroundColor = element.style.backgroundColor === "deeppink" ? "transparent" : "deeppink";
 
           this.#updateInputTarget(); 
+          buildVisualizer(); 
         }
       });
     });
