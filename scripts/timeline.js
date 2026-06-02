@@ -12,6 +12,8 @@ const textButton = document.getElementById('input-button');
 const numberInput = document.getElementById('numberInput');
 const duplicateBtn = document.getElementById('duplicateBtn');
 
+const addTextButton = document.querySelector(".add-text-button");   
+
 // Create the animationbuilder with the given container to animate with a default timeline of 5 seconds
 const animationBuilder = new AnimationBuilder(canvas, 5);
 
@@ -182,7 +184,7 @@ updatePlayheadHeight();
 //   addText(textInput.value);
 // })
 
-//Add input value with enter key
+// //Add input value with enter key
 // textInput.addEventListener('keypress', (event) => {
 //   if (textInput.value === "") return;
 
@@ -198,7 +200,6 @@ function addText(text) {
 
 // Duplicate text with button
 duplicateBtn.addEventListener('click', () => {
-  console.log("sup")
   // select the elemenent you want to dubplicate the text of
     const selectedItem = document.querySelector(".el-1");
 
@@ -226,3 +227,7 @@ duplicateBtn.addEventListener('click', () => {
     numberInput.value = '';
 });
 
+addTextButton.addEventListener("click", () => {
+  console.log("sup")
+  animationBuilder.setText("type something here...");
+})  
