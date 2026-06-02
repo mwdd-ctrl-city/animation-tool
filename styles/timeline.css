@@ -5,7 +5,7 @@
     width: 100%;
     padding: 1rem;
     margin-bottom: 2rem;
-    
+
     display: grid;
     grid-template-columns: 10em 1fr;
     grid-template-rows: 20px 20px var(--gap-timeline) 100px;
@@ -49,7 +49,7 @@
             height: var(--height-playhead, 80px);
             width: 5px;
             border-radius: 5px;
-            background: deeppink; 
+            background: deeppink;
             cursor: pointer;
             top: -.5rem;
         }
@@ -69,7 +69,7 @@
 /* Styling for the timeline/keyframe bars  */
 .timeline-container {
     /* Voor het tonen alle tracks, height 100% */
-    height: 100%; 
+    height: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
     grid-column: 1 / -1;
@@ -102,14 +102,14 @@
 }
 
 .keyframe {
-  position: absolute;
+    position: absolute;
 
-  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-  background-color: deeppink;
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    background-color: deeppink;
 
-  --keyframe-size: 1em;
-  width: var(--keyframe-size);
-  left: calc(var(--p) * 100% - var(--keyframe-size) / 2);
-  aspect-ratio: 1;
-  align-self: center;
+    --keyframe-size: 1em;
+    width: var(--keyframe-size);
+    left: calc(var(--p) * 100% - var(--keyframe-size) / 2);
+    aspect-ratio: 1;
+    align-self: center;
 }
