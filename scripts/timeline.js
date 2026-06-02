@@ -4,7 +4,7 @@ const timelineSlider = document.querySelector("#timeline-slider");
 const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
 const tracksContainer = document.querySelector('.timeline-container');
-const canvas = document.querySelector(".canvas");
+const canvas = document.querySelector(".content-canvas");
 
 const textInput = document.getElementById("input-text");
 const textButton = document.getElementById('input-button');
@@ -176,19 +176,20 @@ const observer = new ResizeObserver(updatePlayheadHeight);
 observer.observe(tracksContainer);
 
 updatePlayheadHeight();
-textButton.addEventListener("click", () => {
-  if (textInput.value === "") return;
-  addText(textInput.value);
-})
+
+// textButton.addEventListener("click", () => {
+//   if (textInput.value === "") return;
+//   addText(textInput.value);
+// })
 
 //Add input value with enter key
-textInput.addEventListener('keypress', (event) => {
-  if (textInput.value === "") return;
+// textInput.addEventListener('keypress', (event) => {
+//   if (textInput.value === "") return;
 
-  if (event.key === 'Enter') {
-    addText(textInput.value);
-  }
-});
+//   if (event.key === 'Enter') {
+//     addText(textInput.value);
+//   }
+// });
 
 function addText(text) {
   animationBuilder.setText(text);
@@ -197,6 +198,7 @@ function addText(text) {
 
 // Duplicate text with button
 duplicateBtn.addEventListener('click', () => {
+  console.log("sup")
   // select the elemenent you want to dubplicate the text of
     const selectedItem = document.querySelector(".el-1");
 
@@ -223,3 +225,4 @@ duplicateBtn.addEventListener('click', () => {
 
     numberInput.value = '';
 });
+
