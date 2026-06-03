@@ -54,6 +54,8 @@ export default class AnimationBuilder extends EventTarget {
       element.contentEditable = false; //https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/contentEditable
       this.#canvas.appendChild(element);
 
+      const scope = this; 
+
       Draggable.create(element, {
         bounds: this.#canvas,
 
@@ -66,11 +68,9 @@ export default class AnimationBuilder extends EventTarget {
           buildVisualizer(); 
         },
 
-        ondragend: function () {
-          console.log(`X: ${this.x} Y: ${this.y}`)
-          setKeyframe(this.#selectedText, x, this.x)
-          setKeyframe(this.#selectedText, y, this.y)
-          // targetName, propertyName, value
+        onDragEnd: function () {
+          scope.setKeyframe(elementData.id, "x", this.x)
+          scope.setKeyframe(elementData.id, "y", this.y)
         }
       });
 
@@ -79,6 +79,7 @@ export default class AnimationBuilder extends EventTarget {
         if (dragInstance) dragInstance.disable();  //Disable gsap drag on element if in edit mode
 
         element.contentEditable = true;
+        
         element.focus();
       })
 
@@ -105,7 +106,7 @@ export default class AnimationBuilder extends EventTarget {
 
   setText(text) {
     let newTextElement = {"id": `el-${(this.timelineData.elements.length + 1)}`, "group": "group-1", "content": `${text}`}
-
+    
     this.timelineData.elements.push(newTextElement);
     this.buildAnimation();
   }
