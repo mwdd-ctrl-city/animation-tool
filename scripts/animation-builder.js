@@ -86,6 +86,8 @@ export default class AnimationBuilder extends EventTarget {
       element.addEventListener("blur", () => {
         element.contentEditable = false; 
 
+        this.updateText(elementData, element.textContent); 
+
         const dragInstance = Draggable.get(element);
         if (dragInstance) dragInstance.enable();  //Enable drag after leaving edit mode
       })
@@ -109,6 +111,13 @@ export default class AnimationBuilder extends EventTarget {
     
     this.timelineData.elements.push(newTextElement);
     this.buildAnimation();
+  }
+
+  updateText(element, content) {
+    let foundItem = this.timelineData.elements.find(item => item.id === element.id) 
+    if (foundItem) {
+      foundItem.content = content
+    }
   }
 
   #buildAnimations() {
