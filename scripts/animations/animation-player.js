@@ -81,15 +81,12 @@ export default class AnimationPlayer {
             properties.forEach((propertyName) => {
                 const keyframes = this.#animation.getKeyframes(targetId, propertyName);
 
-                // If there is only one keyframe, set the property statically
-                if (keyframes.length === 1) {
-                    gsap.set(`.el-${targetId}`, {
-                        [propertyName]: keyframes[0].value,
-                    });
-                    return;
-                }
+                // Set the first keyframe
+                gsap.set(`.el-${targetId}`, {
+                    [propertyName]: keyframes[0].value,
+                });
 
-                // Otherwise, create a tween between each pair of consecutive keyframes
+                // Create a tween between each pair of consecutive keyframes
                 for (let i = 1; i < keyframes.length; i++) {
                     const last = keyframes[i - 1]; // last keyframe
                     const current = keyframes[i]; // current keyframe
