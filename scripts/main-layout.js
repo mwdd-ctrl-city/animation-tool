@@ -49,6 +49,7 @@ projectNameInput.addEventListener("blur", () => {
 // ----------------------------------
 // ** Functions for items **
 resizeHandleLeft.addEventListener("pointerdown", (e) => {
+    isDragging = true;
     startX = e.clientX;
     startWidth = itemsContainer.offsetWidth;
 
@@ -57,8 +58,22 @@ resizeHandleLeft.addEventListener("pointerdown", (e) => {
 
 
 resizeHandleLeft.addEventListener("pointermove", (e) => {
+    if (!isDragging) return;
+    
     const deltaX = startX - e.clientX;
     let newWidth = startWidth + deltaX;
+
+    // Determine max and min width, to change the cursor (UI)
+    // getComputedStyle returns pixel values, with parseFloat it gives a number.
+    const minWidth = parseFloat(getComputedStyle(itemsContainer).minWidth);
+    const maxWidth = parseFloat(getComputedStyle(itemsContainer).maxWidth);
+
+    if (newWidth < minWidth || newWidth > maxWidth) {
+        resizeHandleLeft.style.cursor = "default";
+        newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth); // clamp instead of return
+    } else {
+        resizeHandleLeft.style.cursor = "ew-resize";
+    }
 
     gsap.set(itemsContainer, {
         width: newWidth
@@ -69,6 +84,8 @@ resizeHandleLeft.addEventListener("pointermove", (e) => {
 
 
 resizeHandleLeft.addEventListener("pointerup", (e) => {
+    // Makes sure the resizeHandleLeft has the CSS style given (inline style removed)
+    resizeHandleLeft.style.cursor = "";
     // Stop reacting to mouse- and touch movements on this element.
     resizeHandleLeft.onpointermove = null;
     isDragging = false;
