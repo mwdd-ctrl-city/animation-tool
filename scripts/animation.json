@@ -25,18 +25,6 @@
           "value": 5,
           "ease": "none"
         }
-      ],
-      "rotation": [
-        {
-          "progress": 0,
-          "value": 0,
-          "ease": "none"
-        },
-        {
-          "progress": 1,
-          "value": 360,
-          "ease": "none"
-        }
       ]
     }
   }

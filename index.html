@@ -8,12 +8,10 @@
     <link rel="stylesheet" href="/styles/style.css" />
     <link rel="stylesheet" href="/styles/main-layout.css" />
     <link rel="stylesheet" href="/styles/timeline.css" />
-    <link rel="stylesheet" href="/styles/canvas.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="/scripts/script.js" defer></script>
     <script src="/scripts/main-layout.js" defer></script>
     <script src="./scripts/timeline.js" type="module" defer></script>
 
@@ -91,8 +89,8 @@
                     </label>
                     <label>
                         Opacity
-                        <input type="range" class="animation-control" data-property="Opacity" min="0" max="1"
-                            value="1" step="0.1" />
+                        <input type="range" class="animation-control" data-property="Opacity" min="0" max="1" value="1"
+                            step="0.1" />
                     </label>
 
                     <label>
@@ -162,20 +160,24 @@
 
                     <div class="animation-direction">
                         <label>Direction</label>
-                        <select id="animation-direction">
-                            <option value="normal">Normal</option>
-                            <option value="left">Left</option>
-                            <option value="right">Right</option>
-                            <option value="reverse">Reverse</option>
+                        <select id="animation-direction" data-property="rotation">
+                            <option value="0">Normal</option>
+                            <option value="-90">Left</option>
+                            <option value="90">Right</option>
+                            <option value="180">Reverse</option>
                         </select>
                     </div>
 
                     <div class="text-casing">
                         <label>Text Casing</label>
-                        <label><input type="radio" name="text-case" value="initial" checked> Initial</label>
-                        <label><input type="radio" name="text-case" value="capitalize"> Capitalize</label>
-                        <label><input type="radio" name="text-case" value="lowercase"> lowercase</label>
-                        <label><input type="radio" name="text-case" value="uppercase"> UPPERCASE</label>
+                        <label><input data-property="textTransform" type="radio" name="text-case" value="none" checked>
+                            Initial</label>
+                        <label><input data-property="textTransform" type="radio" name="text-case" value="capitalize">
+                            Capitalize</label>
+                        <label><input data-property="textTransform" type="radio" name="text-case" value="lowercase">
+                            lowercase</label>
+                        <label><input data-property="textTransform" type="radio" name="text-case" value="uppercase">
+                            UPPERCASE</label>
                     </div>
 
                 </fieldset>
@@ -210,6 +212,7 @@
         </div>
 
     </main>
+    <footer></footer>
 </body>
 
 
