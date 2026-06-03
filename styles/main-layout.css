@@ -1,7 +1,7 @@
 /* MARK: OPLOSSEN!
 /* !!!!! VOOR NU EVEN !!!!! */
 /* ************************ */
-h1 {
+h2 {
     position: absolute;
     left: 50%;
     top: 50%;
@@ -288,52 +288,52 @@ fieldset {
 }
 
 .fieldset-container {
-  background-color: var(--color-bg-container);
-  padding-top: .25em;
-  margin: .5em;
-  border-radius: 10px;
-  box-shadow: 0 0 5px var(--color-boxshadow-one);
-  padding: 10px;
-  overflow: hidden;
-  
-  & summary {
-    gap: 10px;
-    display: flex;
-    align-items: center;
-    list-style: none;
-    cursor: pointer;
-    user-select: none;
-    padding: 4px 4px 0 4px;
-  }
+    background-color: var(--color-bg-container);
+    padding-top: .25em;
+    margin: .5em;
+    border-radius: 10px;
+    box-shadow: 0 0 5px var(--color-boxshadow-one);
+    padding: 10px;
+    overflow: hidden;
 
-  & summary::-webkit-details-marker {
-    display: none;
-  }
+    & summary {
+        gap: 10px;
+        display: flex;
+        align-items: center;
+        list-style: none;
+        cursor: pointer;
+        user-select: none;
+        padding: 4px 4px 0 4px;
+    }
 
-  & summary::before {
-    content: '';
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    border-bottom: 2px solid #2B2B2B;
-    border-right: 2px solid #2B2B2B;
-    transform: rotate(-45deg);
-    transition: transform 0.3s ease;
-  }
+    & summary::-webkit-details-marker {
+        display: none;
+    }
 
-  &[open] summary::before {
-    transform: rotate(45deg);
-  }
+    & summary::before {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-bottom: 2px solid #2B2B2B;
+        border-right: 2px solid #2B2B2B;
+        transform: rotate(-45deg);
+        transition: transform 0.3s ease;
+    }
+
+    &[open] summary::before {
+        transform: rotate(45deg);
+    }
 }
 
 details::details-content {
-  block-size: 0;
-  transition: block-size 1s, content-visibility 1s;
-  transition-behavior: allow-discrete;
+    block-size: 0;
+    transition: block-size 1s, content-visibility 1s;
+    transition-behavior: allow-discrete;
 }
 
 details[open]::details-content {
-  block-size: auto;
+    block-size: auto;
 }
 
 
