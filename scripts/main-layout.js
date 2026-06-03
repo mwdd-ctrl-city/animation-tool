@@ -134,7 +134,6 @@ resizeHandleTop.addEventListener("pointerup", (e) => {
 // ------------------------
 // MARK: CONTENT AND CANVAS
 // ------------------------
-
 // Returns the size and position of an element relative to the viewport - when page loads
 const rect = contentContainer.getBoundingClientRect();
 contentX = (rect.width - 800) / 2;
