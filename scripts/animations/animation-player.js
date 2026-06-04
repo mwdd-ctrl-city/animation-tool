@@ -46,12 +46,12 @@ export default class AnimationPlayer {
 
         const elements = this.#animation.getElements();
 
-        Object.entries(elements).forEach(([id, element]) => {
+        elements.forEach((element, id) => {
             const el = document.createElement("h2"); // TODO: element type should probably come from element data
             el.classList.add(`el-${id}`);
             el.textContent = element;
             this.#canvas.appendChild(el);
-            let scope = this; 
+            let scope = this;
 
             Draggable.create(el, {
                 bounds: this.#canvas,
@@ -75,14 +75,8 @@ export default class AnimationPlayer {
         const groups = this.#animation.getGroups();
 
         const targetIds = [];
-
-        Object.entries(elements).forEach(([id]) => {
-            targetIds.push(id);
-        });
-
-        Object.entries(groups).forEach(([id]) => {
-            targetIds.push(id);
-        });
+        elements.keys().forEach(id => targetIds.push(id));
+        groups.keys().forEach(id => targetIds.push(id));
 
         // Apply the animations for each target
         targetIds.forEach((targetId) => {
