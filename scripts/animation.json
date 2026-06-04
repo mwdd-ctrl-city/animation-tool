@@ -2,7 +2,7 @@
   "name": "animation-name",
   "duration": 5,
   "elements": {
-    "31918104-d817-4ff2-9b5a-7b81e5daa0a8": "placeholder-content"
+    "31918104-d817-4ff2-9b5a-7b81e5daa0a8": "system"
   },
   "groups": {
     "cbd0d450-593a-4213-a5c1-2a33da74a9cc": {
@@ -14,18 +14,6 @@
   },
   "animations": {
     "31918104-d817-4ff2-9b5a-7b81e5daa0a8": {
-      "scaleY": [
-        {
-          "progress": 0,
-          "value": 0,
-          "ease": "none"
-        },
-        {
-          "progress": 1,
-          "value": 5,
-          "ease": "none"
-        }
-      ],
       "rotation": [
         {
           "progress": 0,
@@ -34,7 +22,7 @@
         },
         {
           "progress": 1,
-          "value": 360,
+          "value": 0,
           "ease": "none"
         }
       ]

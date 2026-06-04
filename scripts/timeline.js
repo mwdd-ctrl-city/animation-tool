@@ -128,9 +128,11 @@ player.setOnUpdateListener((timeline) => {
 // Controls (keyframes)
 // -----------------------
 
+let ease;
+
 easeSelect.addEventListener('change', ()=>{
   // The ? stands for a undefined property that doesn't exist in the dom so it doesn't give a undefined
-  const ease = easeSelect?.value ?? "none";
+  ease = easeSelect?.value ?? "none";
 
     animation.setKeyframe(
       activeElementId,
@@ -163,7 +165,8 @@ animationControls.forEach((control) => {
       activeElementId,
       activePropertyName,
       player.getProgress(),
-      activeValue
+      activeValue,
+      ease ?? "none"
     );
   });
 
@@ -269,6 +272,7 @@ function buildVisualizer() {
 
     container.appendChild(row);
   });
+  updatePlayheadHeight();
 }
 
 // -----------------------
