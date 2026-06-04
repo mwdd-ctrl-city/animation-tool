@@ -273,19 +273,21 @@ function addText(text) {
 // -----------------------
 
 function updatePlayheadHeight() {
-  const containerBottom =
-    tracksContainer.getBoundingClientRect().bottom;
-  const sliderTop =
-    timelineSlider.getBoundingClientRect().top;
+  const lastRow = tracksContainer.querySelector('.row:last-of-type');
+  if (!lastRow) return;
 
-  const height = containerBottom - sliderTop;
+  // Get the height from the container that needs to be trackt for the height
+  // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
+  const rowBottom = lastRow.getBoundingClientRect().bottom;
+  const sliderTop = timelineSlider.getBoundingClientRect().top;
 
-  timelineSlider.style.setProperty(
-    "--height-playhead",
-    `${height}px`
-  );
+  // Divide by eachother so it doesn't get the whole height. Add 20 to make sure it goes a little below the row.
+  const height = rowBottom - sliderTop + 20;
+  timelineSlider.style.setProperty('--height-playhead', `${height}px`);
 }
 
+// API that tracks if an element changes size
+// https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
 const observer = new ResizeObserver(updatePlayheadHeight);
 observer.observe(tracksContainer);
 

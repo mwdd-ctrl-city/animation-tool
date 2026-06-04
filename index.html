@@ -190,25 +190,28 @@
         <div class="timeline-panel">
             <div class="resize-handle handle-top"></div>
 
-            <div class="timeline-content">
-                <form class="timeline">
-                    <button type="button" class="play-animation">Play</button>
+            <form class="timeline">
+                <button type="button" class="play-animation">Play</button>
 
-                    <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
-                    <div class="tl-time">
-                        <input type="number" value="0.00" step="0.01" class="tl-time-start">
-                        <input type="number" value="4.00" step="0.01" class="tl-time-end">
-                        <span>seconds</span>
-                    </div>
-                    <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
+                <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
 
-                    <div class="timeline-container">
-                        <div class="track">
-                            <div class="bar"></div>
-                        </div>
+                <div class="tl-time">
+                    <label for="start-time" class="visually-hidden">Start time</label>
+                    <input id="start-time" type="number" value="0.00" step="0.01" class="tl-time-start">
+
+                    <label for="end-time" class="visually-hidden">End time</label>
+                    <input id="end-time" type="number" value="4.00" step="0.01" class="tl-time-end">
+                </div>
+
+                <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
+                <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
+
+                <div class="timeline-container">
+                    <div class="track">
+                        <div class="bar"></div>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
 
     </main>

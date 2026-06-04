@@ -189,12 +189,11 @@ h2 {
     position: fixed;
     top: var(--size-topbar);
     left: 0;
-    right: var(--size-items);
+    right: 18em;
     bottom: 0;
 
-    height: 100svh;
 
-    overflow: hidden;
+    overflow: clip;
 
     & .content-canvas {
         width: 35em;
@@ -238,6 +237,7 @@ h2 {
         position: absolute;
         left: 0;
         height: 100%;
+        width: 10px;
 
         cursor: ew-resize;
     }
@@ -349,6 +349,7 @@ details[open]::details-content {
     min-height: 10em;
     box-shadow: 0 0 25px var(--color-boxshadow-one);
     z-index: 100;
+    padding: 1rem 1rem 0 1rem;
 
     background-color: #FFFFFF;
     border-top: 1px solid var(--color-border-container);
@@ -367,7 +368,7 @@ details[open]::details-content {
     }
 
     & .timeline-content {
-        overflow-y: auto;
+        /* overflow-y: auto; */
 
         height: 100%;
         width: 100vw;
