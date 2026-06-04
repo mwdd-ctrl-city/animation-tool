@@ -51,6 +51,17 @@ export default class AnimationPlayer {
             el.classList.add(`el-${id}`);
             el.textContent = element;
             this.#canvas.appendChild(el);
+            let scope = this; 
+
+            Draggable.create(el, {
+                bounds: this.#canvas,
+                onDragEnd: function () {
+                    let progress = scope.#timeline.progress(); //Get the progress of the current timeline
+
+                    scope.#animation.setKeyframe(id, "x", progress, this.x, "none");    //Create x keyframe
+                    scope.#animation.setKeyframe(id, "y", progress, this.y, "none");    //Create y keyframe
+                }
+            })
         });
     }
 

@@ -6,7 +6,7 @@ const timelineSlider = document.querySelector("#timeline-slider");
 const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
 const tracksContainer = document.querySelector(".timeline-container");
-const canvas = document.querySelector(".canvas");
+const canvas = document.querySelector(".content-canvas");
 
 const textInput = document.getElementById("input-text");
 const textButton = document.getElementById("input-button");
