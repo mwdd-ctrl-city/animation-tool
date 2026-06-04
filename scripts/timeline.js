@@ -8,8 +8,7 @@ const animationControls = document.querySelectorAll(".animation-control");
 const tracksContainer = document.querySelector(".timeline-container");
 const canvas = document.querySelector(".canvas");
 
-const textInput = document.getElementById("input-text");
-const textButton = document.getElementById("input-button");
+const addTextButton = document.querySelector(".add-text-button"); 
 
 const startTimeInput = document.querySelector(".tl-time-start");
 const endTimeInput = document.querySelector(".tl-time-end");
@@ -253,13 +252,9 @@ function updateRangeInputs() {
 // Text input
 // -----------------------
 
-textButton.addEventListener("click", () =>
-  addText(textInput.value)
-);
-
-textInput.addEventListener("keypress", (event) => {
-  if (event.key === "Enter") addText(textInput.value);
-});
+addTextButton.addEventListener("click", () => {
+  addText("Type something here...")
+})
 
 function addText(text) {
   if (!text.trim()) return;
