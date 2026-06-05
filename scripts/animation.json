@@ -14,6 +14,18 @@
   },
   "animations": {
     "31918104-d817-4ff2-9b5a-7b81e5daa0a8": {
+      "scaleY": [
+        {
+          "progress": 0,
+          "value": 0,
+          "ease": "none"
+        },
+        {
+          "progress": 1,
+          "value": 5,
+          "ease": "none"
+        }
+      ],
       "rotation": [
         {
           "progress": 0,
@@ -22,7 +34,7 @@
         },
         {
           "progress": 1,
-          "value": 0,
+          "value": 360,
           "ease": "none"
         }
       ]
