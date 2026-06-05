@@ -84,6 +84,7 @@ animation.addEventListener("change", () => {
 })
 
 function getFirstElementId() {
+  // Gets the first element in the json and gives the propertie in this case the ID, not the value
   return Object.keys(animation.getElements())[0] ?? null;
 }
 
@@ -219,11 +220,14 @@ function buildVisualizer() {
   const container = document.querySelector(".timeline-container");
   container.innerHTML = "";
 
+  // With the function you got the ID of the element
   const elementId = getFirstElementId();
   if (!elementId) return;
 
+  // get the properties that are defined within the id 
   const properties = animation.getProperties(elementId);
 
+  // For each property you make a new track and row within the timeline
   properties.forEach((propertyName) => {
     const keyframes = animation.getKeyframes(elementId, propertyName);
 
@@ -239,6 +243,7 @@ function buildVisualizer() {
 
     row.append(label, track);
 
+     // Create for each keyframe point a point on the row
     keyframes.forEach((keyframe) => {
       const point = document.createElement("div");
       point.classList.add("keyframe");
@@ -246,17 +251,18 @@ function buildVisualizer() {
 
       track.appendChild(point);
 
+      // Create a drag for the keyframe and update the value
       Draggable.create(point, {
+        // Type of way you can dragg the element on the x axis
         type: "x",
         bounds: track,
         onDragEnd() {
+          // Get the width from the track and the point element which stands for the keyframe 
           const trackWidth = track.offsetWidth;
+          const pointX = this.x + keyframe.progress * trackWidth;
 
-          const pointX =
-            this.x + keyframe.progress * trackWidth;
-
-          const newProgress = Math.max(
-            0,
+          // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
+          const newProgress = Math.max( 0,
             Math.min(1, pointX / trackWidth)
           );
 
@@ -270,8 +276,10 @@ function buildVisualizer() {
       });
     });
 
+    // Add the elements to the html
     container.appendChild(row);
   });
+  // Update the playheadHeight on the height of the container
   updatePlayheadHeight();
 }
 
@@ -280,15 +288,18 @@ function buildVisualizer() {
 // -----------------------
 
 function updateRangeInputs() {
+  // Get the first element within the list of elements 
   const elementId = getFirstElementId();
   if (!elementId) return;
 
+  // Update each control with the current value
   animationControls.forEach((control) => {
     const propertyName = control.dataset.property;
 
     const target = canvas.querySelector(`.el-${elementId}`);
     if (!target) return;
 
+    // To animate the controls, you need gsap to get the value in between the keyframes
     control.value = gsap.getProperty(target, propertyName);
   });
 }
