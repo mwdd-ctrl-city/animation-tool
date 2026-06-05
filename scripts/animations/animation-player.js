@@ -88,7 +88,11 @@ export default class AnimationPlayer {
         el.addEventListener("blur", () => {
             el.contentEditable = false; 
 
-            this.#animation.renameElement(id, el.textContent); 
+            if((el.textContent.trim()) === "") {
+                this.#animation.removeElement(id);
+            } else {
+                this.#animation.renameElement(id, el.textContent); 
+            }
 
             const dragInstance = Draggable.get(el); // Retrun draggable object that was previously created 
             if (dragInstance) {
