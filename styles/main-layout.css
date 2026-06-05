@@ -285,6 +285,17 @@ fieldset {
         accent-color: var(--color-details);
         background: var(--color-bg-canvas);
     }
+
+    & select {
+        appearance: none;
+        width: 5rem;
+        border-radius: .5rem;
+        margin-bottom: 1em;
+        padding: .2rem;
+        color: var(--color-text-two);
+        border: var(--color-border-button);
+        background-color: var(--color-bg-canvas);
+    }
 }
 
 .fieldset-container {
