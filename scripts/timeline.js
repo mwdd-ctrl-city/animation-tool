@@ -300,7 +300,6 @@ addTextButton.addEventListener("click", () => {
 function addText(text) {
   if (!text.trim()) return;
   animation.createElement(text);
-  textInput.value = "";
   history.addMemento(structuredClone(animation.animation));
 }
 
