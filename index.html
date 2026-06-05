@@ -191,7 +191,7 @@
                             <option value="power1.in">Ease-in</option>
                             <option value="power1.out">Ease-out</option>
                             <option value="bounce.in">Bounce-in</option>
-                            <option value="bounce.out"">Bounce-out</option>
+                            <option value="bounce.out">Bounce-out</option>
                             <option value=" back.in(1.7)">Back-in</option>
                             <option value="back.out(1.7)">Back-out</option>
                         </select>
@@ -199,14 +199,24 @@
 
                     <div class="text-casing">
                         <label>Text casing</label>
-                        <label><input data-property="textTransform" type="radio" name="text-case" value="none" checked>
-                            Initial</label>
-                        <label><input data-property="textTransform" type="radio" name="text-case" value="capitalize">
-                            Capitalize</label>
-                        <label><input data-property="textTransform" type="radio" name="text-case" value="lowercase">
-                            lowercase</label>
-                        <label><input data-property="textTransform" type="radio" name="text-case" value="uppercase">
-                            UPPERCASE</label>
+                        <div class="text-casing-options">
+                            <label>
+                                <input data-property="textTransform" type="radio" name="text-case" value="none" checked>
+                                <span>Initial</span>
+                            </label>
+                            <label>
+                                <input data-property="textTransform" type="radio" name="text-case" value="capitalize">
+                                <span>Capitalize</span>
+                            </label>
+                            <label>
+                                <input data-property="textTransform" type="radio" name="text-case" value="lowercase">
+                                <span>lowercase</span>
+                            </label>
+                            <label>
+                                <input data-property="textTransform" type="radio" name="text-case" value="uppercase">
+                                <span>UPPERCASE</span>
+                            </label>
+                        </div>
                     </div>
 
                 </fieldset>
