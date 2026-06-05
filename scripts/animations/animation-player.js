@@ -60,6 +60,28 @@ export default class AnimationPlayer {
 
                     scope.#animation.setKeyframe(id, "x", progress, this.x, "none");    //Create x keyframe
                     scope.#animation.setKeyframe(id, "y", progress, this.y, "none");    //Create y keyframe
+                }   
+            })
+
+            el.addEventListener("dblclick", () => {
+                const dragInstance = Draggable.get(el); // Retrun draggable object that was previously created 
+                if (dragInstance) {
+                    dragInstance.disable();  // Turn off gsap draggable behavior
+                }
+
+                el.contentEditable = true;
+                
+                el.focus();
+            })
+
+            el.addEventListener("blur", () => {
+                el.contentEditable = false; 
+
+                this.#animation.renameElement(id, el.textContent); 
+
+                const dragInstance = Draggable.get(el); // Retrun draggable object that was previously created 
+                if (dragInstance) {
+                    dragInstance.enable();  // Turn on gsap draggable behavior
                 }
             })
         });
