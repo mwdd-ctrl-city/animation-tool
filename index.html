@@ -81,26 +81,36 @@
 
                     <label>
                         Font size
-                        <input type="range" class="animation-control" data-property="fontSize" min="10" max="1000"
-                            value="100" step="10" />
+                        <input type="range" class="animation-control" data-property="fontSize" min="0" max="200"
+                            value="16" step="1" />
                     </label>
+
                     <label>
                         Opacity
-                        <input type="range" class="animation-control" data-property="Opacity" min="0" max="1" value="1"
-                            step="0.1" />
+                        <input type="range" class="animation-control" data-property="opacity" min="0" max="1" value="1"
+                            step="0.01" />
                     </label>
 
                     <label>
                         Font weight
                         <input type="range" class="animation-control" data-property="fontWeight" min="100" max="900"
-                            value="100" step="100" />
+                            value="400" step="100" />
                     </label>
 
                     <label>
-                        Letterspacing
+                        Letter spacing
                         <input type="range" class="animation-control" data-property="letterSpacing" min="-5" max="20"
-                            value="3" step="1" />
+                            value="0" step="0.5" />
                     </label>
+
+                    <!-- NEW -->
+                    <label>
+                        Word spacing
+                        <input type="range" class="animation-control" data-property="wordSpacing" min="-10" max="50"
+                            value="0" step="0.5" />
+                    </label>
+
+
                 </fieldset>
             </details>
 
@@ -111,40 +121,49 @@
                     <legend class="visually-hidden">Transform</legend>
 
                     <label>
-                        ScaleY
-                        <input type="range" class="animation-control" data-property="scaleY" min="1" max="5" value="1"
-                            step="0.1" />
+                        Scale X
+                        <input type="range" class="animation-control" data-property="scaleX" min="0" max="5" value="1"
+                            step="0.05" />
                     </label>
 
                     <label>
-                        ScaleX
-                        <input type="range" class="animation-control" data-property="scaleX" min="1" max="5" value="1"
-                            step="0.1" />
+                        Scale Y
+                        <input type="range" class="animation-control" data-property="scaleY" min="0" max="5" value="1"
+                            step="0.05" />
                     </label>
 
                     <label>
-                        Translate X
-                        <input type="range" class="animation-control" data-property="x" min="0" max="1000" value="0" />
+                        Skew X
+                        <input type="range" class="animation-control" data-property="skewX" min="-90" max="90" value="0"
+                            step="1" />
                     </label>
 
                     <label>
-                        Rotation
-                        <input type="range" class="animation-control" data-property="rotation" min="0" max="360"
-                            value="0" />
+                        Skew Y
+                        <input type="range" class="animation-control" data-property="skewY" min="-90" max="90" value="0"
+                            step="1" />
                     </label>
-                </fieldset>
-            </details>
-
-            <details open class="fieldset-container">
-                <summary>Color</summary>
-
-                <fieldset class="item item-typography">
-                    <legend class="visually-hidden">Color</legend>
 
                     <label>
                         Rotation
-                        <input type="range" class="animation-control" min="0" max="360" value="0" />
+                        <input type="range" class="animation-control" data-property="rotation" min="-360" max="360"
+                            value="0" step="1" />
                     </label>
+
+                    <!-- NEW -->
+                    <label>
+                        Rotation X (3D)
+                        <input type="range" class="animation-control" data-property="rotationX" min="-360" max="360"
+                            value="0" step="1" />
+                    </label>
+
+                    <!-- NEW -->
+                    <label>
+                        Rotation Y (3D)
+                        <input type="range" class="animation-control" data-property="rotationY" min="-360" max="360"
+                            value="0" step="1" />
+                    </label>
+
 
                 </fieldset>
             </details>
@@ -173,13 +192,13 @@
                             <option value="power1.out">Ease-out</option>
                             <option value="bounce.in">Bounce-in</option>
                             <option value="bounce.out"">Bounce-out</option>
-                            <option value="back.in(1.7)">Back-in</option>
-                            <option value="back.out(1.7)">Back-out</option>  
+                            <option value=" back.in(1.7)">Back-in</option>
+                            <option value="back.out(1.7)">Back-out</option>
                         </select>
                     </div>
 
                     <div class="text-casing">
-                        <label>Text Casing</label>
+                        <label>Text casing</label>
                         <label><input data-property="textTransform" type="radio" name="text-case" value="none" checked>
                             Initial</label>
                         <label><input data-property="textTransform" type="radio" name="text-case" value="capitalize">
