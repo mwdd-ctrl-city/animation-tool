@@ -1,15 +1,49 @@
-* {
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
     margin: 0;
-    padding: 0;
 }
 
 :root {
-    /*COLORS  */
-    --color-1: #fff;
-    --color-2: #000;
+    /* VARIABLES */
+    --size-topbar: 3.5em;
+    --size-items: 18em;
+    --size-timeline: 15em;
+    --gap-timeline: .5em;
+
+    /* COLORS */
+    --color-bg-canvas: #F2F1F3;
+    --color-bg-container: #FFFFFF;
+    --color-bg-topbar: #2B2B2B;
+    --color-text-one: #F2F2F2;
+    --color-text-two: #2B2B2B;
+    --color-text-three: #888;
+    --color-border-button: #F2F2F2;
+    --color-border-container: rgba(200, 200, 200, 0.4);
+    --color-border-canvas: #CCCCCC;
+    --color-border-item: rgba(200, 200, 200, 0.4);
+    --color-boxshadow-one: rgba(0, 0, 0, 0.1);
+    --color-details: #6495ED;
+    --color-hover-one: #4C78D0;
+    --color-hover-two: rgba(200, 200, 200, 0.4);
+    --color-bar: #eaeaea;
+    --color-track: #EEF4FF;
+    --color-playhead: #FF1493;
+
+    interpolate-size: allow-keywords;
 }
 
 /* MARK: Lettertypen Courier prime en inter  */
+/* *************** */
+/*      Inter      */
+/* *************** */
+@font-face {
+    /* https://fonts.google.com/specimen/Inter?preview.script=Latn */
+    font-family: 'Inter';
+    src: url(../assets/fonts/Inter/Inter-VariableFont.ttf);
+}
+
 /* *************** */
 /*  Courier prime  */
 /* *************** */
@@ -34,12 +68,20 @@
     src: url(../assets/fonts/Courier_Prime/Courier_Prime/CourierPrime-BoldItalic.ttf);
 }
 
-/* *************** */
-/*      Inter      */
-/* *************** */
-@font-face {
-    /* https://fonts.google.com/specimen/Inter?preview.script=Latn */
-    font-family: 'Inter';
-    src: url(../assets/fonts/Inter/Inter-VariableFont.ttf);
+
+body {
+    font-family: "Inter", sans-serif;
+    background-color: var(--color-bg-canvas);
+    color: var(--color-text-two);
 }
 
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
