@@ -1,3 +1,5 @@
+import { updateScrollHint } from "./timeline.js";
+
 // ---------------
 // MARK: CONSTANTS
 // ---------------
@@ -19,10 +21,14 @@ let startY;
 let startX;
 let startHeight;
 let startWidth;
+let startScrollTop;
 let isDragging = false;
 let contentX = 0;
 let contentY = 0;
 let contentScale = 1;
+let isMoving = false;
+let startMoveX;
+let startMoveY;
 
 
 // -----------------------
@@ -59,7 +65,7 @@ resizeHandleLeft.addEventListener("pointerdown", (e) => {
 
 resizeHandleLeft.addEventListener("pointermove", (e) => {
     if (!isDragging) return;
-    
+
     const deltaX = startX - e.clientX;
     let newWidth = startWidth + deltaX;
 
@@ -116,11 +122,11 @@ resizeHandleTop.addEventListener("pointermove", (e) => {
 
     document.documentElement.style.setProperty("--size-timeline", newHeight + "px");
 
-
-
     if (startScrollTop > 0) {
         itemsContainer.scrollTop = startScrollTop + deltaY;
     }
+
+    updateScrollHint();
 });
 
 resizeHandleTop.addEventListener("pointerup", (e) => {
@@ -179,3 +185,41 @@ contentContainer.addEventListener('wheel', e => {
         ease: "none"
     });
 }, { passive: false });
+
+
+
+// ----------------------------------
+// MARK: CONTENT AND CANVAS: DRAGGING
+// ----------------------------------
+contentContainer.addEventListener("pointerdown", (e) => {
+    const containerClicked = e.target === contentContainer;
+    const canvasClicked = e.target === contentCanvas;
+
+    if (e.button !== 0) return;
+    if (!containerClicked && !canvasClicked) return;
+
+    isMoving = true;
+    startMoveX = e.clientX - contentX;
+    startMoveY = e.clientY - contentY;
+
+    contentContainer.setPointerCapture(e.pointerId);
+    contentContainer.style.cursor = "grabbing";
+});
+
+contentContainer.addEventListener("pointermove", (e) => {
+    if (!isMoving) return;
+
+    contentX = e.clientX - startMoveX;
+    contentY = e.clientY - startMoveY;
+
+    gsap.set(contentCanvas, { x: contentX, y: contentY });
+});
+
+contentContainer.addEventListener("pointerup", (e) => {
+    isMoving = false;
+    contentContainer.style.cursor = "";
+});
+
+
+
+

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="./assets/icon/favicon.png">
 
     <link rel="stylesheet" href="/styles/style.css" />
@@ -13,9 +13,10 @@
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="/scripts/main-layout.js" defer></script>
+    <script src="/scripts/main-layout.js" type="module" defer></script>
     <script src="./scripts/timeline.js" type="module" defer></script>
 
+    <!-- MARK: !! New name maybe: (Inter)play - animationtool -->
     <title>Animation Tool</title>
 </head>
 
@@ -228,7 +229,9 @@
 
         <!--   TIMELINE   -->
         <div class="timeline-panel">
-            <div class="resize-handle handle-top"></div>
+            <div class="resize-handle handle-top">
+                <span class="drag-dots"></span>
+            </div>
 
             <form class="timeline">
                 <button type="button" class="play-animation">Play</button>
@@ -252,6 +255,12 @@
                     </div>
                 </div>
             </form>
+
+            <!-- Claude: How do I make it accessible? -->
+            <div class="scroll-hint" role="status" aria-live="polite" aria-label="More content available, scroll down">
+                <p>scroll to see more</p>
+                <i aria-hidden="true">↓</i>
+            </div>
         </div>
 
     </main>
