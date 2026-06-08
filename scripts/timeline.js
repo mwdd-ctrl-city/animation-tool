@@ -195,12 +195,11 @@ function buildVisualizer() {
   container.innerHTML = "";
 
   // With the function you got the ID of the element
-  const elementId = getFirstElementId();
+  const elementId = animationData.getSelectedText().id;
   if (!elementId) return;
 
   // get the properties that are defined within the id 
   const properties = animationData.getProperties(elementId);
-
 
   // For each property you make a new track and row within the timeline
   properties.forEach((propertyName) => {
@@ -263,8 +262,8 @@ function buildVisualizer() {
 // -----------------------
 
 function updateRangeInputs() {
-  // Get the first element within the list of elements 
-  const elementId = getFirstElementId();
+  // Get the active / selected element
+  const elementId = animationData.getSelectedText().id;
   if (!elementId) return;
 
   // Update each control with the current value
