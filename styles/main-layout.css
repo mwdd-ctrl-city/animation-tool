@@ -6,7 +6,7 @@ h2 {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    white-space: nowrap;
+    white-space: pre-line;
 }
 
 /* ------------ */
@@ -285,6 +285,17 @@ fieldset {
         accent-color: var(--color-details);
         background: var(--color-bg-canvas);
     }
+
+    & select {
+        appearance: none;
+        width: 5rem;
+        border-radius: .5rem;
+        margin-bottom: 1em;
+        padding: .2rem;
+        color: var(--color-text-two);
+        border: var(--color-border-button);
+        background-color: var(--color-bg-canvas);
+    }
 }
 
 .fieldset-container {
@@ -348,7 +359,7 @@ details[open]::details-content {
     height: 15em;
     min-height: 10em;
     box-shadow: 0 0 25px var(--color-boxshadow-one);
-    z-index: 100;
+    z-index: 1000;
     padding: 1rem 1rem 0 1rem;
 
     background-color: #FFFFFF;
@@ -365,18 +376,178 @@ details[open]::details-content {
 
         /* ChatGPT: how do I make sure my cursor changes to show it is draggable up and down? */
         cursor: ns-resize;
+
+        & .drag-dots {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            display: block;
+            width: 3.5px;
+            aspect-ratio: 1/1;
+            background: var(--color-resize);
+            border-radius: 50%;
+            margin-top: 3px;
+
+            box-shadow:
+                -6px 0 0 var(--color-resize),
+                6px 0 0 var(--color-resize);
+        }
     }
 
     & .timeline-content {
-        /* overflow-y: auto; */
-
         height: 100%;
         width: 100vw;
     }
+
+    & .scroll-hint {
+        display: flex;
+        align-items: center;
+        gap: .5em;
+
+        color: var(--color-text-two);
+        font-weight: 300;
+
+        position: fixed;
+        bottom: .5em;
+        right: 2em;
+
+        transition: opacity .3s ease;
+
+        & i {
+            font-style: normal;
+        }
+
+        &.fade-out {
+            opacity: 0;
+        }
+    }
+}
+
+.scroll-hint[hidden] {
+    display: none;
 }
 
 /* ----- Handle for resizing (items panel and timeline panel ----- */
 .resize-handle {
     height: 10px;
     width: 10px;
+}
+
+/* MARK: split text opmaak */
+.canvas[data-split-type="chars"] .split-char,
+.canvas[data-split-type="words"] .split-word,
+.canvas[data-split-type="lines"] .split-line {
+    display: inline-block;
+    outline: 1px dashed deeppink;
+    border-radius: 5px;
+    margin: 0 1px; 
+}
+
+.split-text-buttons,
+.layout-radios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.layout-radios input[type="radio"] {
+    display: none;
+}
+
+.split-text-buttons button,
+.layout-radios label {
+    padding: 8px 16px;
+    background-color: #f0f0f0; 
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    user-select: none; 
+}
+
+.split-text-buttons button:hover,
+.layout-radios label:hover {
+    background-color: #e4e4e4;
+    border-color: #ccc;
+}
+
+/* ========================================= */
+/* --- DE ACTIVE STATES (Deeppink) ---       */
+/* ========================================= */
+
+.split-text-buttons button.active {
+    background-color: deeppink;
+    color: white;
+    border-color: deeppink;
+    font-weight: bold;
+}
+
+.layout-radios label:has(input[type="radio"]:checked) {
+    background-color: deeppink;
+    color: white;
+    border-color: deeppink;
+    font-weight: bold;
+
+
+
+
+.animation-ease,
+.animation-direction {
+    display: flex;
+    gap: .5em;
+}
+
+
+
+.text-casing-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: .25em;
+    width: fit-content;
+
+    @container (width > 25em) {
+        grid-template-columns: repeat(4, 1fr);
+        column-gap: .25em;
+    }
+}
+
+.text-casing-options label {
+    cursor: pointer;
+}
+
+.text-casing-options input[type="radio"] {
+    display: none;
+}
+
+.text-casing-options label span {
+    display: block;
+    padding: 6px 16px;
+    border: 1px solid var(--color-border-item);
+    border-radius: 8px;
+    font-size: .7rem;
+    text-align: center;
+    background: transparent;
+    color: inherit;
+
+    transition:
+        background 0.15s,
+        border-color 0.15s, color 0.15s;
+
+    user-select: none;
+}
+
+.text-casing-options input[type="radio"]:checked+span {
+    background: var(--color-details);
+    border-color: var(--color-details);
+    color: white;
+}
+
+.text-casing-options label:hover input[type="radio"]:not(:checked)+span {
+    border-color: var(--color-border-item);
+    background: transparent;
 }

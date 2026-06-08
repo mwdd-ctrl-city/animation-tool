@@ -5,20 +5,19 @@
 // class is used as a blueprint to make an Object/objects.
 // "export default" makes it possible to export it to different files (where you need to import this file).
 // "extends EventTarget" makes it possible to take EventTarget (custom event listener) to different files.
-export default class Animation extends EventTarget {
 
     // the "#" makes the field private: this way you can't break the data from outside this file.
     // with "new Map()" you make a private field (elements, groups, animations) have a empty Map.
+export default class AnimationData extends EventTarget {
     #name;
     #durationSeconds;
-    #elements = new Map();
-    #groups = new Map();
-    #animations = new Map();
+    #elements;
+    #animations;
 
     /**
      * @description Create an animation object storing animation data
-     * @param {*} name The name of the animation
-     * @param {*} durationSeconds The duration (in seconds) of the animation
+     * @param {string} name The name of the animation
+     * @param {number} durationSeconds The duration (in seconds) of the animation
      */
 
     // the "constructor" is a function, which is used to prepare the object for use.
@@ -27,10 +26,8 @@ export default class Animation extends EventTarget {
         super();
 
         // "this" refers to object that is being made.
-        this.#elements = new Map(); // MARK: !!! dubbelop (hierboven doen we dit ook)
-        this.#groups = new Map();
+        this.#elements = new Map(); 
         this.#animations = new Map();
-
         // Make sure the duration is a positive number
         // "throw" makes it possible to make a custom error in the console. You can "catch" later to make it visual for the user and handle the error.
         if (!this.#isValidDuration(durationSeconds)) {
@@ -95,6 +92,7 @@ export default class Animation extends EventTarget {
     setName(name) {
         // "trim" is used to erase the spaces (outside).
         this.#name = name.trim();
+
         this.dispatchEvent(new Event("change"));
         return true;
     }
@@ -130,16 +128,11 @@ export default class Animation extends EventTarget {
      * @param {string} elementId The internal UUID of the element
      * @returns {boolean} true if the element is found and deleted, false if not
      */
-    removeElement(elementId) { 
-        if (!this.#elements.has(elementId)) return false;
 
+    removeElement(elementId) {
+        // Remove element from elements if possible (else return false)
         // value is connected to a unique key (elementId), so when deleted both the key and the value are removed.
-        this.#elements.delete(elementId);
-
-        // Remove element from all groups
-        this.#groups.forEach(group => {
-            group.members = group.members.filter(id => id !== elementId);
-        });
+        if (!this.#elements.delete(elementId)) return false;
 
         // Remove element from all animations
         // The animations can also have a reference to the key (elementId), so they need to be cleaned as well.
@@ -170,160 +163,20 @@ export default class Animation extends EventTarget {
     /**
      * @description Get an element by ID
      * @param {string} elementId The UUID of the element
-     * @returns {object} The element of the given UUID. Null if not found
+     * @returns {string} The element of the given UUID. Null if not found
      */
     getElement(elementId) {
+        if (!this.#elements.has(elementId)) return null;
         // With "structuredClone" you make a copy of the data, so when there are changes to the data it is always to the copy and not of the original.
-        return structuredClone(this.#elements.get(elementId)) ?? null;
+        return structuredClone(this.#elements.get(elementId));
     }
 
     /**
-     * @description Get an object of all elements contained in the animation
-     * @returns {object} object with all elements of the animation
+     * @description Get a Map of all elements contained in the animation
+     * @returns {Map} Map with all elements of the animation
      */
     getElements() {
-        return structuredClone(Object.fromEntries(this.#elements));
-    }
-
-    // -----------------------
-    // MARK: Groups
-    // -----------------------
-
-    /**
-     * @description Create a new (empty) group
-     * @param {string} groupName The display name of the group
-     * @returns {string} the internal UUID of the group used for referencing
-     */
-    // Creates a empty group.
-    createGroup(groupName) {
-        const groupId = crypto.randomUUID();
-
-        // Adds new group to the #groups map, with a key and a value.
-        // Here the groupId is the key, between the "{}" is the value.
-        // members: [] gives a empty array where the members of the group will come. In this array only the keys (groupId) will be saved.
-        this.#groups.set(groupId, { name: groupName.trim(), members: [] });
-
-        this.dispatchEvent(new Event("change"));
-        return groupId;
-    }
-
-    /**
-     * @description Remove a group from the animation
-     * @param {string} groupId The internal UUID of the group
-     * @returns {boolean} true if the group is found and deleted, false if not
-    */
-    // Function to remove a key (groupId) from a group. It only uses one input: the id of the group you want to delete.
-    removeGroup(groupId) {
-        // Returns true or false, which is saved in isRemoved.
-        // true: groupId is found and then deleted, false: groupId is not found.
-        const isRemoved = this.#groups.delete(groupId);
-
-        // Only if isRemoved is true, it will dispatch an event.
-        if (isRemoved) this.dispatchEvent(new Event("change"));
-        return isRemoved;
-    }
-
-    /**
-     * @description Rename the display name of a group
-     * @param {string} groupId The UUID of the group
-     * @param {string} groupName The new display name of the group
-     * @returns {boolean} true if the group is found and renamed, false if not
-     */
-    // This function takes the groupId you want to rename (groupId) and the name you want to rename it to (groupName)
-    renameGroup(groupId, groupName) {
-        // Searches for the groupId in the #groups map and saves it in "group"
-        const group = this.#groups.get(groupId);
-
-        // If there isn't a group found with the id, it returns false.
-        if (!group) return false;
-        // Updates name of "group" directly on the object.
-        group.name = groupName.trim();
-
-        this.dispatchEvent(new Event("change"));
-
-        // returns true if the renaming is succeeded.
-        return true;
-    }
-
-    /**
-     * @description Add an element to a group
-     * @param {string} groupId The UUID of the group
-     * @param {string} elementId The UUID of the element
-     * @returns {boolean} true if the group and element was found and added, false if not
-     */ 
-    // This function takes the id of the group (groupId) you want to add to and the id of the element (elementId) you want to add to the group.
-    addToGroup(groupId, elementId) {
-        // Checks if the element exists in #elements map.
-        if (!this.#elements.has(elementId)) return false;
-
-        // Searches for the groupId in the #groups map and saves it in "group"
-        const group = this.#groups.get(groupId);
-        if (!group) return false;
-
-        // Checks if the elementId already exists in the group, to prevents elements to be added twice.
-        // If the elementId doesn't exist in the group yet, it will be added to "members" (array) in the group.
-        if (!group.members.includes(elementId)) {
-            group.members.push(elementId);
-        }
-
-        this.dispatchEvent(new Event("change"));
-        return true;
-    }
-
-    /**
-     * @description Remove an element from a group
-     * @param {string} groupId The UUID of the group
-     * @param {string} elementId The UUID of the element
-     * @returns {boolean} true if the group and element was found and removed, false if not
-     */
-    // This function takes the id of the group (groupId) you want to remove from and the id of the element (elementId) you want to remove from that group.
-    removeFromGroup(groupId, elementId) {
-        const group = this.#groups.get(groupId);
-        if (!group) return false;
-
-        // Rebuilds the array "members": keeps every element, except the element you want to remove (elementId)
-        // "filter" loops through the array "members" and only keeps the entries of the elements that doesn't match elementId.
-        group.members = group.members.filter(id => id !== elementId);
-
-        this.dispatchEvent(new Event("change"));
-        return true;
-    }
-
-    /**
-     * @description Get a group by ID
-     * @param {string} groupId The UUID of the group
-     * @returns {object} The group of the given UUID. Null if not found
-     */
-    // Function to retrieve a group, based on the groupId.
-    // Returns the whole group object.
-    getGroup(groupId) {
-        // Looks op the group by the key (groupId) and makes a copy.
-        // If "structuredClone" is undefined or null (the groupId isn't found) it returns null.
-        const group = this.#groups.get(groupId);
-        if (!group) return null;
-        return structuredClone(group);
-
-        // return structuredClone(this.#groups.get(groupId)) ?? null;
-    }
-
-    /**
-     * @description Get an object of all groups contained in the animation
-     * @returns {Object} object with all groups of the animation
-     */
-    getGroups() {
-        return structuredClone(Object.fromEntries(this.#groups));
-    }
-
-    /**
-     * @description Get all elements in a group
-     * @param {string} groupId The UUID of the group 
-     * @returns {Array} List of element UUIDs contained within the group
-     */
-    // Function to retrieve the memberslist of the group with the given groupId.
-    getGroupMembers(groupId) {
-        const group = this.#groups.get(groupId);
-        if (!group) return null;
-        return structuredClone(group.members);
+        return structuredClone(this.#elements);
     }
 
     // -----------------------
@@ -376,20 +229,13 @@ export default class Animation extends EventTarget {
      * @param {string} ease [optional] Easing function to apply to this keyframe
      * @returns {boolean} true if the target was found and the progress is valid, otherwise false
      */
-    // Takes 5 inputs: targetId (element you want to animate), propertyName (property to animate), 
+
+    // TODO: check of animation direction nodig is op keyframe
+   // Takes 5 inputs: targetId (element you want to animate), propertyName (property to animate), 
     // progress (point in time, number between 0 and 1), value (value at that point in time) and ease (easing type, defaults "none" if not provided)
-    setKeyframe(targetId, propertyName, progress, value, ease = "none") {
-        // if (!this.#elements.has(targetId)) {
-            // if (!this.#groups.has(targetId)) {
-            // return false;
-            // }
-        // }
-        // MARK:!!! veranderen mogelijk?
-
-        // Checks if the target (targetId) already exists. In both the elements and the groups. If not: returns false.
-        if (!this.#elements.has(targetId) && !this.#groups.has(targetId)) return false;
-
-        // Checks if the progress value is valid: number between 0 and 1.
+    setKeyframe(targetId, propertyName, progress, value, ease, splitType = "none", textCase = "initial") {
+        if (!this.#elements.has(targetId)) return false;
+      
         if (!this.#isValidProgress(progress)) return false;
 
         // Get the keyframe of the specified target, property and progress
@@ -405,8 +251,7 @@ export default class Animation extends EventTarget {
         // If the keyframe does not exist, create it, else edit it
         // If it doesn't exist, it creates a new object with 3 properties: progress, value, ease.
         if (!keyframe) {
-            keyframe = { progress, value, ease }; // MARK: !!! moeten we variabele en property name niet verschillende namen geven?
-            // Adds keyframe to the array keyframes.
+            keyframe = { progress, value, ease, splitType, textCase };
             keyframes.push(keyframe);
             // Resort the keyframes, so it goes from small to big.
             keyframes.sort((a, b) => a.progress - b.progress);
@@ -415,6 +260,8 @@ export default class Animation extends EventTarget {
             // Progress doesn't need to be updated, because the keyframe was found by it's progress, so it is already updated. 
             keyframe.value = value;
             keyframe.ease = ease;
+            keyframe.splitType = splitType;
+            keyframe.textCase = textCase;
         }
 
         this.dispatchEvent(new Event("change"));
@@ -481,7 +328,7 @@ export default class Animation extends EventTarget {
     // fromProgress (current progress point) and toProgress (new progress point).
     moveKeyframe(targetId, propertyName, fromProgress, toProgress) {
         // Check if the target exists as an element or group
-        if (!this.#elements.has(targetId) && !this.#groups.has(targetId)) {
+        if (!this.#elements.has(targetId)) {
             return false;
         }
 
@@ -547,7 +394,7 @@ export default class Animation extends EventTarget {
         // Makes an array of only the keys in the animationMap.
         return Array.from(animationMap.keys());
     }
-
+    
     /**
      * @description Get the display name of the animation
      * @returns {string} The animation name
@@ -565,31 +412,20 @@ export default class Animation extends EventTarget {
     }
 
     // -----------------------
-    // MARK: Output
+    // MARK: Input/Output
     // -----------------------
 
     /**
-     * @description Private helper that gets or creates the keyframe list for a property.
-     * @param {Map} animationMap The animation map belonging to a target
-     * @param {string} propertyName The name of the animated property
-     * @returns {Array} The keyframe list for the property
+     * @description Get a serializable snapshot of the full animation data
+     * @returns {object} Plain object representation of the animation,
+     * safe to pass to JSON.stringify or load()
      */
-    // MARK: !!! misschien function van maken??
-    // "get"/"getter" lets you access like a property instead of a function. 
-    get animation() {
-        // "animations" is an empty object: we fill the object here.
-        const animations = {};
-
-        this.#animations.forEach((propertyMap, targetId) => {
-            animations[targetId] = Object.fromEntries(propertyMap);
-        });
-
+    getAnimation() {
         return {
             name: this.#name,
             duration: this.#durationSeconds,
-            elements: Object.fromEntries(this.#elements),
-            groups: Object.fromEntries(this.#groups),
-            animations,
+            elements: structuredClone(this.#elements),
+            animations: structuredClone(this.#animations),
         };
     }
 
@@ -601,14 +437,8 @@ export default class Animation extends EventTarget {
     load(animation) {
         this.#name = animation.name;
         this.#durationSeconds = animation.duration;
-        this.#elements = new Map(Object.entries(animation.elements));
-        this.#groups = new Map(Object.entries(animation.groups));
-        this.#animations = new Map( // Generated by ChatGPT
-            Object.entries(animation.animations).map(([id, props]) => [
-                id,
-                new Map(Object.entries(props).map(([k, v]) => [k, v]))
-            ])
-        );
+        this.#elements = structuredClone(animation.elements);
+        this.#animations = structuredClone(animation.animations);
 
         this.dispatchEvent(new Event("change"));
     }
@@ -617,8 +447,17 @@ export default class Animation extends EventTarget {
      * @description Export the animation as a JSON string
      * @returns {string} JSON representation of the animation
      */
-    toJSON() {
-        return JSON.stringify(this.animation);
+    toJSON() { // Generated by ChatGPT
+        return JSON.stringify({
+            name: this.#name,
+            duration: this.#durationSeconds,
+            elements: Object.fromEntries(this.#elements),
+            animations: Object.fromEntries(
+                [...this.#animations.entries()].map(([id, props]) => [
+                    id, Object.fromEntries(props)
+                ])
+            ),
+        });
     }
 
     /**
@@ -626,9 +465,20 @@ export default class Animation extends EventTarget {
      * @param {string} json JSON representation of an animation
      * @returns {boolean} true if the JSON was parsed and loaded successfully, false if not
      */
-    fromJSON(json) {
+    fromJSON(json) { // Generated by ChatGPT
         try {
-            this.load(JSON.parse(json));
+            const data = JSON.parse(json);
+            this.load({
+                name: data.name,
+                duration: data.duration,
+                elements: new Map(Object.entries(data.elements)),
+                animations: new Map(
+                    Object.entries(data.animations).map(([id, props]) => [
+                        id,
+                        new Map(Object.entries(props))
+                    ])
+                )
+            });
             return true;
         } catch {
             return false;

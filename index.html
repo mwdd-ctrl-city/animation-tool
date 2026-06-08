@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="./assets/icon/favicon.png">
 
     <link rel="stylesheet" href="/styles/style.css" />
     <link rel="stylesheet" href="/styles/main-layout.css" />
@@ -12,9 +13,11 @@
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="/scripts/main-layout.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/SplitText.min.js"></script>
+    <script src="/scripts/main-layout.js" type="module" defer></script>
     <script src="./scripts/timeline.js" type="module" defer></script>
 
+    <!-- MARK: !! New name maybe: (Inter)play - animationtool -->
     <title>Animation Tool</title>
 </head>
 
@@ -74,6 +77,37 @@
             <div class="resize-handle handle-left"></div>
 
             <details open class="fieldset-container">
+                <summary>Settings</summary>
+
+                <fieldset class="item item-settings">
+                    <legend class="visually-hidden">Settings</legend>
+
+                    <div class="split-text">
+                        <label>Split type</label>
+                        <div class="split-text-buttons">
+                            <button id="btn-split-none">None</button>
+                            <button id="btn-split-chars">Characters</button>
+                            <button id="btn-split-words">Words</button>
+                            <button id="btn-split-lines">Lines</button>
+                        </div>
+                    </div>
+
+                    <div class="text-casing">
+                        <label>Text Casing</label>
+                        <div class="layout-radios">
+                            <label><input data-property="textTransform" type="radio" name="text-case" value="none" checked>
+                                Initial</label>
+                            <label><input data-property="textTransform" type="radio" name="text-case" value="capitalize">
+                                Capitalize</label>
+                            <label><input data-property="textTransform" type="radio" name="text-case" value="lowercase">
+                                lowercase</label>
+                            <label><input data-property="textTransform" type="radio" name="text-case" value="uppercase">
+                                UPPERCASE</label>
+                        </div>
+                    </div>
+            </details>
+
+            <details open class="fieldset-container">
                 <summary>Typography</summary>
 
                 <fieldset class="item item-typography">
@@ -81,26 +115,36 @@
 
                     <label>
                         Font size
-                        <input type="range" class="animation-control" data-property="fontSize" min="10" max="1000"
-                            value="100" step="10" />
+                        <input type="range" class="animation-control" data-property="fontSize" min="0" max="200"
+                            value="16" step="1" />
                     </label>
+
                     <label>
                         Opacity
-                        <input type="range" class="animation-control" data-property="Opacity" min="0" max="1" value="1"
-                            step="0.1" />
+                        <input type="range" class="animation-control" data-property="opacity" min="0" max="1" value="1"
+                            step="0.01" />
                     </label>
 
                     <label>
                         Font weight
                         <input type="range" class="animation-control" data-property="fontWeight" min="100" max="900"
-                            value="100" step="100" />
+                            value="400" step="100" />
                     </label>
 
                     <label>
-                        Letterspacing
+                        Letter spacing
                         <input type="range" class="animation-control" data-property="letterSpacing" min="-5" max="20"
-                            value="3" step="1" />
+                            value="0" step="0.5" />
                     </label>
+
+                    <!-- NEW -->
+                    <label>
+                        Word spacing
+                        <input type="range" class="animation-control" data-property="wordSpacing" min="-10" max="50"
+                            value="0" step="0.5" />
+                    </label>
+
+
                 </fieldset>
             </details>
 
@@ -111,41 +155,62 @@
                     <legend class="visually-hidden">Transform</legend>
 
                     <label>
-                        ScaleY
-                        <input type="range" class="animation-control" data-property="scaleY" min="1" max="5" value="1"
-                            step="0.1" />
+                        Scale X
+                        <input type="range" class="animation-control" data-property="scaleX" min="0" max="5" value="1"
+                            step="0.05" />
                     </label>
 
                     <label>
-                        ScaleX
-                        <input type="range" class="animation-control" data-property="scaleX" min="1" max="5" value="1"
-                            step="0.1" />
+                        Scale Y
+                        <input type="range" class="animation-control" data-property="scaleY" min="0" max="5" value="1"
+                            step="0.05" />
                     </label>
 
                     <label>
-                        Translate X
-                        <input type="range" class="animation-control" data-property="x" min="0" max="1000" value="0" />
+                        Skew X
+                        <input type="range" class="animation-control" data-property="skewX" min="-90" max="90" value="0"
+                            step="1" />
                     </label>
-
                     <label>
-                        Rotation
-                        <input type="range" class="animation-control" data-property="rotation" min="0" max="360"
-                            value="0" />
+                        Skew Y
+                        <input type="range" class="animation-control" data-property="skewY" min="-90" max="90" value="0"
+                            step="1" />
                     </label>
-                </fieldset>
-            </details>
-
-            <details open class="fieldset-container">
-                <summary>Color</summary>
-
-                <fieldset class="item item-typography">
-                    <legend class="visually-hidden">Color</legend>
 
                     <label>
                         Rotation
-                        <input type="range" class="animation-control" min="0" max="360" value="0" />
+                        <input type="range" class="animation-control" data-property="rotation" min="-360" max="360"
+                            value="0" step="1" />
                     </label>
 
+                    <!-- NEW -->
+                    <label>
+                        Rotation X (3D)
+                        <input type="range" class="animation-control" data-property="rotationX" min="-360" max="360"
+                            value="0" step="1" />
+                    </label>
+
+                    <!-- NEW -->
+                    <label>
+                        Rotation Y (3D)
+                        <input type="range" class="animation-control" data-property="rotationY" min="-360" max="360"
+                            value="0" step="1" />
+                    </label>
+
+
+                    <div class="animation-direction">
+                        <label>Direction</label>
+                        <div class="layout-radios">
+                            <label><input class="animation-control" data-property="rotation" type="radio" name="animation-direction" value="0" checked>
+                            Normal</label>
+                            <label><input class="animation-control" data-property="rotation" type="radio" name="animation-direction" value="-90">
+                                Left</label>
+                            <label><input class="animation-control" data-property="rotation" type="radio" name="animation-direction" value="90">
+                                Right</label>
+                            <label><input class="animation-control" data-property="rotation" type="radio" name="animation-direction" value="180">
+                                Reverse</label>
+                        </div>
+                    </div>
                 </fieldset>
             </details>
 
@@ -155,41 +220,18 @@
                 <fieldset class="item item-typography">
                     <legend class="visually-hidden">Animation functions</legend>
 
-                    <div class="animation-direction">
-                        <label>Direction</label>
-                        <select id="animation-direction" data-property="rotation">
-                            <option value="0">Normal</option>
-                            <option value="-90">Left</option>
-                            <option value="90">Right</option>
-                            <option value="180">Reverse</option>
-                        </select>
-                    </div>
-
                     <div class="animation-ease">
                         <label>Easing</label>
                         <select id="animation-select-ease">
-                            <option value="none">none</option>
+                            <option value="none">Linear</option>
                             <option value="power1.in">Ease-in</option>
                             <option value="power1.out">Ease-out</option>
                             <option value="bounce.in">Bounce-in</option>
-                            <option value="bounce.out"">Bounce-out</option>
-                            <option value="back.in(1.7)">Back-in</option>
-                            <option value="back.out(1.7)">Back-out</option>  
+                            <option value="bounce.out">Bounce-out</option>
+                            <option value=" back.in(1.7)">Back-in</option>
+                            <option value="back.out(1.7)">Back-out</option>
                         </select>
                     </div>
-
-                    <div class="text-casing">
-                        <label>Text Casing</label>
-                        <label><input data-property="textTransform" type="radio" name="text-case" value="none" checked>
-                            Initial</label>
-                        <label><input data-property="textTransform" type="radio" name="text-case" value="capitalize">
-                            Capitalize</label>
-                        <label><input data-property="textTransform" type="radio" name="text-case" value="lowercase">
-                            lowercase</label>
-                        <label><input data-property="textTransform" type="radio" name="text-case" value="uppercase">
-                            UPPERCASE</label>
-                    </div>
-
                 </fieldset>
             </details>
 
@@ -198,7 +240,9 @@
 
         <!--   TIMELINE   -->
         <div class="timeline-panel">
-            <div class="resize-handle handle-top"></div>
+            <div class="resize-handle handle-top">
+                <span class="drag-dots"></span>
+            </div>
 
             <form class="timeline">
                 <button type="button" class="play-animation">Play</button>
@@ -222,6 +266,12 @@
                     </div>
                 </div>
             </form>
+
+            <!-- Claude: How do I make it accessible? -->
+            <div class="scroll-hint" role="status" aria-live="polite" aria-label="More content available, scroll down">
+                <p>scroll to see more</p>
+                <i aria-hidden="true">↓</i>
+            </div>
         </div>
 
     </main>

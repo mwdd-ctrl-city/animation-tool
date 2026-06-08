@@ -28,8 +28,9 @@
     --color-hover-one: #4C78D0;
     --color-hover-two: rgba(200, 200, 200, 0.4);
     --color-bar: #eaeaea;
-    --color-track: #EEF4FF;
+    --color-track: #dde7fa;
     --color-playhead: #FF1493;
+    --color-resize: #cbcaca;
 
     interpolate-size: allow-keywords;
 }

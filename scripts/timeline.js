@@ -1,4 +1,4 @@
-import Animation from "./animations/animation.js";
+import AnimationData from "./animations/animation.js";
 import AnimationPlayer from "./animations/animation-player.js";
 import History from "./memento/history.js";
 
@@ -8,7 +8,7 @@ const animationControls = document.querySelectorAll(".animation-control");
 const tracksContainer = document.querySelector(".timeline-container");
 const canvas = document.querySelector(".content-canvas");
 
-const addTextButton = document.querySelector(".add-text-button"); 
+const addTextButton = document.querySelector(".add-text-button");
 
 const startTimeInput = document.querySelector(".tl-time-start");
 const endTimeInput = document.querySelector(".tl-time-end");
@@ -16,9 +16,19 @@ const endTimeInput = document.querySelector(".tl-time-end");
 const undoButton = document.querySelector(".undo");
 const redoButton = document.querySelector(".redo");
 
-const easeSelect = document.querySelector('#animation-select-ease')
+const easeSelect = document.querySelector('#animation-select-ease');
+
+
+
+const scrollHint = document.querySelector('.scroll-hint');
+
+
+
+
 
 let activeKeyframe = null;
+
+let currentSplitType = "none";
 
 // -----------------------
 // Load animation
@@ -26,72 +36,40 @@ let activeKeyframe = null;
 
 async function loadAnimation(filePath) {
   const response = await fetch(filePath);
-  const data = await response.json();
+  const json = await response.text();
 
-  const animation = new Animation(data.name, data.duration);
+  const animationData = new AnimationData();
+  animationData.fromJSON(json);
 
-  const idMap = {};
-
-  // Elements
-  Object.entries(data.elements).forEach(([id, content]) => {
-    idMap[id] = animation.createElement(content);
-  });
-
-  // Groups
-  Object.entries(data.groups).forEach(([, group]) => {
-    const groupId = animation.createGroup(group.name);
-
-    group.members.forEach((oldId) => {
-      if (idMap[oldId]) {
-        animation.addToGroup(groupId, idMap[oldId]);
-      }
-    });
-  });
-
-  // Keyframes
-  Object.entries(data.animations).forEach(([oldTargetId, properties]) => {
-    const newTargetId = idMap[oldTargetId];
-    if (!newTargetId) return;
-
-    Object.entries(properties).forEach(([propertyName, keyframes]) => {
-      keyframes.forEach(({ progress, value, ease }) => {
-        animation.setKeyframe(
-          newTargetId,
-          propertyName,
-          progress,
-          value,
-          ease
-        );
-      });
-    });
-  });
-
-  return animation;
+  return animationData;
 }
 
 // -----------------------
 // Init
 // -----------------------
 
-const animation = await loadAnimation("./scripts/animation.json");
+const animationData = await loadAnimation("./scripts/animation.json");
 const history = new History();
-history.addMemento(structuredClone(animation.animation));
+history.addMemento(animationData.getAnimation());
 
-const player = new AnimationPlayer(canvas, animation);
+const player = new AnimationPlayer(canvas, animationData);
 
-animation.addEventListener("change", () => {
+animationData.addEventListener("change", () => {
   buildVisualizer();
 })
 
 function getFirstElementId() {
-  return Object.keys(animation.getElements())[0] ?? null;
-}
 
+  // Gets the first element in the json and gives the propertie in this case the ID, not the value
+  return animationData.getElements().keys().next().value ?? null;
+
+
+}
 undoButton.addEventListener("click", () => {
   const state = history.undo();
 
   if (state !== null) {
-    animation.load(state);
+    animationData.load(state);
   }
 });
 
@@ -99,7 +77,7 @@ redoButton.addEventListener("click", () => {
   const state = history.redo();
 
   if (state !== null) {
-    animation.load(state);
+    animationData.load(state);
   }
 })
 
@@ -128,17 +106,11 @@ player.setOnUpdateListener((timeline) => {
 // Controls (keyframes)
 // -----------------------
 
-easeSelect.addEventListener('change', ()=>{
-  // The ? stands for a undefined property that doesn't exist in the dom so it doesn't give a undefined
-  const ease = easeSelect?.value ?? "none";
+let ease = easeSelect.value ?? "none";
 
-    animation.setKeyframe(
-      activeElementId,
-      activePropertyName,
-      player.getProgress(),
-      activeValue,
-      ease
-    );
+easeSelect.addEventListener('change', () => {
+  // The ? stands for a undefined property that doesn't exist in the dom so it doesn't give a undefined
+  ease = easeSelect?.value ?? "none";
 })
 
 let activeElementId = null;
@@ -154,21 +126,25 @@ animationControls.forEach((control) => {
 
     const propertyName = event.target.dataset.property;
     const value = parseFloat(event.target.value);
-    
+
+    const currentTextCase = document.querySelector('input[name="text-case"]:checked').value;
     activeElementId = elementId;
     activePropertyName = event.target.dataset.property;
     activeValue = parseFloat(event.target.value);
 
-    animation.setKeyframe(
+    animationData.setKeyframe(
       activeElementId,
       activePropertyName,
       player.getProgress(),
-      activeValue
+      activeValue,
+      ease ?? "none",
+      currentSplitType,
+      currentTextCase
     );
   });
 
   control.addEventListener("change", (event) => {
-    history.addMemento(structuredClone(animation.animation));
+    history.addMemento(animationData.getAnimation());
   });
 });
 
@@ -197,15 +173,15 @@ playButtonTimeline.addEventListener("click", () => {
 document.querySelector('.tl-time-start').addEventListener('change', (e) => {
   const time = parseFloat(e.target.value);
   // const progress = time / animationBuilder.timelineData.duration;
-  const progress = time / animation.getDuration()
+  const progress = time / animationData.getDuration()
   player.setProgress(progress);
 });
 
 document.querySelector('.tl-time-end').addEventListener('change', (e) => {
   const time = parseFloat(e.target.value);
-  animation.setDuration(time)
+  animationData.setDuration(time)
 
-  history.addMemento(structuredClone(animation.animation))
+  history.addMemento(animationData.getAnimation())
 });
 
 // -----------------------
@@ -216,13 +192,17 @@ function buildVisualizer() {
   const container = document.querySelector(".timeline-container");
   container.innerHTML = "";
 
+  // With the function you got the ID of the element
   const elementId = getFirstElementId();
   if (!elementId) return;
 
-  const properties = animation.getProperties(elementId);
+  // get the properties that are defined within the id 
+  const properties = animationData.getProperties(elementId);
 
+
+  // For each property you make a new track and row within the timeline
   properties.forEach((propertyName) => {
-    const keyframes = animation.getKeyframes(elementId, propertyName);
+    const keyframes = animationData.getKeyframes(elementId, propertyName);
 
     const row = document.createElement("div");
     row.classList.add("row");
@@ -236,6 +216,7 @@ function buildVisualizer() {
 
     row.append(label, track);
 
+    // Create for each keyframe point a point on the row
     keyframes.forEach((keyframe) => {
       const point = document.createElement("div");
       point.classList.add("keyframe");
@@ -243,21 +224,22 @@ function buildVisualizer() {
 
       track.appendChild(point);
 
+      // Create a drag for the keyframe and update the value
       Draggable.create(point, {
+        // Type of way you can dragg the element on the x axis
         type: "x",
         bounds: track,
         onDragEnd() {
+          // Get the width from the track and the point element which stands for the keyframe 
           const trackWidth = track.offsetWidth;
+          const pointX = this.x + keyframe.progress * trackWidth;
 
-          const pointX =
-            this.x + keyframe.progress * trackWidth;
-
-          const newProgress = Math.max(
-            0,
+          // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
+          const newProgress = Math.max(0,
             Math.min(1, pointX / trackWidth)
           );
 
-          animation.moveKeyframe(
+          animationData.moveKeyframe(
             elementId,
             propertyName,
             keyframe.progress,
@@ -267,24 +249,40 @@ function buildVisualizer() {
       });
     });
 
+    // Add the elements to the html
     container.appendChild(row);
   });
+  // Update the playheadHeight on the height of the container
+  updatePlayheadHeight();
+  updateScrollHint();
 }
+
 
 // -----------------------
 // Range inputs sync
 // -----------------------
 
 function updateRangeInputs() {
+  // Get the first element within the list of elements 
   const elementId = getFirstElementId();
   if (!elementId) return;
 
+  // Update each control with the current value
   animationControls.forEach((control) => {
     const propertyName = control.dataset.property;
 
-    const target = canvas.querySelector(`.el-${elementId}`);
+    let target = canvas.querySelector(`.el-${elementId}`);
     if (!target) return;
 
+    // Get current split type from the active split button, set target to first split element of that type
+    if (target.splitInstance) {
+      const splitType = currentSplitType; // TODO: should get the split type from the keyframe data instead of using a global variable
+      if (splitType === "chars" && target.splitInstance.chars) target = target.splitInstance.chars[0];
+      else if (splitType === "words" && target.splitInstance.words) target = target.splitInstance.words[0];
+      else if (splitType === "lines" && target.splitInstance.lines) target = target.splitInstance.lines[0];
+    }
+
+    // To animate the controls, you need gsap to get the value in between the keyframes
     control.value = gsap.getProperty(target, propertyName);
   });
 }
@@ -299,9 +297,8 @@ addTextButton.addEventListener("click", () => {
 
 function addText(text) {
   if (!text.trim()) return;
-  animation.createElement(text);
-  textInput.value = "";
-  history.addMemento(structuredClone(animation.animation));
+  animationData.createElement(text);
+  history.addMemento(animationData.getAnimation());
 }
 
 // -----------------------
@@ -312,7 +309,7 @@ function updatePlayheadHeight() {
   const lastRow = tracksContainer.querySelector('.row:last-of-type');
   if (!lastRow) return;
 
-  // Get the height from the container that needs to be trackt for the height
+  // Get the height from the container that needs to be track for the height
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
   const rowBottom = lastRow.getBoundingClientRect().bottom;
   const sliderTop = timelineSlider.getBoundingClientRect().top;
@@ -325,30 +322,13 @@ function updatePlayheadHeight() {
 // API that tracks if an element changes size
 // https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
 const observer = new ResizeObserver(updatePlayheadHeight);
+const observerHint = new ResizeObserver(updateScrollHint);
 observer.observe(tracksContainer);
 
 updatePlayheadHeight();
 buildVisualizer();
 
-
-
-
 //! Animation direction
-const directionSelect = document.getElementById('animation-direction');
-
-// Set inital direction to normal
-canvas.classList.add('dir-normal');
-
-// Set initial text case to initial
-canvas.classList.add('case-initial');
-
-// Function that executes when the value of the direction select changes
-directionSelect.addEventListener('change', (e) => {
-
-  const propertyName = e.target.dataset.property;
-  const value = parseFloat(e.target.value); // TODO: should not be float for all values
-  animation.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
-});
 
 //! Text casing
 const textCaseRadios = document.querySelectorAll('input[name="text-case"]');
@@ -358,6 +338,56 @@ textCaseRadios.forEach(radio => {
   radio.addEventListener('change', (e) => {
     const propertyName = e.target.dataset.property;
     const value = e.target.value;
-    animation.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
+    animationData.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
   });
 });
+
+// Split text controls
+const btnSplitNone = document.getElementById("btn-split-none");
+const btnSplitChars = document.getElementById("btn-split-chars");
+const btnSplitWords = document.getElementById("btn-split-words");
+const btnSplitLines = document.getElementById("btn-split-lines");
+
+// Function that executes when a split type button is clicked
+function applySplit(type) {
+  currentSplitType = type;
+
+  // Remove active class from all buttons
+  document.querySelectorAll('.split-text-buttons button').forEach(btn => {
+    btn.classList.remove('active');
+  });
+
+  // Add active class to the clicked button and set the split type as a data attribute on the canvas
+  const activeButton = document.getElementById(`btn-split-${type}`);
+  if (activeButton) {
+    activeButton.classList.add('active');
+  }
+
+  const canvas = document.querySelector(".canvas");
+  if (canvas) {
+    canvas.setAttribute("data-split-type", type);
+  }
+}
+
+// Add event listeners to split type buttons
+if (btnSplitNone) btnSplitNone.addEventListener("click", () => applySplit("none"));
+if (btnSplitWords) btnSplitWords.addEventListener("click", () => applySplit("words"));
+if (btnSplitChars) btnSplitChars.addEventListener("click", () => applySplit("chars"));
+if (btnSplitLines) btnSplitLines.addEventListener("click", () => applySplit("lines"));
+
+// https://www.freecodecamp.org/news/javascript-settimeout-js-timer-to-delay-n-seconds/
+// Function to let a hint appear when the container is scrollable. 
+// The hint disappears after 5 seconds again.
+export function updateScrollHint() {
+  const isScrollable = tracksContainer.scrollHeight > tracksContainer.clientHeight;
+  scrollHint.hidden = !isScrollable;
+
+  if(isScrollable) {
+    clearTimeout(scrollHint.fadeout);
+    scrollHint.classList.remove("fade-out");
+
+    scrollHint.fadetimer = setTimeout(() => {
+      scrollHint.classList.add("fade-out");
+    }, 5000);
+  }
+}
