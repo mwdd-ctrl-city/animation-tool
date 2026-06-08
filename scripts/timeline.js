@@ -1,4 +1,4 @@
-import Animation from "./animations/animation.js";
+import AnimationData from "./animations/animation.js";
 import AnimationPlayer from "./animations/animation-player.js";
 import History from "./memento/history.js";
 
@@ -8,7 +8,7 @@ const animationControls = document.querySelectorAll(".animation-control");
 const tracksContainer = document.querySelector(".timeline-container");
 const canvas = document.querySelector(".content-canvas");
 
-const addTextButton = document.querySelector(".add-text-button"); 
+const addTextButton = document.querySelector(".add-text-button");
 
 const startTimeInput = document.querySelector(".tl-time-start");
 const endTimeInput = document.querySelector(".tl-time-end");
@@ -26,73 +26,44 @@ let activeKeyframe = null;
 
 async function loadAnimation(filePath) {
   const response = await fetch(filePath);
-  const data = await response.json();
+  const json = await response.text();
 
-  const animation = new Animation(data.name, data.duration);
+  const animationData = new AnimationData();
+  animationData.fromJSON(json);
 
-  const idMap = {};
-
-  // Elements
-  Object.entries(data.elements).forEach(([id, content]) => {
-    idMap[id] = animation.createElement(content);
-  });
-
-  // Groups
-  Object.entries(data.groups).forEach(([, group]) => {
-    const groupId = animation.createGroup(group.name);
-
-    group.members.forEach((oldId) => {
-      if (idMap[oldId]) {
-        animation.addToGroup(groupId, idMap[oldId]);
-      }
-    });
-  });
-
-  // Keyframes
-  Object.entries(data.animations).forEach(([oldTargetId, properties]) => {
-    const newTargetId = idMap[oldTargetId];
-    if (!newTargetId) return;
-
-    Object.entries(properties).forEach(([propertyName, keyframes]) => {
-      keyframes.forEach(({ progress, value, ease }) => {
-        animation.setKeyframe(
-          newTargetId,
-          propertyName,
-          progress,
-          value,
-          ease
-        );
-      });
-    });
-  });
-
-  return animation;
+  return animationData;
 }
 
 // -----------------------
 // Init
 // -----------------------
 
-const animation = await loadAnimation("./scripts/animation.json");
+const animationData = await loadAnimation("./scripts/animation.json");
 const history = new History();
-history.addMemento(structuredClone(animation.animation));
+history.addMemento(animationData.getAnimation());
 
-const player = new AnimationPlayer(canvas, animation);
+const player = new AnimationPlayer(canvas, animationData);
 
-animation.addEventListener("change", () => {
+animationData.addEventListener("change", () => {
   buildVisualizer();
 })
 
 function getFirstElementId() {
-  // Gets the first element in the json and gives the propertie in this case the ID, not the value
-  return Object.keys(animation.getElements())[0] ?? null;
-}
 
+  // Gets the first element in the json and gives the propertie in this case the ID, not the value
+  return animationData.getElements().keys().next().value ?? null;
+
+
+}
 undoButton.addEventListener("click", () => {
   const state = history.undo();
 
+  console.log("test");
+
   if (state !== null) {
-    animation.load(state);
+    animationData.load(state);
+  } else {
+    console.log("no state");
   }
 });
 
@@ -100,7 +71,7 @@ redoButton.addEventListener("click", () => {
   const state = history.redo();
 
   if (state !== null) {
-    animation.load(state);
+    animationData.load(state);
   }
 })
 
@@ -135,13 +106,13 @@ easeSelect.addEventListener('change', ()=>{
   // The ? stands for a undefined property that doesn't exist in the dom so it doesn't give a undefined
   ease = easeSelect?.value ?? "none";
 
-    animation.setKeyframe(
-      activeElementId,
-      activePropertyName,
-      player.getProgress(),
-      activeValue,
-      ease
-    );
+  animationData.setKeyframe(
+    activeElementId,
+    activePropertyName,
+    player.getProgress(),
+    activeValue,
+    ease
+  );
 })
 
 let activeElementId = null;
@@ -157,12 +128,12 @@ animationControls.forEach((control) => {
 
     const propertyName = event.target.dataset.property;
     const value = parseFloat(event.target.value);
-    
+
     activeElementId = elementId;
     activePropertyName = event.target.dataset.property;
     activeValue = parseFloat(event.target.value);
 
-    animation.setKeyframe(
+    animationData.setKeyframe(
       activeElementId,
       activePropertyName,
       player.getProgress(),
@@ -172,7 +143,7 @@ animationControls.forEach((control) => {
   });
 
   control.addEventListener("change", (event) => {
-    history.addMemento(structuredClone(animation.animation));
+    history.addMemento(animationData.getAnimation());
   });
 });
 
@@ -203,15 +174,15 @@ playButtonTimeline.addEventListener("click", () => {
 document.querySelector('.tl-time-start').addEventListener('change', (e) => {
   const time = parseFloat(e.target.value);
   // const progress = time / animationBuilder.timelineData.duration;
-  const progress = time / animation.getDuration()
+  const progress = time / animationData.getDuration()
   player.setProgress(progress);
 });
 
 document.querySelector('.tl-time-end').addEventListener('change', (e) => {
   const time = parseFloat(e.target.value);
-  animation.setDuration(time)
+  animationData.setDuration(time)
 
-  history.addMemento(structuredClone(animation.animation))
+  history.addMemento(animationData.getAnimation())
 });
 
 // -----------------------
@@ -227,11 +198,12 @@ function buildVisualizer() {
   if (!elementId) return;
 
   // get the properties that are defined within the id 
-  const properties = animation.getProperties(elementId);
+  const properties = animationData.getProperties(elementId);
+
 
   // For each property you make a new track and row within the timeline
   properties.forEach((propertyName) => {
-    const keyframes = animation.getKeyframes(elementId, propertyName);
+    const keyframes = animationData.getKeyframes(elementId, propertyName);
 
     const row = document.createElement("div");
     row.classList.add("row");
@@ -268,7 +240,7 @@ function buildVisualizer() {
             Math.min(1, pointX / trackWidth)
           );
 
-          animation.moveKeyframe(
+          animationData.moveKeyframe(
             elementId,
             propertyName,
             keyframe.progress,
@@ -316,8 +288,8 @@ addTextButton.addEventListener("click", () => {
 
 function addText(text) {
   if (!text.trim()) return;
-  animation.createElement(text);
-  history.addMemento(structuredClone(animation.animation));
+  animationData.createElement(text);
+  history.addMemento(animationData.getAnimation());
 }
 
 // -----------------------
@@ -328,7 +300,7 @@ function updatePlayheadHeight() {
   const lastRow = tracksContainer.querySelector('.row:last-of-type');
   if (!lastRow) return;
 
-  // Get the height from the container that needs to be trackt for the height
+  // Get the height from the container that needs to be track for the height
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
   const rowBottom = lastRow.getBoundingClientRect().bottom;
   const sliderTop = timelineSlider.getBoundingClientRect().top;
@@ -363,7 +335,7 @@ directionSelect.addEventListener('change', (e) => {
 
   const propertyName = e.target.dataset.property;
   const value = parseFloat(e.target.value); // TODO: should not be float for all values
-  animation.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
+  animationData.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
 });
 
 //! Text casing
@@ -374,6 +346,6 @@ textCaseRadios.forEach(radio => {
   radio.addEventListener('change', (e) => {
     const propertyName = e.target.dataset.property;
     const value = e.target.value;
-    animation.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
+    animationData.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
   });
 });
