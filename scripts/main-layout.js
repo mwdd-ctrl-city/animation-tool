@@ -1,3 +1,5 @@
+import { updateScrollHint } from "./timeline.js";
+
 // ---------------
 // MARK: CONSTANTS
 // ---------------
@@ -19,10 +21,14 @@ let startY;
 let startX;
 let startHeight;
 let startWidth;
+let startScrollTop;
 let isDragging = false;
 let contentX = 0;
 let contentY = 0;
 let contentScale = 1;
+let isMoving = false;
+let startMoveX;
+let startMoveY;
 
 
 // -----------------------
@@ -49,6 +55,7 @@ projectNameInput.addEventListener("blur", () => {
 // ----------------------------------
 // ** Functions for items **
 resizeHandleLeft.addEventListener("pointerdown", (e) => {
+    isDragging = true;
     startX = e.clientX;
     startWidth = itemsContainer.offsetWidth;
 
@@ -57,8 +64,22 @@ resizeHandleLeft.addEventListener("pointerdown", (e) => {
 
 
 resizeHandleLeft.addEventListener("pointermove", (e) => {
+    if (!isDragging) return;
+
     const deltaX = startX - e.clientX;
     let newWidth = startWidth + deltaX;
+
+    // Determine max and min width, to change the cursor (UI)
+    // getComputedStyle returns pixel values, with parseFloat it gives a number.
+    const minWidth = parseFloat(getComputedStyle(itemsContainer).minWidth);
+    const maxWidth = parseFloat(getComputedStyle(itemsContainer).maxWidth);
+
+    if (newWidth < minWidth || newWidth > maxWidth) {
+        resizeHandleLeft.style.cursor = "default";
+        newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth); // clamp instead of return
+    } else {
+        resizeHandleLeft.style.cursor = "ew-resize";
+    }
 
     gsap.set(itemsContainer, {
         width: newWidth
@@ -69,6 +90,8 @@ resizeHandleLeft.addEventListener("pointermove", (e) => {
 
 
 resizeHandleLeft.addEventListener("pointerup", (e) => {
+    // Makes sure the resizeHandleLeft has the CSS style given (inline style removed)
+    resizeHandleLeft.style.cursor = "";
     // Stop reacting to mouse- and touch movements on this element.
     resizeHandleLeft.onpointermove = null;
     isDragging = false;
@@ -99,11 +122,11 @@ resizeHandleTop.addEventListener("pointermove", (e) => {
 
     document.documentElement.style.setProperty("--size-timeline", newHeight + "px");
 
-
-
     if (startScrollTop > 0) {
         itemsContainer.scrollTop = startScrollTop + deltaY;
     }
+
+    updateScrollHint();
 });
 
 resizeHandleTop.addEventListener("pointerup", (e) => {
@@ -117,7 +140,6 @@ resizeHandleTop.addEventListener("pointerup", (e) => {
 // ------------------------
 // MARK: CONTENT AND CANVAS
 // ------------------------
-
 // Returns the size and position of an element relative to the viewport - when page loads
 const rect = contentContainer.getBoundingClientRect();
 contentX = (rect.width - 800) / 2;
@@ -163,3 +185,41 @@ contentContainer.addEventListener('wheel', e => {
         ease: "none"
     });
 }, { passive: false });
+
+
+
+// ----------------------------------
+// MARK: CONTENT AND CANVAS: DRAGGING
+// ----------------------------------
+contentContainer.addEventListener("pointerdown", (e) => {
+    const containerClicked = e.target === contentContainer;
+    const canvasClicked = e.target === contentCanvas;
+
+    if (e.button !== 0) return;
+    if (!containerClicked && !canvasClicked) return;
+
+    isMoving = true;
+    startMoveX = e.clientX - contentX;
+    startMoveY = e.clientY - contentY;
+
+    contentContainer.setPointerCapture(e.pointerId);
+    contentContainer.style.cursor = "grabbing";
+});
+
+contentContainer.addEventListener("pointermove", (e) => {
+    if (!isMoving) return;
+
+    contentX = e.clientX - startMoveX;
+    contentY = e.clientY - startMoveY;
+
+    gsap.set(contentCanvas, { x: contentX, y: contentY });
+});
+
+contentContainer.addEventListener("pointerup", (e) => {
+    isMoving = false;
+    contentContainer.style.cursor = "";
+});
+
+
+
+

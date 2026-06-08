@@ -24,7 +24,7 @@ export default class History {
             this.mementos = this.mementos.slice(0, this.currentIndex + 1);
         }
 
-        this.mementos.push(memento);
+        this.mementos.push(structuredClone(memento));
         this.currentIndex = this.mementos.length - 1;
     }
 
