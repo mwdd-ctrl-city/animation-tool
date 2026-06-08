@@ -16,6 +16,9 @@ const endTimeInput = document.querySelector(".tl-time-end");
 const undoButton = document.querySelector(".undo");
 const redoButton = document.querySelector(".redo");
 
+const prevKeyframeButton = document.querySelector('.kf-prev');
+const nextKeyframeButton = document.querySelector('.kf-next')
+
 const easeSelect = document.querySelector('#animation-select-ease')
 
 let activeKeyframe = null;
@@ -281,6 +284,39 @@ function buildVisualizer() {
   });
   // Update the playheadHeight on the height of the container
   updatePlayheadHeight();
+}
+
+
+
+
+
+function snapPlayheadToKeyframe (propertyName) {
+  // With the function you got the ID of the element
+  const elementId = getFirstElementId();
+  if (!elementId) return;
+
+  const keyframes = animation.getKeyframes(elementId, propertyName);
+  const currentProgress = parseFloat(timelineSlider.value) / 100;
+  const snapDistance = 2;
+  
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/abs
+  // Math abs finds the difference in numbers between two points
+  const findClosest = keyframes.find((keyframe) => Math.abs(keyframe.progress - currentProgress) <= snapDistance);
+
+  if(findClosest) {
+    timelineSlider.value = findClosest.progress * 100;
+  } else {
+    console.log("het werkt niet")
+  }
+
+
+  nextKeyframeButton.addEventListener('click', () => {
+
+});
+
+prevtKeyframeButton.addEventListener('click', () => {
+  
+});
 }
 
 // -----------------------
