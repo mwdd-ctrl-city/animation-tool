@@ -80,17 +80,23 @@ export default class AnimationPlayer {
             }
 
             el.contentEditable = true;
-
             el.focus();
         })
 
         el.addEventListener("blur", () => {
             el.contentEditable = false;
 
-            if ((el.textContent.trim()) === "") {
+
+            const formattedText = el.innerHTML   // innerHTML gives: first<div><br></div><div><br></div><div>second</div>
+                .replace(/<div>/g, "\n")  // Replace <div> with \n -> enter - /g makes global, so not just stop at / replace  first div
+                .replace(/<\/div>/g, "")  // Replace </div> with nothing
+                .replace(/<br>/g, "")   // Replace <br> with nothing
+                .replace(/&nbsp;/g, " ") // Replace &nbsp with space
+
+            if((el.textContent.trim()) === "") {
                 this.#animation.removeElement(id);
             } else {
-                this.#animation.renameElement(id, el.textContent);
+                this.#animation.renameElement(id, formattedText); 
             }
 
             const dragInstance = Draggable.get(el); // Retrun draggable object that was previously created 

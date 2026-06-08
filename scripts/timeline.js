@@ -275,7 +275,6 @@ addTextButton.addEventListener("click", () => {
 function addText(text) {
   if (!text.trim()) return;
   animationData.createElement(text);
-  textInput.value = "";
   history.addMemento(animationData.getAnimation());
 }
 
