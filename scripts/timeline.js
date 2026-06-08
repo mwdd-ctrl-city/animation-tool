@@ -16,9 +16,6 @@ const endTimeInput = document.querySelector(".tl-time-end");
 const undoButton = document.querySelector(".undo");
 const redoButton = document.querySelector(".redo");
 
-const prevKeyframeButton = document.querySelector('.kf-prev');
-const nextKeyframeButton = document.querySelector('.kf-next')
-
 const easeSelect = document.querySelector('#animation-select-ease')
 
 let activeKeyframe = null;
@@ -259,37 +256,122 @@ function buildVisualizer() {
 }
 
 
+const prevKeyframeButton = document.querySelector('.kf-prev');
+const nextKeyframeButton = document.querySelector('.kf-next');
 
+// Ophalen keyframes 
+// filteren op keyframes die hoger zijn dan huidige waarde
+// De eerste in de lijst
 
+function snapPlayheadToKeyframe () {
+  nextKeyframeButton.addEventListener('click', (event) => {
+    const currentProgress = player.getProgress();
+    let nextProgress = null;
 
-function snapPlayheadToKeyframe (propertyName) {
-  // With the function you got the ID of the element
-  const elementId = getFirstElementId();
-  if (!elementId) return;
+    // Loop whitin the element key and the values for each keyframe 
+    animationData.getElements().keys().forEach(element =>{
+      const animationMap = animationData.getAnimations(element);
+      if(!animationMap) return;
 
-  const keyframes = animation.getKeyframes(elementId, propertyName);
-  const currentProgress = parseFloat(timelineSlider.value) / 100;
-  const snapDistance = 2;
-  
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/abs
-  // Math abs finds the difference in numbers between two points
-  const findClosest = keyframes.find((keyframe) => Math.abs(keyframe.progress - currentProgress) <= snapDistance);
+      animationMap.values().forEach(keyframes => {
+        keyframes.forEach( keyframe => {
+          // Check if the progress is higher then the current progress, so you know it comes after the currentkeyframe
+          if (keyframe.progress > currentProgress) {
+                  if (nextProgress === null || keyframe.progress < nextProgress) {
+                    // If so then the nexprogress is the point the player needs to be set on
+                      nextProgress = keyframe.progress;
+                  }
+          }
+        })
+      })
+    })
 
-  if(findClosest) {
-    timelineSlider.value = findClosest.progress * 100;
+  if(nextProgress !== null){
+    player.setProgress(nextProgress) 
   } else {
-    console.log("het werkt niet")
+    player.setProgress(1)
   }
 
+  });
 
-  nextKeyframeButton.addEventListener('click', () => {
+  prevKeyframeButton.addEventListener('click', (event) => {
+    const currentProgress = player.getProgress();
+    let prevProgress = null;
+
+  // for (const elementId of animationData.getElements().keys()) {
+  //     const animationMap = animationData.getAnimations(elementId);
+  //     if (!animationMap) continue;
+
+  //     for (const keyframes of animationMap.values()) {
+  //         for (const keyframe of keyframes) {
+  //           // The - 0.0001 is there to avoid floating point precision errors
+  //             if (keyframe.progress < currentProgress - 0.0001) {
+  //                 if (prevProgress === null || keyframe.progress > prevProgress) {
+  //                     prevProgress = keyframe.progress;
+  //                 }
+  //             }
+  //         }
+  //     }
+  //   }
+
+    animationData.getElements().keys().forEach(element =>{
+      const animationMap = animationData.getAnimations(element);
+      if(!animationMap) return;
+
+      animationMap.values().forEach(keyframes => {
+        keyframes.forEach( keyframe => {
+          if (keyframe.progress < currentProgress - 0.0001) {
+                  if (prevProgress === null || keyframe.progress > prevProgress) {
+                      prevProgress = keyframe.progress;
+                  }
+          }
+        })
+      })
+    })
+
+  if(prevProgress !== null){
+    player.setProgress(prevProgress) 
+  } else {
+    player.setProgress(0)
+  }
 
 });
 
-prevtKeyframeButton.addEventListener('click', () => {
-  
-});
+
 }
+
+snapPlayheadToKeyframe()
+
+
+
+// function snapPlayheadToKeyframe (propertyName) {
+//   // With the function you got the ID of the element
+//   const elementId = getFirstElementId();
+//   if (!elementId) return;
+
+//   const keyframes = animation.getKeyframes(elementId, propertyName);
+//   const currentProgress = parseFloat(timelineSlider.value) / 100;
+//   const snapDistance = 2;
+  
+//   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/abs
+//   // Math abs finds the difference in numbers between two points
+//   const findClosest = keyframes.find((keyframe) => Math.abs(keyframe.progress - currentProgress) <= snapDistance);
+
+//   if(findClosest) {
+//     timelineSlider.value = findClosest.progress * 100;
+//   } else {
+//     console.log("het werkt niet")
+//   }
+
+
+//   nextKeyframeButton.addEventListener('click', () => {
+
+// });
+
+// prevtKeyframeButton.addEventListener('click', () => {
+  
+// });
+// }
 
 // -----------------------
 // Range inputs sync

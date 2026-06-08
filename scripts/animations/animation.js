@@ -316,6 +316,13 @@ export default class AnimationData extends EventTarget {
         return Array.from(animationMap.keys());
     }
 
+    getAnimations(targetId){
+        const animationMap = this.#animations.get(targetId);
+        if (!animationMap) return false;
+
+        return structuredClone(animationMap);
+    }
+
     /**
      * @description Get the display name of the animation
      * @returns {string} The animation name
