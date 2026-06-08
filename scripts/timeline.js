@@ -131,8 +131,6 @@ animationControls.forEach((control) => {
     );
   });
 
-  console.log(animation.toJSON())
-
   control.addEventListener("change", (event) => {
     history.addMemento(structuredClone(animation.getAnimation()));
   });

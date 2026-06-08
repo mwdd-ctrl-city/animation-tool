@@ -5,7 +5,6 @@ export default class AnimationData extends EventTarget {
     #name;
     #durationSeconds;
     #elements = new Map();
-    #groups = new Map();
     #animations = new Map();
 
     /**
@@ -101,11 +100,6 @@ export default class AnimationData extends EventTarget {
         // Remove element from elements if possible (else return false)
         if (!this.#elements.delete(elementId)) return false;
 
-        // Remove element from all groups
-        this.#groups.forEach(group => {
-            group.members = group.members.filter(id => id !== elementId);
-        });
-
         // Remove element from all animations
         this.#animations.delete(elementId);
 
@@ -144,106 +138,6 @@ export default class AnimationData extends EventTarget {
      */
     getElements() {
         return structuredClone(this.#elements);
-    }
-
-    // -----------------------
-    // MARK: Groups
-    // -----------------------
-
-    /**
-     * @description Create a new (empty) group
-     * @param {string} groupName The display name of the group
-     * @returns {string} the internal UUID of the group used for referencing
-     */
-    createGroup(groupName) {
-        const id = crypto.randomUUID();
-        this.#groups.set(id, { name: groupName.trim(), members: [] });
-
-        this.dispatchEvent(new Event("change"));
-        return id;
-    }
-
-    /**
-     * @description Remove a group from the animation
-     * @param {string} groupId The internal UUID of the group
-     * @returns {boolean} true if the group is found and deleted, false if not
-    */
-    removeGroup(groupId) {
-        if (!this.#groups.delete(groupId)) return false;
-
-        this.dispatchEvent(new Event("change"));
-        return true;
-    }
-
-    /**
-     * @description Rename the display name of a group
-     * @param {string} groupId The UUID of the group
-     * @param {string} groupName The new display name of the group
-     * @returns {boolean} true if the group is found and renamed, false if not
-     */
-    renameGroup(groupId, groupName) {
-        const group = this.#groups.get(groupId);
-        if (!group) return false;
-
-        group.name = groupName.trim();
-
-        this.dispatchEvent(new Event("change"));
-        return true;
-    }
-
-    /**
-     * @description Add an element to a group
-     * @param {string} groupId The UUID of the group
-     * @param {string} elementId The UUID of the element
-     * @returns {boolean} true if the group and element was found and added, false if not
-     */
-    addToGroup(groupId, elementId) {
-        const element = this.#elements.get(elementId)
-        if (!element) return false;
-
-        const group = this.#groups.get(groupId);
-        if (!group) return false;
-
-        if (!group.members.includes(elementId)) { // Use set?
-            group.members.push(elementId);
-        }
-
-        this.dispatchEvent(new Event("change"));
-        return true;
-    }
-
-    /**
-     * @description Remove an element from a group
-     * @param {string} groupId The UUID of the group
-     * @param {string} elementId The UUID of the element
-     * @returns {boolean} true if the group and element was found and removed, false if not
-     */
-    removeFromGroup(groupId, elementId) {
-        const group = this.#groups.get(groupId);
-        if (!group) return false;
-
-        group.members = group.members.filter(id => id !== elementId);
-
-        this.dispatchEvent(new Event("change"));
-        return true;
-    }
-
-    /**
-     * @description Get a group by ID
-     * @param {string} groupId The UUID of the group
-     * @returns {Map} The group of the given UUID. Null if not found
-     */
-    getGroup(groupId) {
-        if (!this.#groups.has(groupId)) return null;
-        return structuredClone(this.#groups.get(groupId));
-    }
-
-    /**
-     * @description Get an object of all groups contained in the animation
-     * @returns {Map} Map with all groups of the animation
-     */
-    getGroups() {
-        return structuredClone(this.#groups);
     }
 
     // -----------------------
@@ -288,7 +182,7 @@ export default class AnimationData extends EventTarget {
      * @returns {boolean} true if the target was found and the progress is valid, otherwise false
      */
     setKeyframe(targetId, propertyName, progress, value, ease = "none") {
-        if (!this.#elements.has(targetId) && !this.#groups.has(targetId)) return false;
+        if (!this.#elements.has(targetId)) return false;
         if (!this.#isValidProgress(progress)) return false;
 
         // Get the keyframe of the specified target, property and progress
@@ -361,7 +255,7 @@ export default class AnimationData extends EventTarget {
      */
     moveKeyframe(targetId, propertyName, fromProgress, toProgress) {
         // Check if the target exists as an element or group
-        if (!this.#elements.has(targetId) && !this.#groups.has(targetId)) {
+        if (!this.#elements.has(targetId)) {
             return false;
         }
 
@@ -452,7 +346,6 @@ export default class AnimationData extends EventTarget {
             name: this.#name,
             duration: this.#durationSeconds,
             elements: structuredClone(this.#elements),
-            groups: structuredClone(this.#groups),
             animations: structuredClone(this.#animations),
         };
     }
@@ -466,7 +359,6 @@ export default class AnimationData extends EventTarget {
         this.#name = animation.name;
         this.#durationSeconds = animation.duration;
         this.#elements = animation.elements;
-        this.#groups = animation.groups;
         this.#animations = animation.animations;
 
         this.dispatchEvent(new Event("change"));
@@ -481,11 +373,6 @@ export default class AnimationData extends EventTarget {
             name: this.#name,
             duration: this.#durationSeconds,
             elements: Object.fromEntries(this.#elements),
-            groups: Object.fromEntries(
-                [...this.#groups.entries()].map(([id, group]) => [
-                    id, { ...group, members: [...group.members] }
-                ])
-            ),
             animations: Object.fromEntries(
                 [...this.#animations.entries()].map(([id, props]) => [
                     id, Object.fromEntries(props)
@@ -506,7 +393,6 @@ export default class AnimationData extends EventTarget {
                 name: data.name,
                 duration: data.duration,
                 elements: new Map(Object.entries(data.elements)),
-                groups: new Map(Object.entries(data.groups)),
                 animations: new Map(
                     Object.entries(data.animations).map(([id, props]) => [
                         id,
