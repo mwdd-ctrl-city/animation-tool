@@ -46,6 +46,7 @@ const player = new AnimationPlayer(canvas, animationData);
 
 animationData.addEventListener("change", () => {
   buildVisualizer();
+  updateRangeInputs(); 
 })
 
 function getFirstElementId() {
