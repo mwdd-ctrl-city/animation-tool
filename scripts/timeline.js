@@ -28,6 +28,8 @@ const scrollHint = document.querySelector('.scroll-hint');
 
 let activeKeyframe = null;
 
+let currentSplitType = "none";
+
 // -----------------------
 // Load animation
 // -----------------------
@@ -125,6 +127,7 @@ animationControls.forEach((control) => {
     const propertyName = event.target.dataset.property;
     const value = parseFloat(event.target.value);
 
+    const currentTextCase = document.querySelector('input[name="text-case"]:checked').value;
     activeElementId = elementId;
     activePropertyName = event.target.dataset.property;
     activeValue = parseFloat(event.target.value);
@@ -134,7 +137,9 @@ animationControls.forEach((control) => {
       activePropertyName,
       player.getProgress(),
       activeValue,
-      ease ?? "none"
+      ease ?? "none",
+      currentSplitType,
+      currentTextCase
     );
   });
 
@@ -266,8 +271,16 @@ function updateRangeInputs() {
   animationControls.forEach((control) => {
     const propertyName = control.dataset.property;
 
-    const target = canvas.querySelector(`.el-${elementId}`);
+    let target = canvas.querySelector(`.el-${elementId}`);
     if (!target) return;
+
+    // Get current split type from the active split button, set target to first split element of that type
+    if (target.splitInstance) {
+      const splitType = currentSplitType; // TODO: should get the split type from the keyframe data instead of using a global variable
+      if (splitType === "chars" && target.splitInstance.chars) target = target.splitInstance.chars[0];
+      else if (splitType === "words" && target.splitInstance.words) target = target.splitInstance.words[0];
+      else if (splitType === "lines" && target.splitInstance.lines) target = target.splitInstance.lines[0];
+    }
 
     // To animate the controls, you need gsap to get the value in between the keyframes
     control.value = gsap.getProperty(target, propertyName);
@@ -315,25 +328,7 @@ observer.observe(tracksContainer);
 updatePlayheadHeight();
 buildVisualizer();
 
-
-
-
 //! Animation direction
-const directionSelect = document.getElementById('animation-direction');
-
-// Set inital direction to normal
-canvas.classList.add('dir-normal');
-
-// Set initial text case to initial
-canvas.classList.add('case-initial');
-
-// Function that executes when the value of the direction select changes
-directionSelect.addEventListener('change', (e) => {
-
-  const propertyName = e.target.dataset.property;
-  const value = parseFloat(e.target.value); // TODO: should not be float for all values
-  animationData.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
-});
 
 //! Text casing
 const textCaseRadios = document.querySelectorAll('input[name="text-case"]');
@@ -347,6 +342,38 @@ textCaseRadios.forEach(radio => {
   });
 });
 
+// Split text controls
+const btnSplitNone = document.getElementById("btn-split-none");
+const btnSplitChars = document.getElementById("btn-split-chars");
+const btnSplitWords = document.getElementById("btn-split-words");
+const btnSplitLines = document.getElementById("btn-split-lines");
+
+// Function that executes when a split type button is clicked
+function applySplit(type) {
+  currentSplitType = type;
+
+  // Remove active class from all buttons
+  document.querySelectorAll('.split-text-buttons button').forEach(btn => {
+    btn.classList.remove('active');
+  });
+
+  // Add active class to the clicked button and set the split type as a data attribute on the canvas
+  const activeButton = document.getElementById(`btn-split-${type}`);
+  if (activeButton) {
+    activeButton.classList.add('active');
+  }
+
+  const canvas = document.querySelector(".canvas");
+  if (canvas) {
+    canvas.setAttribute("data-split-type", type);
+  }
+}
+
+// Add event listeners to split type buttons
+if (btnSplitNone) btnSplitNone.addEventListener("click", () => applySplit("none"));
+if (btnSplitWords) btnSplitWords.addEventListener("click", () => applySplit("words"));
+if (btnSplitChars) btnSplitChars.addEventListener("click", () => applySplit("chars"));
+if (btnSplitLines) btnSplitLines.addEventListener("click", () => applySplit("lines"));
 
 // https://www.freecodecamp.org/news/javascript-settimeout-js-timer-to-delay-n-seconds/
 // Function to let a hint appear when the container is scrollable. 
