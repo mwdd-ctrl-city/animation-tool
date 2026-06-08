@@ -298,7 +298,8 @@ export default class Animation extends EventTarget {
      * @param {string} ease [optional] Easing function to apply to this keyframe
      * @returns {boolean} true if the target was found and the progress is valid, otherwise false
      */
-    setKeyframe(targetId, propertyName, progress, value, ease = "none") {
+    // TODO: check of animation direction nodig is op keyframe
+    setKeyframe(targetId, propertyName, progress, value, ease = "none", splitType = "none", textCase = "initial") {
         if (!this.#elements.has(targetId) && !this.#groups.has(targetId)) return false;
         if (!this.#isValidProgress(progress)) return false;
 
@@ -309,13 +310,15 @@ export default class Animation extends EventTarget {
 
         // If the keyframe does not exist, create it, else edit it
         if (!keyframe) {
-            keyframe = { progress, value, ease };
+            keyframe = { progress, value, ease, splitType, textCase };
             keyframes.push(keyframe);
             // Resort the keyframes
             keyframes.sort((a, b) => a.progress - b.progress);
         } else {
             keyframe.value = value;
             keyframe.ease = ease;
+            keyframe.splitType = splitType;
+            keyframe.textCase = textCase;
         }
 
         this.dispatchEvent(new Event("change"));
@@ -432,7 +435,7 @@ export default class Animation extends EventTarget {
 
         return Array.from(animationMap.keys());
     }
-
+    
     /**
      * @description Get the display name of the animation
      * @returns {string} The animation name

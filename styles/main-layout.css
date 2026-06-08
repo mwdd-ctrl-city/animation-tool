@@ -379,3 +379,62 @@ details[open]::details-content {
     height: 10px;
     width: 10px;
 }
+
+/* MARK: split text opmaak */
+.canvas[data-split-type="chars"] .split-char,
+.canvas[data-split-type="words"] .split-word,
+.canvas[data-split-type="lines"] .split-line {
+    display: inline-block;
+    outline: 1px dashed deeppink;
+    border-radius: 5px;
+    margin: 0 1px; 
+}
+
+.split-text-buttons,
+.layout-radios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.layout-radios input[type="radio"] {
+    display: none;
+}
+
+.split-text-buttons button,
+.layout-radios label {
+    padding: 8px 16px;
+    background-color: #f0f0f0; 
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    user-select: none; 
+}
+
+.split-text-buttons button:hover,
+.layout-radios label:hover {
+    background-color: #e4e4e4;
+    border-color: #ccc;
+}
+
+/* ========================================= */
+/* --- DE ACTIVE STATES (Deeppink) ---       */
+/* ========================================= */
+
+.split-text-buttons button.active {
+    background-color: deeppink;
+    color: white;
+    border-color: deeppink;
+    font-weight: bold;
+}
+
+.layout-radios label:has(input[type="radio"]:checked) {
+    background-color: deeppink;
+    color: white;
+    border-color: deeppink;
+    font-weight: bold;
+}

@@ -19,6 +19,8 @@ const redoButton = document.querySelector(".redo");
 
 let activeKeyframe = null;
 
+let currentSplitType = "none";
+
 // -----------------------
 // Load animation
 // -----------------------
@@ -53,7 +55,11 @@ async function loadAnimation(filePath) {
     if (!newTargetId) return;
 
     Object.entries(properties).forEach(([propertyName, keyframes]) => {
-      keyframes.forEach(({ progress, value, ease }) => {
+      keyframes.forEach(({
+        progress,
+        value,
+        ease
+      }) => {
         animation.setKeyframe(
           newTargetId,
           propertyName,
@@ -137,11 +143,17 @@ animationControls.forEach((control) => {
     const propertyName = event.target.dataset.property;
     const value = parseFloat(event.target.value);
 
+    const currentTextCase = document.querySelector('input[name="text-case"]:checked').value;
+    const ease = "none"; // TODO: allow setting easing per keyframe
+
     animation.setKeyframe(
       elementId,
       propertyName,
       player.getProgress(),
-      value
+      value,
+      ease,
+      currentSplitType,
+      currentTextCase
     );
   });
 
@@ -242,8 +254,16 @@ function updateRangeInputs() {
   animationControls.forEach((control) => {
     const propertyName = control.dataset.property;
 
-    const target = canvas.querySelector(`.el-${elementId}`);
+    let target = canvas.querySelector(`.el-${elementId}`);
     if (!target) return;
+
+    // Get current split type from the active split button, set target to first split element of that type
+    if (target.splitInstance) {
+      const splitType = currentSplitType; // TODO: should get the split type from the keyframe data instead of using a global variable
+      if (splitType === "chars" && target.splitInstance.chars) target = target.splitInstance.chars[0];
+      else if (splitType === "words" && target.splitInstance.words) target = target.splitInstance.words[0];
+      else if (splitType === "lines" && target.splitInstance.lines) target = target.splitInstance.lines[0];
+    }
 
     control.value = gsap.getProperty(target, propertyName);
   });
@@ -292,25 +312,18 @@ observer.observe(tracksContainer);
 updatePlayheadHeight();
 buildVisualizer();
 
-
-
-
 //! Animation direction
-const directionSelect = document.getElementById('animation-direction');
+// const DirectionRadios = document.querySelectorAll('input[name="animation-direction"]');
 
-// Set inital direction to normal
-canvas.classList.add('dir-normal');
-
-// Set initial text case to initial
-canvas.classList.add('case-initial');
-
-// Function that executes when the value of the direction select changes
-directionSelect.addEventListener('change', (e) => {
-
-  const propertyName = e.target.dataset.property;
-  const value = parseFloat(e.target.value); // TODO: should not be float for all values
-  animation.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
-});
+// // Function that executes when the value of the direction radios changes
+// DirectionRadios.forEach(radio => {
+//   radio.addEventListener('change', (e) => {
+//     const propertyName = e.target.dataset.property;
+//     const value = parseFloat(e.target.value); // TODO: should not be float for all values
+//     console.log(value);
+//     animation.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
+//   });
+// });
 
 //! Text casing
 const textCaseRadios = document.querySelectorAll('input[name="text-case"]');
@@ -323,3 +336,36 @@ textCaseRadios.forEach(radio => {
     animation.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
   });
 });
+
+// Split text controls
+const btnSplitNone = document.getElementById("btn-split-none");
+const btnSplitChars = document.getElementById("btn-split-chars");
+const btnSplitWords = document.getElementById("btn-split-words");
+const btnSplitLines = document.getElementById("btn-split-lines");
+
+// Function that executes when a split type button is clicked
+function applySplit(type) {
+  currentSplitType = type;
+
+  // Remove active class from all buttons
+  document.querySelectorAll('.split-text-buttons button').forEach(btn => {
+    btn.classList.remove('active');
+  });
+
+  // Add active class to the clicked button and set the split type as a data attribute on the canvas
+  const activeButton = document.getElementById(`btn-split-${type}`);
+  if (activeButton) {
+    activeButton.classList.add('active');
+  }
+
+  const canvas = document.querySelector(".canvas");
+  if (canvas) {
+    canvas.setAttribute("data-split-type", type);
+  }
+}
+
+// Add event listeners to split type buttons
+if (btnSplitNone) btnSplitNone.addEventListener("click", () => applySplit("none"));
+if (btnSplitWords) btnSplitWords.addEventListener("click", () => applySplit("words"));
+if (btnSplitChars) btnSplitChars.addEventListener("click", () => applySplit("chars"));
+if (btnSplitLines) btnSplitLines.addEventListener("click", () => applySplit("lines"));
