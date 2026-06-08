@@ -192,6 +192,8 @@ playButtonTimeline.addEventListener("click", () => {
   const isPaused = player.isPaused();
   playButtonTimeline.textContent = isPaused ? "Pause" : "Play";
   player.togglePlay();
+  const select = player.selectedText 
+  console.log(select) 
 });
 
 // -----------------------

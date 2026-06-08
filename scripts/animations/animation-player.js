@@ -8,6 +8,7 @@ export default class AnimationPlayer {
     #animation;
     #timeline;
     #onUpdateListener;
+    #selectedText; 
 
     /**
      * @description Create an AnimationPlayer that drives a GSAP timeline from an Animation instance
@@ -18,6 +19,7 @@ export default class AnimationPlayer {
         this.#canvas = canvas;
         this.#animation = animation;
         this.#onUpdateListener = null;
+        this.#selectedText = null; 
 
         // Initialize the GSAP timeline
         this.#timeline = gsap.timeline({
@@ -69,7 +71,12 @@ export default class AnimationPlayer {
 
                 animationData.setKeyframe(id, "x", progress, this.x, "none");    //Create x keyframe
                 animationData.setKeyframe(id, "y", progress, this.y, "none");    //Create y keyframe
-            }   
+            },
+            onClick: () => {
+                console.log("selected text updated")
+                this.#selectedText = el;
+                // el.style.backgroundColor = el.style.backgroundColor === "deeppink" ? "transparent" : "deeppink"; 
+            }
         })
     }
 
@@ -168,6 +175,11 @@ export default class AnimationPlayer {
         this.#timeline.progress(currentProgress);
     }
 
+    // getSelectedText() {
+    //     // console.log("sup")
+    //     return sup
+    // }
+
     // -----------------------
     // MARK: Timeline Utility
     // -----------------------
@@ -230,5 +242,9 @@ export default class AnimationPlayer {
      */
     getProgress() {
         return this.#timeline.progress();
+    }
+
+    get selectedText() {
+        return this.#selectedText 
     }
 }
