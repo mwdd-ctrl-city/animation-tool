@@ -55,7 +55,6 @@ export default class Animation extends EventTarget {
      * @returns {boolean} true if progress is a valid number between 0 and 1 (inclusive), false if not
      */
     // "typeof" (operator) checks what type of value it is. It returns as a string.
-    // 
     #isValidProgress(progress) {
         return typeof progress === "number" && progress >= 0 && progress <= 1;
     }
