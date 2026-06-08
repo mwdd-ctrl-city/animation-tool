@@ -51,18 +51,53 @@ export default class AnimationPlayer {
             el.classList.add(`el-${id}`);
             el.textContent = element;
             this.#canvas.appendChild(el);
-            let scope = this;
-
-            Draggable.create(el, {
-                bounds: this.#canvas,
-                onDragEnd: function () {
-                    let progress = scope.#timeline.progress(); //Get the progress of the current timeline
-
-                    scope.#animation.setKeyframe(id, "x", progress, this.x, "none");    //Create x keyframe
-                    scope.#animation.setKeyframe(id, "y", progress, this.y, "none");    //Create y keyframe
-                }
-            })
+            this.#setupDraggable(el, id); 
+            this.#setupEditable(el, id); 
         });
+    }
+
+    #setupDraggable(el, id) {
+        const gsapTimeline = this.#timeline; 
+        const animationData = this.#animation; 
+
+        Draggable.create(el, {
+            bounds: this.#canvas,
+            onDragEnd: function () {
+                const dragInstance = Draggable.get(el);
+                let progress = gsapTimeline.progress(); //Get the progress of the current timeline
+
+                animationData.setKeyframe(id, "x", progress, this.x, "none");    //Create x keyframe
+                animationData.setKeyframe(id, "y", progress, this.y, "none");    //Create y keyframe
+            }   
+        })
+    }
+
+    #setupEditable(el, id) {
+        el.addEventListener("dblclick", () => {
+            const dragInstance = Draggable.get(el); // Retrun draggable object that was previously created 
+            if (dragInstance) {
+                dragInstance.disable();  // Turn off gsap draggable behavior
+            }
+
+            el.contentEditable = true;
+            
+            el.focus();
+        })
+
+        el.addEventListener("blur", () => {
+            el.contentEditable = false; 
+
+            if((el.textContent.trim()) === "") {
+                this.#animation.removeElement(id);
+            } else {
+                this.#animation.renameElement(id, el.textContent); 
+            }
+
+            const dragInstance = Draggable.get(el); // Retrun draggable object that was previously created 
+            if (dragInstance) {
+                dragInstance.enable();  // Turn on gsap draggable behavior
+            }
+        })
     }
 
     /**
