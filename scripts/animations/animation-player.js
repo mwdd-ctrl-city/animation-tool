@@ -46,12 +46,11 @@ export default class AnimationPlayer {
 
         const elements = this.#animation.getElements();
 
-        Object.entries(elements).forEach(([id, element]) => {
+        elements.forEach((element, id) => {
             const el = document.createElement("h2"); // TODO: element type should probably come from element data
             el.classList.add(`el-${id}`);
             el.textContent = element;
             this.#canvas.appendChild(el);
-
             this.#setupDraggable(el, id); 
             this.#setupEditable(el, id); 
         });
@@ -105,20 +104,9 @@ export default class AnimationPlayer {
      * @description Populate the GSAP timeline with tweens derived from the animation keyframes
      */
     #buildAnimations() {
-        // Get all targets (groups + elements)
+        // Get all targets
         const duration = this.#animation.getDuration();
-        const elements = this.#animation.getElements();
-        const groups = this.#animation.getGroups();
-
-        const targetIds = [];
-
-        Object.entries(elements).forEach(([id]) => {
-            targetIds.push(id);
-        });
-
-        Object.entries(groups).forEach(([id]) => {
-            targetIds.push(id);
-        });
+        const targetIds = this.#animation.getElements().keys();
 
         // Apply the animations for each target
         targetIds.forEach((targetId) => {
