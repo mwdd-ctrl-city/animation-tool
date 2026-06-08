@@ -358,8 +358,8 @@ export default class AnimationData extends EventTarget {
     load(animation) {
         this.#name = animation.name;
         this.#durationSeconds = animation.duration;
-        this.#elements = animation.elements;
-        this.#animations = animation.animations;
+        this.#elements = structuredClone(animation.elements);
+        this.#animations = structuredClone(animation.animations);
 
         this.dispatchEvent(new Event("change"));
     }

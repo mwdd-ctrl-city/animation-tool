@@ -28,34 +28,38 @@ async function loadAnimation(filePath) {
   const response = await fetch(filePath);
   const json = await response.text();
 
-  const animation = new AnimationData();
-  animation.fromJSON(json);
+  const animationData = new AnimationData();
+  animationData.fromJSON(json);
 
-  return animation;
+  return animationData;
 }
 
 // -----------------------
 // Init
 // -----------------------
 
-const animation = await loadAnimation("./scripts/animation.json");
+const animationData = await loadAnimation("./scripts/animation.json");
 const history = new History();
-history.addMemento(structuredClone(animation.getAnimation()));
+history.addMemento(animationData.getAnimation());
 
-const player = new AnimationPlayer(canvas, animation);
+const player = new AnimationPlayer(canvas, animationData);
 
-animation.addEventListener("change", () => {
+animationData.addEventListener("change", () => {
   buildVisualizer();
 })
 
 function getFirstElementId() {
-  return animation.getElements().keys().next().value ?? null;
+  return animationData.getElements().keys().next().value ?? null;
 }
 undoButton.addEventListener("click", () => {
   const state = history.undo();
 
+  console.log("test");
+
   if (state !== null) {
-    animation.load(state);
+    animationData.load(state);
+  } else {
+    console.log("no state");
   }
 });
 
@@ -63,7 +67,7 @@ redoButton.addEventListener("click", () => {
   const state = history.redo();
 
   if (state !== null) {
-    animation.load(state);
+    animationData.load(state);
   }
 })
 
@@ -96,7 +100,7 @@ easeSelect.addEventListener('change', () => {
   // The ? stands for a undefined property that doesn't exist in the dom so it doesn't give a undefined
   const ease = easeSelect?.value ?? "none";
 
-  animation.setKeyframe(
+  animationData.setKeyframe(
     activeElementId,
     activePropertyName,
     player.getProgress(),
@@ -123,7 +127,7 @@ animationControls.forEach((control) => {
     activePropertyName = event.target.dataset.property;
     activeValue = parseFloat(event.target.value);
 
-    animation.setKeyframe(
+    animationData.setKeyframe(
       activeElementId,
       activePropertyName,
       player.getProgress(),
@@ -132,7 +136,7 @@ animationControls.forEach((control) => {
   });
 
   control.addEventListener("change", (event) => {
-    history.addMemento(structuredClone(animation.getAnimation()));
+    history.addMemento(animationData.getAnimation());
   });
 });
 
@@ -161,15 +165,15 @@ playButtonTimeline.addEventListener("click", () => {
 document.querySelector('.tl-time-start').addEventListener('change', (e) => {
   const time = parseFloat(e.target.value);
   // const progress = time / animationBuilder.timelineData.duration;
-  const progress = time / animation.getDuration()
+  const progress = time / animationData.getDuration()
   player.setProgress(progress);
 });
 
 document.querySelector('.tl-time-end').addEventListener('change', (e) => {
   const time = parseFloat(e.target.value);
-  animation.setDuration(time)
+  animationData.setDuration(time)
 
-  history.addMemento(structuredClone(animation.getAnimation()))
+  history.addMemento(animationData.getAnimation())
 });
 
 // -----------------------
@@ -183,10 +187,10 @@ function buildVisualizer() {
   const elementId = getFirstElementId();
   if (!elementId) return;
 
-  const properties = animation.getProperties(elementId);
+  const properties = animationData.getProperties(elementId);
 
   properties.forEach((propertyName) => {
-    const keyframes = animation.getKeyframes(elementId, propertyName);
+    const keyframes = animationData.getKeyframes(elementId, propertyName);
 
     const row = document.createElement("div");
     row.classList.add("row");
@@ -221,7 +225,7 @@ function buildVisualizer() {
             Math.min(1, pointX / trackWidth)
           );
 
-          animation.moveKeyframe(
+          animationData.moveKeyframe(
             elementId,
             propertyName,
             keyframe.progress,
@@ -263,9 +267,9 @@ addTextButton.addEventListener("click", () => {
 
 function addText(text) {
   if (!text.trim()) return;
-  animation.createElement(text);
+  animationData.createElement(text);
   textInput.value = "";
-  history.addMemento(structuredClone(animation.getAnimation()));
+  history.addMemento(animationData.getAnimation());
 }
 
 // -----------------------
@@ -311,7 +315,7 @@ directionSelect.addEventListener('change', (e) => {
 
   const propertyName = e.target.dataset.property;
   const value = parseFloat(e.target.value); // TODO: should not be float for all values
-  animation.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
+  animationData.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
 });
 
 //! Text casing
@@ -322,6 +326,6 @@ textCaseRadios.forEach(radio => {
   radio.addEventListener('change', (e) => {
     const propertyName = e.target.dataset.property;
     const value = e.target.value;
-    animation.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
+    animationData.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
   });
 });
