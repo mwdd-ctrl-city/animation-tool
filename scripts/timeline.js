@@ -16,7 +16,15 @@ const endTimeInput = document.querySelector(".tl-time-end");
 const undoButton = document.querySelector(".undo");
 const redoButton = document.querySelector(".redo");
 
-const easeSelect = document.querySelector('#animation-select-ease')
+const easeSelect = document.querySelector('#animation-select-ease');
+
+
+
+const scrollHint = document.querySelector('.scroll-hint');
+
+
+
+
 
 let activeKeyframe = null;
 
@@ -281,7 +289,9 @@ function buildVisualizer() {
   });
   // Update the playheadHeight on the height of the container
   updatePlayheadHeight();
+  updateScrollHint();
 }
+
 
 // -----------------------
 // Range inputs sync
@@ -339,6 +349,7 @@ function updatePlayheadHeight() {
 // API that tracks if an element changes size
 // https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
 const observer = new ResizeObserver(updatePlayheadHeight);
+const observerHint = new ResizeObserver(updateScrollHint);
 observer.observe(tracksContainer);
 
 updatePlayheadHeight();
@@ -375,3 +386,21 @@ textCaseRadios.forEach(radio => {
     animation.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
   });
 });
+
+
+// https://www.freecodecamp.org/news/javascript-settimeout-js-timer-to-delay-n-seconds/
+// Function to let a hint appear when the container is scrollable. 
+// The hint disappears after 5 seconds again.
+export function updateScrollHint() {
+  const isScrollable = tracksContainer.scrollHeight > tracksContainer.clientHeight;
+  scrollHint.hidden = !isScrollable;
+
+  if(isScrollable) {
+    clearTimeout(scrollHint.fadeout);
+    scrollHint.classList.remove("fade-out");
+
+    scrollHint.fadetimer = setTimeout(() => {
+      scrollHint.classList.add("fade-out");
+    }, 5000);
+  }
+}
