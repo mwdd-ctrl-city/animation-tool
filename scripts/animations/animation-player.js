@@ -51,14 +51,14 @@ export default class AnimationPlayer {
             el.classList.add(`el-${id}`);
             el.textContent = element;
             this.#canvas.appendChild(el);
-            this.#setupDraggable(el, id); 
-            this.#setupEditable(el, id); 
+            this.#setupDraggable(el, id);
+            this.#setupEditable(el, id);
         });
     }
 
     #setupDraggable(el, id) {
-        const gsapTimeline = this.#timeline; 
-        const animationData = this.#animation; 
+        const gsapTimeline = this.#timeline;
+        const animationData = this.#animation;
 
         Draggable.create(el, {
             bounds: this.#canvas,
@@ -68,7 +68,7 @@ export default class AnimationPlayer {
 
                 animationData.setKeyframe(id, "x", progress, this.x, "none");    //Create x keyframe
                 animationData.setKeyframe(id, "y", progress, this.y, "none");    //Create y keyframe
-            }   
+            }
         })
     }
 
@@ -84,7 +84,8 @@ export default class AnimationPlayer {
         })
 
         el.addEventListener("blur", () => {
-            el.contentEditable = false; 
+            el.contentEditable = false;
+
 
             const formattedText = el.innerHTML   // innerHTML gives: first<div><br></div><div><br></div><div>second</div>
                 .replace(/<div>/g, "\n")  // Replace <div> with \n -> enter - /g makes global, so not just stop at / replace  first div
@@ -124,6 +125,7 @@ export default class AnimationPlayer {
                 // Set the first keyframe
                 gsap.set(`.el-${targetId}`, {
                     [propertyName]: keyframes[0].value,
+                    ease: keyframes[0].ease ?? "none",
                 });
 
                 // Create a tween between each pair of consecutive keyframes

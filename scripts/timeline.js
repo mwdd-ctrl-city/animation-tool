@@ -58,12 +58,8 @@ function getFirstElementId() {
 undoButton.addEventListener("click", () => {
   const state = history.undo();
 
-  console.log("test");
-
   if (state !== null) {
     animationData.load(state);
-  } else {
-    console.log("no state");
   }
 });
 
@@ -100,19 +96,11 @@ player.setOnUpdateListener((timeline) => {
 // Controls (keyframes)
 // -----------------------
 
-let ease;
+let ease = easeSelect.value ?? "none";
 
-easeSelect.addEventListener('change', ()=>{
+easeSelect.addEventListener('change', () => {
   // The ? stands for a undefined property that doesn't exist in the dom so it doesn't give a undefined
   ease = easeSelect?.value ?? "none";
-
-  animationData.setKeyframe(
-    activeElementId,
-    activePropertyName,
-    player.getProgress(),
-    activeValue,
-    ease
-  );
 })
 
 let activeElementId = null;
@@ -215,7 +203,7 @@ function buildVisualizer() {
 
     row.append(label, track);
 
-     // Create for each keyframe point a point on the row
+    // Create for each keyframe point a point on the row
     keyframes.forEach((keyframe) => {
       const point = document.createElement("div");
       point.classList.add("keyframe");
@@ -234,7 +222,7 @@ function buildVisualizer() {
           const pointX = this.x + keyframe.progress * trackWidth;
 
           // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
-          const newProgress = Math.max( 0,
+          const newProgress = Math.max(0,
             Math.min(1, pointX / trackWidth)
           );
 
