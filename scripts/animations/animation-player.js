@@ -51,14 +51,14 @@ export default class AnimationPlayer {
             el.classList.add(`el-${id}`);
             el.textContent = element;
             this.#canvas.appendChild(el);
-            this.#setupDraggable(el, id); 
-            this.#setupEditable(el, id); 
+            this.#setupDraggable(el, id);
+            this.#setupEditable(el, id);
         });
     }
 
     #setupDraggable(el, id) {
-        const gsapTimeline = this.#timeline; 
-        const animationData = this.#animation; 
+        const gsapTimeline = this.#timeline;
+        const animationData = this.#animation;
 
         Draggable.create(el, {
             bounds: this.#canvas,
@@ -68,7 +68,7 @@ export default class AnimationPlayer {
 
                 animationData.setKeyframe(id, "x", progress, this.x, "none");    //Create x keyframe
                 animationData.setKeyframe(id, "y", progress, this.y, "none");    //Create y keyframe
-            }   
+            }
         })
     }
 
@@ -80,17 +80,17 @@ export default class AnimationPlayer {
             }
 
             el.contentEditable = true;
-            
+
             el.focus();
         })
 
         el.addEventListener("blur", () => {
-            el.contentEditable = false; 
+            el.contentEditable = false;
 
-            if((el.textContent.trim()) === "") {
+            if ((el.textContent.trim()) === "") {
                 this.#animation.removeElement(id);
             } else {
-                this.#animation.renameElement(id, el.textContent); 
+                this.#animation.renameElement(id, el.textContent);
             }
 
             const dragInstance = Draggable.get(el); // Retrun draggable object that was previously created 
@@ -119,6 +119,7 @@ export default class AnimationPlayer {
                 // Set the first keyframe
                 gsap.set(`.el-${targetId}`, {
                     [propertyName]: keyframes[0].value,
+                    ease: keyframes[0].ease ?? "none",
                 });
 
                 // Create a tween between each pair of consecutive keyframes

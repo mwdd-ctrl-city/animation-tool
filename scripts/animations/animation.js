@@ -181,7 +181,7 @@ export default class AnimationData extends EventTarget {
      * @param {string} ease [optional] Easing function to apply to this keyframe
      * @returns {boolean} true if the target was found and the progress is valid, otherwise false
      */
-    setKeyframe(targetId, propertyName, progress, value, ease = "none") {
+    setKeyframe(targetId, propertyName, progress, value, ease) {
         if (!this.#elements.has(targetId)) return false;
         if (!this.#isValidProgress(progress)) return false;
 
