@@ -46,12 +46,11 @@ export default class AnimationPlayer {
 
         const elements = this.#animation.getElements();
 
-        Object.entries(elements).forEach(([id, element]) => {
+        elements.forEach((element, id) => {
             const el = document.createElement("h2"); // TODO: element type should probably come from element data
             el.classList.add(`el-${id}`);
             el.textContent = element;
             this.#canvas.appendChild(el);
-
             this.#setupDraggable(el, id); 
             this.#setupEditable(el, id); 
         });
@@ -81,14 +80,23 @@ export default class AnimationPlayer {
             }
 
             el.contentEditable = true;
-            
             el.focus();
         })
 
         el.addEventListener("blur", () => {
             el.contentEditable = false; 
 
-            this.#animation.renameElement(id, el.textContent); 
+            const formattedText = el.innerHTML   // innerHTML gives: first<div><br></div><div><br></div><div>second</div>
+                .replace(/<div>/g, "\n")  // Replace <div> with \n -> enter - /g makes global, so not just stop at / replace  first div
+                .replace(/<\/div>/g, "")  // Replace </div> with nothing
+                .replace(/<br>/g, "")   // Replace <br> with nothing
+                .replace(/&nbsp;/g, " ") // Replace &nbsp with space
+
+            if((el.textContent.trim()) === "") {
+                this.#animation.removeElement(id);
+            } else {
+                this.#animation.renameElement(id, formattedText); 
+            }
 
             const dragInstance = Draggable.get(el); // Retrun draggable object that was previously created 
             if (dragInstance) {
@@ -101,20 +109,9 @@ export default class AnimationPlayer {
      * @description Populate the GSAP timeline with tweens derived from the animation keyframes
      */
     #buildAnimations() {
-        // Get all targets (groups + elements)
+        // Get all targets
         const duration = this.#animation.getDuration();
-        const elements = this.#animation.getElements();
-        const groups = this.#animation.getGroups();
-
-        const targetIds = [];
-
-        Object.entries(elements).forEach(([id]) => {
-            targetIds.push(id);
-        });
-
-        Object.entries(groups).forEach(([id]) => {
-            targetIds.push(id);
-        });
+        const targetIds = this.#animation.getElements().keys();
 
         // Apply the animations for each target
         targetIds.forEach((targetId) => {

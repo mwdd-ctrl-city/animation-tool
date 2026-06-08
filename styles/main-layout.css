@@ -6,7 +6,7 @@ h2 {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    white-space: nowrap;
+    white-space: pre-line;
 }
 
 /* ------------ */
@@ -390,4 +390,65 @@ details[open]::details-content {
 .resize-handle {
     height: 10px;
     width: 10px;
+}
+
+
+
+
+
+
+.animation-ease,
+.animation-direction {
+    display: flex;
+    gap: .5em;
+}
+
+
+
+.text-casing-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: .25em;
+    width: fit-content;
+
+    @container (width > 25em) {
+        grid-template-columns: repeat(4, 1fr);
+        column-gap: .25em;
+    }
+}
+
+.text-casing-options label {
+    cursor: pointer;
+}
+
+.text-casing-options input[type="radio"] {
+    display: none;
+}
+
+.text-casing-options label span {
+    display: block;
+    padding: 6px 16px;
+    border: 1px solid var(--color-border-item);
+    border-radius: 8px;
+    font-size: .7rem;
+    text-align: center;
+    background: transparent;
+    color: inherit;
+
+    transition:
+        background 0.15s,
+        border-color 0.15s, color 0.15s;
+
+    user-select: none;
+}
+
+.text-casing-options input[type="radio"]:checked+span {
+    background: var(--color-details);
+    border-color: var(--color-details);
+    color: white;
+}
+
+.text-casing-options label:hover input[type="radio"]:not(:checked)+span {
+    border-color: var(--color-border-item);
+    background: transparent;
 }
