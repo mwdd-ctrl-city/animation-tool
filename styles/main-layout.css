@@ -359,7 +359,7 @@ details[open]::details-content {
     height: 15em;
     min-height: 10em;
     box-shadow: 0 0 25px var(--color-boxshadow-one);
-    z-index: 100;
+    z-index: 1000;
     padding: 1rem 1rem 0 1rem;
 
     background-color: #FFFFFF;
@@ -376,14 +376,57 @@ details[open]::details-content {
 
         /* ChatGPT: how do I make sure my cursor changes to show it is draggable up and down? */
         cursor: ns-resize;
+
+        & .drag-dots {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            display: block;
+            width: 3.5px;
+            aspect-ratio: 1/1;
+            background: var(--color-resize);
+            border-radius: 50%;
+            margin-top: 3px;
+
+            box-shadow:
+                -6px 0 0 var(--color-resize),
+                6px 0 0 var(--color-resize);
+        }
     }
 
     & .timeline-content {
-        /* overflow-y: auto; */
-
         height: 100%;
         width: 100vw;
     }
+
+    & .scroll-hint {
+        display: flex;
+        align-items: center;
+        gap: .5em;
+
+        color: var(--color-text-two);
+        font-weight: 300;
+
+        position: fixed;
+        bottom: .5em;
+        right: 2em;
+
+        transition: opacity .3s ease;
+
+        & i {
+            font-style: normal;
+        }
+
+        &.fade-out {
+            opacity: 0;
+        }
+    }
+}
+
+.scroll-hint[hidden] {
+    display: none;
 }
 
 /* ----- Handle for resizing (items panel and timeline panel ----- */
@@ -392,8 +435,64 @@ details[open]::details-content {
     width: 10px;
 }
 
+/* MARK: split text opmaak */
+.canvas[data-split-type="chars"] .split-char,
+.canvas[data-split-type="words"] .split-word,
+.canvas[data-split-type="lines"] .split-line {
+    display: inline-block;
+    outline: 1px dashed deeppink;
+    border-radius: 5px;
+    margin: 0 1px; 
+}
 
+.split-text-buttons,
+.layout-radios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
 
+.layout-radios input[type="radio"] {
+    display: none;
+}
+
+.split-text-buttons button,
+.layout-radios label {
+    padding: 8px 16px;
+    background-color: #f0f0f0; 
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    user-select: none; 
+}
+
+.split-text-buttons button:hover,
+.layout-radios label:hover {
+    background-color: #e4e4e4;
+    border-color: #ccc;
+}
+
+/* ========================================= */
+/* --- DE ACTIVE STATES (Deeppink) ---       */
+/* ========================================= */
+
+.split-text-buttons button.active {
+    background-color: deeppink;
+    color: white;
+    border-color: deeppink;
+    font-weight: bold;
+}
+
+.layout-radios label:has(input[type="radio"]:checked) {
+    background-color: deeppink;
+    color: white;
+    border-color: deeppink;
+    font-weight: bold;
+}
 
 
 
@@ -451,4 +550,10 @@ details[open]::details-content {
 .text-casing-options label:hover input[type="radio"]:not(:checked)+span {
     border-color: var(--color-border-item);
     background: transparent;
+}
+
+fieldset input.animation-control-color {
+  appearance: none;
+  border: .25px solid var(--color-border-canvas);
+  background: linear-gradient(90deg,rgba(0, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 97%, rgba(255, 255, 255, 1) 100%);
 }

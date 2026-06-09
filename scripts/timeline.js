@@ -5,6 +5,7 @@ import History from "./memento/history.js";
 const timelineSlider = document.querySelector("#timeline-slider");
 const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
+const animationControlColor = document.querySelectorAll(".animation-control-color");
 const tracksContainer = document.querySelector(".timeline-container");
 const canvas = document.querySelector(".content-canvas");
 
@@ -16,9 +17,18 @@ const endTimeInput = document.querySelector(".tl-time-end");
 const undoButton = document.querySelector(".undo");
 const redoButton = document.querySelector(".redo");
 
-const easeSelect = document.querySelector('#animation-select-ease')
+const prevKeyframeButton = document.querySelector('.kf-prev');
+const nextKeyframeButton = document.querySelector('.kf-next');
+
+const easeSelect = document.querySelector('#animation-select-ease');
+
+const scrollHint = document.querySelector('.scroll-hint');
+
+
 
 let activeKeyframe = null;
+
+let currentSplitType = "none";
 
 // -----------------------
 // Load animation
@@ -57,15 +67,12 @@ function getFirstElementId() {
 
 
 }
+
 undoButton.addEventListener("click", () => {
   const state = history.undo();
 
-  console.log("test");
-
   if (state !== null) {
     animationData.load(state);
-  } else {
-    console.log("no state");
   }
 });
 
@@ -102,19 +109,11 @@ player.setOnUpdateListener((timeline) => {
 // Controls (keyframes)
 // -----------------------
 
-let ease;
+let ease = easeSelect.value ?? "none";
 
-easeSelect.addEventListener('change', ()=>{
+easeSelect.addEventListener('change', () => {
   // The ? stands for a undefined property that doesn't exist in the dom so it doesn't give a undefined
   ease = easeSelect?.value ?? "none";
-
-  animationData.setKeyframe(
-    activeElementId,
-    activePropertyName,
-    player.getProgress(),
-    activeValue,
-    ease
-  );
 })
 
 let activeElementId = null;
@@ -140,7 +139,8 @@ animationControls.forEach((control) => {
       activePropertyName,
       player.getProgress(),
       activeValue,
-      ease ?? "none"
+      ease ?? "none",
+      currentSplitType,
     );
   });
 
@@ -168,6 +168,7 @@ playButtonTimeline.addEventListener("click", () => {
   const select = player.selectedText 
   console.log(select) 
 });
+
 
 // -----------------------
 // Input change timeline time
@@ -218,7 +219,7 @@ function buildVisualizer() {
 
     row.append(label, track);
 
-     // Create for each keyframe point a point on the row
+    // Create for each keyframe point a point on the row
     keyframes.forEach((keyframe) => {
       const point = document.createElement("div");
       point.classList.add("keyframe");
@@ -237,7 +238,7 @@ function buildVisualizer() {
           const pointX = this.x + keyframe.progress * trackWidth;
 
           // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
-          const newProgress = Math.max( 0,
+          const newProgress = Math.max(0,
             Math.min(1, pointX / trackWidth)
           );
 
@@ -256,7 +257,87 @@ function buildVisualizer() {
   });
   // Update the playheadHeight on the height of the container
   updatePlayheadHeight();
+  updateScrollHint();
 }
+
+
+// -----------------------
+// Keyframe snap buttons
+// -----------------------
+
+function nextKeyframeSnap(){
+    const currentProgress = player.getProgress();
+    let nextProgress = null;
+
+    // Loop whitin the element key and the values for each keyframe 
+    animationData.getElements().keys().forEach(element =>{
+      const animationMap = animationData.getAnimations(element);
+      if(!animationMap) return;
+
+      animationMap.values().forEach(keyframes => {
+        keyframes.forEach( keyframe => {
+          // Check if the progress is higher then the current progress, so you know it comes after the currentkeyframe
+          if (keyframe.progress > currentProgress) {
+                  if (nextProgress === null || keyframe.progress < nextProgress) {
+                    // If so then the nexprogress is the point the player needs to be set on
+                      nextProgress = keyframe.progress;
+                  }
+          }
+        })
+      })
+    })
+
+  if(nextProgress !== null){
+    player.setProgress(nextProgress) 
+  } else {
+    player.setProgress(1)
+  }
+}
+
+function prevKeyframeSnap (){
+   const currentProgress = player.getProgress();
+    let prevProgress = null;
+
+    animationData.getElements().keys().forEach(element =>{
+      const animationMap = animationData.getAnimations(element);
+      if(!animationMap) return;
+
+      animationMap.values().forEach(keyframes => {
+        keyframes.forEach( keyframe => {
+          if (keyframe.progress < currentProgress - 0.0001) {
+                  if (prevProgress === null || keyframe.progress > prevProgress) {
+                      prevProgress = keyframe.progress;
+                  }
+          }
+        })
+      })
+    })
+
+  if(prevProgress !== null){
+    player.setProgress(prevProgress) 
+  } else {
+    player.setProgress(0)
+  }
+}
+
+nextKeyframeButton.addEventListener('click', (event) => {
+  nextKeyframeSnap()
+});
+
+prevKeyframeButton.addEventListener('click', (event) => {
+  prevKeyframeSnap()
+});
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowLeft'){
+    prevKeyframeSnap()
+  } 
+  
+  if (event.key === 'ArrowRight') {
+    nextKeyframeSnap()
+  } 
+})
+
 
 // -----------------------
 // Range inputs sync
@@ -271,8 +352,16 @@ function updateRangeInputs() {
   animationControls.forEach((control) => {
     const propertyName = control.dataset.property;
 
-    const target = canvas.querySelector(`.el-${elementId}`);
+    let target = canvas.querySelector(`.el-${elementId}`);
     if (!target) return;
+
+    // Get current split type from the active split button, set target to first split element of that type
+    if (target.splitInstance) {
+      const splitType = currentSplitType; // TODO: should get the split type from the keyframe data instead of using a global variable
+      if (splitType === "chars" && target.splitInstance.chars) target = target.splitInstance.chars[0];
+      else if (splitType === "words" && target.splitInstance.words) target = target.splitInstance.words[0];
+      else if (splitType === "lines" && target.splitInstance.lines) target = target.splitInstance.lines[0];
+    }
 
     // To animate the controls, you need gsap to get the value in between the keyframes
     control.value = gsap.getProperty(target, propertyName);
@@ -335,39 +424,113 @@ function updatePlayheadHeight() {
 // API that tracks if an element changes size
 // https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
 const observer = new ResizeObserver(updatePlayheadHeight);
+const observerHint = new ResizeObserver(updateScrollHint);
 observer.observe(tracksContainer);
 
 updatePlayheadHeight();
 buildVisualizer();
 
+animationControlColor.forEach((control) => {
+  control.addEventListener("input", (event) => {
+    const elementId = getFirstElementId();
+    if (!elementId) return;
 
+    player.pause();
 
+    activeElementId = elementId;
+    activePropertyName = event.target.dataset.property;
+    activeValue = getControlValue(event.target);
 
-//! Animation direction
-const directionSelect = document.getElementById('animation-direction');
-
-// Set inital direction to normal
-canvas.classList.add('dir-normal');
-
-// Set initial text case to initial
-canvas.classList.add('case-initial');
-
-// Function that executes when the value of the direction select changes
-directionSelect.addEventListener('change', (e) => {
-
-  const propertyName = e.target.dataset.property;
-  const value = parseFloat(e.target.value); // TODO: should not be float for all values
-  animationData.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
-});
-
-//! Text casing
-const textCaseRadios = document.querySelectorAll('input[name="text-case"]');
-
-// Function that executes when the value of the text case radios changes
-textCaseRadios.forEach(radio => {
-  radio.addEventListener('change', (e) => {
-    const propertyName = e.target.dataset.property;
-    const value = e.target.value;
-    animationData.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
+    animationData.setKeyframe(
+      activeElementId,
+      activePropertyName,
+      player.getProgress(),
+      activeValue,
+      ease ?? "none"
+    );
   });
-});
+
+  control.addEventListener("change", () => {
+    history.addMemento(animationData.getAnimation());
+  });
+})
+
+
+
+
+function getControlValue(control) {
+  const sliderValue = control.value;
+  
+  if (control.dataset.property === "color" || control.dataset.property === "webkitTextStrokeColor") {
+    const colorValue = parseInt(sliderValue);
+    return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+  }
+  
+  return parseFloat(sliderValue);
+}
+
+// https://gsap.com/docs/v3/GSAP/gsap.getProperty()/
+// https://gsap.com/docs/v3/GSAP/UtilityMethods/splitColor()
+function updateColorInputs() {
+  const elementId = getFirstElementId();
+  if (!elementId) return;
+
+  const target = canvas.querySelector(`.el-${elementId}`);
+  if (!target) return;
+
+  document.querySelectorAll('.animation-control[data-property="color"]').forEach((colorControl) => {
+    const currentColor = gsap.getProperty(target, "color");
+    const colorArray = gsap.utils.splitColor(currentColor);
+    // Because we only need grey tints, the r/g/b are all the same number, so we can just use the first (r). 
+    colorControl.value = colorArray[0];
+  });
+}
+// Split text controls
+const btnSplitNone = document.getElementById("btn-split-none");
+const btnSplitChars = document.getElementById("btn-split-chars");
+const btnSplitWords = document.getElementById("btn-split-words");
+const btnSplitLines = document.getElementById("btn-split-lines");
+
+// Function that executes when a split type button is clicked
+function applySplit(type) {
+  currentSplitType = type;
+
+  // Remove active class from all buttons
+  document.querySelectorAll('.split-text-buttons button').forEach(btn => {
+    btn.classList.remove('active');
+  });
+
+  // Add active class to the clicked button and set the split type as a data attribute on the canvas
+  const activeButton = document.getElementById(`btn-split-${type}`);
+  if (activeButton) {
+    activeButton.classList.add('active');
+  }
+
+  const canvas = document.querySelector(".canvas");
+  if (canvas) {
+    canvas.setAttribute("data-split-type", type);
+  }
+}
+
+// Add event listeners to split type buttons
+if (btnSplitNone) btnSplitNone.addEventListener("click", () => applySplit("none"));
+if (btnSplitWords) btnSplitWords.addEventListener("click", () => applySplit("words"));
+if (btnSplitChars) btnSplitChars.addEventListener("click", () => applySplit("chars"));
+if (btnSplitLines) btnSplitLines.addEventListener("click", () => applySplit("lines"));
+
+// https://www.freecodecamp.org/news/javascript-settimeout-js-timer-to-delay-n-seconds/
+// Function to let a hint appear when the container is scrollable. 
+// The hint disappears after 5 seconds again.
+export function updateScrollHint() {
+  const isScrollable = tracksContainer.scrollHeight > tracksContainer.clientHeight;
+  scrollHint.hidden = !isScrollable;
+
+  if(isScrollable) {
+    clearTimeout(scrollHint.fadeout);
+    scrollHint.classList.remove("fade-out");
+
+    scrollHint.fadetimer = setTimeout(() => {
+      scrollHint.classList.add("fade-out");
+    }, 5000);
+  }
+}

@@ -42,6 +42,8 @@ export default class AnimationPlayer {
      * @description Clear the canvas and rebuild all DOM elements from the animation
      */
     #buildElements() {
+        gsap.registerPlugin(SplitText);
+
         this.#canvas.innerHTML = "";
 
         const elements = this.#animation.getElements();
@@ -51,14 +53,23 @@ export default class AnimationPlayer {
             el.classList.add(`el-${id}`);
             el.textContent = element;
             this.#canvas.appendChild(el);
-            this.#setupDraggable(el, id); 
-            this.#setupEditable(el, id); 
+            this.#setupDraggable(el, id);
+            this.#setupEditable(el, id);
+
+            // split the element in lines, words and characters using GSAP's SplitText plugin, and store the split instance on the element for later reference in animations
+            const split = new SplitText(el, {
+                type: "chars, words, lines",
+                charsClass: "split-char",
+                wordsClass: "split-word",
+                linesClass: "split-line"
+            });
+            el.splitInstance = split; 
         });
     }
 
     #setupDraggable(el, id) {
-        const gsapTimeline = this.#timeline; 
-        const animationData = this.#animation; 
+        const gsapTimeline = this.#timeline;
+        const animationData = this.#animation;
 
         Draggable.create(el, {
             onDragEnd: function () {
@@ -90,7 +101,8 @@ export default class AnimationPlayer {
         })
 
         el.addEventListener("blur", () => {
-            el.contentEditable = false; 
+            el.contentEditable = false;
+
 
             const formattedText = el.innerHTML   // innerHTML gives: first<div><br></div><div><br></div><div>second</div>
                 .replace(/<div>/g, "\n")  // Replace <div> with \n -> enter - /g makes global, so not just stop at / replace  first div
@@ -124,6 +136,7 @@ export default class AnimationPlayer {
         // Apply the animations for each target
         targetIds.forEach((targetId) => {
             const properties = this.#animation.getProperties(targetId);
+            const domElement = this.#canvas.querySelector(`.el-${targetId}`);
 
             // Loop through all properties
             properties.forEach((propertyName) => {
@@ -132,6 +145,7 @@ export default class AnimationPlayer {
                 // Set the first keyframe
                 gsap.set(`.el-${targetId}`, {
                     [propertyName]: keyframes[0].value,
+                    ease: keyframes[0].ease ?? "none",
                 });
 
                 // Create a tween between each pair of consecutive keyframes
@@ -140,17 +154,36 @@ export default class AnimationPlayer {
                     const current = keyframes[i]; // current keyframe
 
                     // Time difference between keyframes
-                    const timeDifferenceSeconds = (current.progress - last.progress) * duration;
+                    let timeDifferenceSeconds = (current.progress - last.progress) * duration;
+
+                    let animationTarget = `.el-${targetId}`;
+                    let staggerConfig = null;
+
+                    // Fallback values if the keyframe doesn't specify them
+                    const kfSplitType = current.splitType || "none";
+
+                    // If the keyframe has a splittype that is not none and the element has a split instance, target split instance
+                    if (kfSplitType !== "none") {
+                        animationTarget = domElement.splitInstance[kfSplitType];
+
+                        // Apply a stagger, divide the time difference between keyframes by the number of split elements to get a total stagger duration, and use the direction to determine the stagger's starting point
+                        staggerConfig = {
+                            amount: timeDifferenceSeconds * 0.5,
+                        };
+
+                        timeDifferenceSeconds = timeDifferenceSeconds * 0.5; // Reduct the tween duration to accomodate the stagger
+                    }
 
                     // Apply the keyframe to GSAP
                     this.#timeline.to(
-                        `.el-${targetId}`,
+                        animationTarget,
                         {
                             [propertyName]: current.value,
                             duration: timeDifferenceSeconds,
                             ease: current.ease ?? "none",
+                            stagger: staggerConfig,
                         },
-                        last.progress * duration,
+                        last.progress * duration
                     );
                 }
             });
