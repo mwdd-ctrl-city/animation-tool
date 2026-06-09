@@ -348,6 +348,13 @@ export default class AnimationData extends EventTarget {
         this.dispatchEvent(new Event("change"));
     }
 
+    clearSelectedText() {
+        this.selectedText.element = null; 
+        this.selectedText.id = null;
+
+        this.dispatchEvent(new Event("change"));
+    }
+
     getSelectedText() {
         return this.selectedText
     }
