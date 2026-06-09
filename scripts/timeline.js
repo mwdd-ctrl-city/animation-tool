@@ -5,6 +5,7 @@ import History from "./memento/history.js";
 const timelineSlider = document.querySelector("#timeline-slider");
 const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
+const animationControlColor = document.querySelectorAll(".animation-control-color");
 const tracksContainer = document.querySelector(".timeline-container");
 const canvas = document.querySelector(".content-canvas");
 
@@ -55,6 +56,7 @@ function getFirstElementId() {
 
 
 }
+
 undoButton.addEventListener("click", () => {
   const state = history.undo();
 
@@ -348,3 +350,64 @@ textCaseRadios.forEach(radio => {
     animationData.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
   });
 });
+
+
+
+
+
+
+animationControlColor.forEach((control) => {
+  control.addEventListener("input", (event) => {
+    const elementId = getFirstElementId();
+    if (!elementId) return;
+
+    player.pause();
+
+    activeElementId = elementId;
+    activePropertyName = event.target.dataset.property;
+    activeValue = getControlValue(event.target);
+
+    animationData.setKeyframe(
+      activeElementId,
+      activePropertyName,
+      player.getProgress(),
+      activeValue,
+      ease ?? "none"
+    );
+  });
+
+  control.addEventListener("change", () => {
+    history.addMemento(animationData.getAnimation());
+  });
+})
+
+
+
+
+function getControlValue(control) {
+  const sliderValue = control.value;
+  
+  if (control.dataset.property === "color") {
+    const colorValue = parseInt(sliderValue);
+    return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+  }
+  
+  return parseFloat(sliderValue);
+}
+
+// https://gsap.com/docs/v3/GSAP/gsap.getProperty()/
+// https://gsap.com/docs/v3/GSAP/UtilityMethods/splitColor()
+function updateColorInputs() {
+  const elementId = getFirstElementId();
+  if (!elementId) return;
+
+  const target = canvas.querySelector(`.el-${elementId}`);
+  if (!target) return;
+
+  document.querySelectorAll('.animation-control[data-property="color"]').forEach((colorControl) => {
+    const currentColor = gsap.getProperty(target, "color");
+    const colorArray = gsap.utils.splitColor(currentColor);
+    // Because we only need grey tints, the r/g/b are all the same number, so we can just use the first (r). 
+    colorControl.value = colorArray[0];
+  });
+}
