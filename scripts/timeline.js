@@ -19,9 +19,15 @@ const redoButton = document.querySelector(".redo");
 const prevKeyframeButton = document.querySelector('.kf-prev');
 const nextKeyframeButton = document.querySelector('.kf-next');
 
-const easeSelect = document.querySelector('#animation-select-ease')
+const easeSelect = document.querySelector('#animation-select-ease');
+
+const scrollHint = document.querySelector('.scroll-hint');
+
+
 
 let activeKeyframe = null;
+
+let currentSplitType = "none";
 
 // -----------------------
 // Load animation
@@ -61,12 +67,8 @@ function getFirstElementId() {
 undoButton.addEventListener("click", () => {
   const state = history.undo();
 
-  console.log("test");
-
   if (state !== null) {
     animationData.load(state);
-  } else {
-    console.log("no state");
   }
 });
 
@@ -103,19 +105,11 @@ player.setOnUpdateListener((timeline) => {
 // Controls (keyframes)
 // -----------------------
 
-let ease;
+let ease = easeSelect.value ?? "none";
 
-easeSelect.addEventListener('change', ()=>{
+easeSelect.addEventListener('change', () => {
   // The ? stands for a undefined property that doesn't exist in the dom so it doesn't give a undefined
   ease = easeSelect?.value ?? "none";
-
-  animationData.setKeyframe(
-    activeElementId,
-    activePropertyName,
-    player.getProgress(),
-    activeValue,
-    ease
-  );
 })
 
 let activeElementId = null;
@@ -132,6 +126,7 @@ animationControls.forEach((control) => {
     const propertyName = event.target.dataset.property;
     const value = parseFloat(event.target.value);
 
+    const currentTextCase = document.querySelector('input[name="text-case"]:checked').value;
     activeElementId = elementId;
     activePropertyName = event.target.dataset.property;
     activeValue = parseFloat(event.target.value);
@@ -141,7 +136,9 @@ animationControls.forEach((control) => {
       activePropertyName,
       player.getProgress(),
       activeValue,
-      ease ?? "none"
+      ease ?? "none",
+      currentSplitType,
+      currentTextCase
     );
   });
 
@@ -219,7 +216,7 @@ function buildVisualizer() {
 
     row.append(label, track);
 
-     // Create for each keyframe point a point on the row
+    // Create for each keyframe point a point on the row
     keyframes.forEach((keyframe) => {
       const point = document.createElement("div");
       point.classList.add("keyframe");
@@ -238,7 +235,7 @@ function buildVisualizer() {
           const pointX = this.x + keyframe.progress * trackWidth;
 
           // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
-          const newProgress = Math.max( 0,
+          const newProgress = Math.max(0,
             Math.min(1, pointX / trackWidth)
           );
 
@@ -257,7 +254,9 @@ function buildVisualizer() {
   });
   // Update the playheadHeight on the height of the container
   updatePlayheadHeight();
+  updateScrollHint();
 }
+
 
 // -----------------------
 // Keyframe snap buttons
@@ -350,8 +349,16 @@ function updateRangeInputs() {
   animationControls.forEach((control) => {
     const propertyName = control.dataset.property;
 
-    const target = canvas.querySelector(`.el-${elementId}`);
+    let target = canvas.querySelector(`.el-${elementId}`);
     if (!target) return;
+
+    // Get current split type from the active split button, set target to first split element of that type
+    if (target.splitInstance) {
+      const splitType = currentSplitType; // TODO: should get the split type from the keyframe data instead of using a global variable
+      if (splitType === "chars" && target.splitInstance.chars) target = target.splitInstance.chars[0];
+      else if (splitType === "words" && target.splitInstance.words) target = target.splitInstance.words[0];
+      else if (splitType === "lines" && target.splitInstance.lines) target = target.splitInstance.lines[0];
+    }
 
     // To animate the controls, you need gsap to get the value in between the keyframes
     control.value = gsap.getProperty(target, propertyName);
@@ -369,7 +376,6 @@ addTextButton.addEventListener("click", () => {
 function addText(text) {
   if (!text.trim()) return;
   animationData.createElement(text);
-  textInput.value = "";
   history.addMemento(animationData.getAnimation());
 }
 
@@ -394,30 +400,13 @@ function updatePlayheadHeight() {
 // API that tracks if an element changes size
 // https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
 const observer = new ResizeObserver(updatePlayheadHeight);
+const observerHint = new ResizeObserver(updateScrollHint);
 observer.observe(tracksContainer);
 
 updatePlayheadHeight();
 buildVisualizer();
 
-
-
-
 //! Animation direction
-const directionSelect = document.getElementById('animation-direction');
-
-// Set inital direction to normal
-canvas.classList.add('dir-normal');
-
-// Set initial text case to initial
-canvas.classList.add('case-initial');
-
-// Function that executes when the value of the direction select changes
-directionSelect.addEventListener('change', (e) => {
-
-  const propertyName = e.target.dataset.property;
-  const value = parseFloat(e.target.value); // TODO: should not be float for all values
-  animationData.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
-});
 
 //! Text casing
 const textCaseRadios = document.querySelectorAll('input[name="text-case"]');
@@ -430,3 +419,53 @@ textCaseRadios.forEach(radio => {
     animationData.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
   });
 });
+
+// Split text controls
+const btnSplitNone = document.getElementById("btn-split-none");
+const btnSplitChars = document.getElementById("btn-split-chars");
+const btnSplitWords = document.getElementById("btn-split-words");
+const btnSplitLines = document.getElementById("btn-split-lines");
+
+// Function that executes when a split type button is clicked
+function applySplit(type) {
+  currentSplitType = type;
+
+  // Remove active class from all buttons
+  document.querySelectorAll('.split-text-buttons button').forEach(btn => {
+    btn.classList.remove('active');
+  });
+
+  // Add active class to the clicked button and set the split type as a data attribute on the canvas
+  const activeButton = document.getElementById(`btn-split-${type}`);
+  if (activeButton) {
+    activeButton.classList.add('active');
+  }
+
+  const canvas = document.querySelector(".canvas");
+  if (canvas) {
+    canvas.setAttribute("data-split-type", type);
+  }
+}
+
+// Add event listeners to split type buttons
+if (btnSplitNone) btnSplitNone.addEventListener("click", () => applySplit("none"));
+if (btnSplitWords) btnSplitWords.addEventListener("click", () => applySplit("words"));
+if (btnSplitChars) btnSplitChars.addEventListener("click", () => applySplit("chars"));
+if (btnSplitLines) btnSplitLines.addEventListener("click", () => applySplit("lines"));
+
+// https://www.freecodecamp.org/news/javascript-settimeout-js-timer-to-delay-n-seconds/
+// Function to let a hint appear when the container is scrollable. 
+// The hint disappears after 5 seconds again.
+export function updateScrollHint() {
+  const isScrollable = tracksContainer.scrollHeight > tracksContainer.clientHeight;
+  scrollHint.hidden = !isScrollable;
+
+  if(isScrollable) {
+    clearTimeout(scrollHint.fadeout);
+    scrollHint.classList.remove("fade-out");
+
+    scrollHint.fadetimer = setTimeout(() => {
+      scrollHint.classList.add("fade-out");
+    }, 5000);
+  }
+}
