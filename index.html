@@ -101,8 +101,13 @@
 
                     <label>
                         Font size
-                        <input type="range" class="animation-control" data-property="fontSize" min="0" max="200"
-                            value="16" step="1" />
+                        <div class="slider-input-container">
+                            <input type="range" class="animation-control" data-property="fontSize" min="0" max="200" value="16" step="1" />
+                            <div class="number-input-wrapper">
+                                <input type="number" class="animation-control" data-property="fontSize" value="16" step="1" />
+                                <p class="unit">px</p>
+                            </div>
+                        </div>
                     </label>
 
                     <label>
@@ -252,12 +257,19 @@
                     <button type="button" class="kf-prev"><</button>
                     <button type="button" class="kf-next">></button>
                 </div>
+
                 <div class="tl-time">
                     <label for="start-time" class="visually-hidden">Start time</label>
-                    <input id="start-time" type="number" value="0.00" step="0.01" class="tl-time-start">
+                    <div class="number-input-wrapper">
+                        <input id="start-time" type="number" value="0.00" step="0.01" class="tl-time-start">
+                        <p class="unit">s</p>
+                    </div>
 
                     <label for="end-time" class="visually-hidden">End time</label>
-                    <input id="end-time" type="number" value="4.00" step="0.01" class="tl-time-end">
+                    <div class="number-input-wrapper">
+                        <input id="end-time" type="number" value="4.00" step="0.01" class="tl-time-end">
+                        <p class="unit">s</p>
+                    </div>
                 </div>
 
                 <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
