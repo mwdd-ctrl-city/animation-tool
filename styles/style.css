@@ -24,12 +24,13 @@
     --color-border-canvas: #CCCCCC;
     --color-border-item: rgba(200, 200, 200, 0.4);
     --color-boxshadow-one: rgba(0, 0, 0, 0.1);
-    --color-details: #6495ED;
+    --color-details-one: #6495ED;
+    --color-details-two: #FF1493;
     --color-hover-one: #4C78D0;
     --color-hover-two: rgba(200, 200, 200, 0.4);
     --color-bar: #eaeaea;
-    --color-track: #EEF4FF;
-    --color-playhead: #FF1493;
+    --color-track: #dde7fa;
+    --color-resize: #cbcaca;
 
     interpolate-size: allow-keywords;
 }
