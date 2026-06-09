@@ -122,7 +122,7 @@ let activeValue = null;
 
 animationControls.forEach((control) => {
   control.addEventListener("input", (event) => {
-    const elementId = getFirstElementId();
+    const elementId = animationData.getSelectedText().id ?? getFirstElementId();  // If getSelectedText == null / no text selected -> get first element
     if (!elementId) return;
 
     player.pause();
