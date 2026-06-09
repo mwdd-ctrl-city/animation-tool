@@ -289,7 +289,12 @@ addTextButton.addEventListener("click", () => {
 
 function addText(text) {
   if (!text.trim()) return;
-  animationData.createElement(text);
+  const newElementId = animationData.createElement(text);
+
+  const target = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  target.contentEditable = true;
+  target.focus();
+
   history.addMemento(animationData.getAnimation());
 }
 
