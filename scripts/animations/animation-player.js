@@ -70,7 +70,11 @@ export default class AnimationPlayer {
                 animationData.setKeyframe(id, "y", progress, this.y, "none");    //Create y keyframe
             },
             onClick: () => {
-                this.#animation.setSelectedText(el, id); 
+                if (this.#animation.selectedText.id == id) {  // If text is already selected dont go thru
+                    return; 
+                } else {
+                    this.#animation.setSelectedText(el, id);
+                } 
             }
         })
     }
