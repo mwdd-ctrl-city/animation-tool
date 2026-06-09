@@ -47,6 +47,7 @@ const player = new AnimationPlayer(canvas, animationData);
 animationData.addEventListener("change", () => {
   buildVisualizer();
   updateRangeInputs(); 
+  showSelectedText(); 
 })
 
 function getFirstElementId() {
@@ -291,6 +292,17 @@ function addText(text) {
   animationData.createElement(text);
   history.addMemento(animationData.getAnimation());
 }
+
+function showSelectedText() {
+  const target = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  if (!target) return;
+
+  target.style.outline = "3px solid #6495ED"; 
+}
+
+canvas.addEventListener("click", () => {
+  animationData.clearSelectedText(); 
+})
 
 // -----------------------
 // Playhead height fix
