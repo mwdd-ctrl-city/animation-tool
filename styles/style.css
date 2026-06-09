@@ -30,6 +30,7 @@
     --color-bar: #eaeaea;
     --color-track: #dde7fa;
     --color-playhead: #FF1493;
+    --color-resize: #cbcaca;
 
     interpolate-size: allow-keywords;
 }

@@ -35,7 +35,6 @@ export default class History {
     undo() {
         if (this.currentIndex > 0) {
             this.currentIndex--;
-            console.log(this.mementos[this.currentIndex]);
             return this.mementos[this.currentIndex];
         }
         return null;
