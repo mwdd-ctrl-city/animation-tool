@@ -305,9 +305,14 @@ function showSelectedText() {
   target.style.outline = "3px solid #6495ED"; 
 }
 
-canvas.addEventListener("click", () => {
-  animationData.clearSelectedText(); 
-})
+canvas.addEventListener("click", (e) => {
+  const selected = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  if (!selected) return; 
+
+  if (selected.contains(e.target)) return;    // If clicked on the selected element, return, DONT clear selectedText
+
+  animationData.clearSelectedText();
+});
 
 // -----------------------
 // Playhead height fix
