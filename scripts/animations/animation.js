@@ -91,6 +91,7 @@ export default class AnimationData extends EventTarget {
     createElement(elementName) {
         const id = crypto.randomUUID();
         this.#elements.set(id, elementName);
+        this.setSelectedText(null, id);
 
         this.dispatchEvent(new Event("change"));
         return id;
@@ -340,7 +341,7 @@ export default class AnimationData extends EventTarget {
     // -----------------------
     // MARK: Selected Text
     // -----------------------
-    setSelectedText(element, id) {
+    setSelectedText(element = null, id) {
         this.selectedText.element = element; 
         this.selectedText.id = id
 
