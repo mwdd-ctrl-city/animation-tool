@@ -153,7 +153,6 @@ export default class AnimationPlayer {
 
                     // Fallback values if the keyframe doesn't specify them
                     const kfSplitType = current.splitType || "none";
-                    const kfTextCase = current.textCase || "none";
 
                     // If the keyframe has a splittype that is not none and the element has a split instance, target split instance
                     if (kfSplitType !== "none") {
@@ -175,7 +174,6 @@ export default class AnimationPlayer {
                             duration: timeDifferenceSeconds,
                             ease: current.ease ?? "none",
                             stagger: staggerConfig,
-                            textTransform: kfTextCase
                         },
                         last.progress * duration
                     );
