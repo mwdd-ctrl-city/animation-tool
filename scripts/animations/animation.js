@@ -233,7 +233,7 @@ export default class AnimationData extends EventTarget {
     // TODO: check of animation direction nodig is op keyframe
    // Takes 5 inputs: targetId (element you want to animate), propertyName (property to animate), 
     // progress (point in time, number between 0 and 1), value (value at that point in time) and ease (easing type, defaults "none" if not provided)
-    setKeyframe(targetId, propertyName, progress, value, ease, splitType = "none", textCase = "initial") {
+    setKeyframe(targetId, propertyName, progress, value, ease, splitType = "none") {
         if (!this.#elements.has(targetId)) return false;
       
         if (!this.#isValidProgress(progress)) return false;
@@ -251,7 +251,7 @@ export default class AnimationData extends EventTarget {
         // If the keyframe does not exist, create it, else edit it
         // If it doesn't exist, it creates a new object with 3 properties: progress, value, ease.
         if (!keyframe) {
-            keyframe = { progress, value, ease, splitType, textCase };
+            keyframe = { progress, value, ease, splitType };
             keyframes.push(keyframe);
             // Resort the keyframes, so it goes from small to big.
             keyframes.sort((a, b) => a.progress - b.progress);
@@ -261,7 +261,6 @@ export default class AnimationData extends EventTarget {
             keyframe.value = value;
             keyframe.ease = ease;
             keyframe.splitType = splitType;
-            keyframe.textCase = textCase;
         }
 
         this.dispatchEvent(new Event("change"));

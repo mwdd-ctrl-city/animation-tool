@@ -128,7 +128,6 @@ animationControls.forEach((control) => {
     const propertyName = event.target.dataset.property;
     const value = parseFloat(event.target.value);
 
-    const currentTextCase = document.querySelector('input[name="text-case"]:checked').value;
     activeElementId = elementId;
     activePropertyName = event.target.dataset.property;
     activeValue = parseFloat(event.target.value);
@@ -140,7 +139,6 @@ animationControls.forEach((control) => {
       activeValue,
       ease ?? "none",
       currentSplitType,
-      currentTextCase
     );
   });
 
@@ -407,25 +405,6 @@ observer.observe(tracksContainer);
 
 updatePlayheadHeight();
 buildVisualizer();
-
-//! Animation direction
-
-//! Text casing
-const textCaseRadios = document.querySelectorAll('input[name="text-case"]');
-
-// Function that executes when the value of the text case radios changes
-textCaseRadios.forEach(radio => {
-  radio.addEventListener('change', (e) => {
-    const propertyName = e.target.dataset.property;
-    const value = e.target.value;
-    animationData.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
-  });
-});
-
-
-
-
-
 
 animationControlColor.forEach((control) => {
   control.addEventListener("input", (event) => {
