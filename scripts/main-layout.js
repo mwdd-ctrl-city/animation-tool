@@ -219,7 +219,3 @@ contentContainer.addEventListener("pointerup", (e) => {
     isMoving = false;
     contentContainer.style.cursor = "";
 });
-
-
-
-

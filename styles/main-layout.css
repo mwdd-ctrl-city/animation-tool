@@ -492,7 +492,7 @@ details[open]::details-content {
     color: white;
     border-color: deeppink;
     font-weight: bold;
-
+}
 
 
 
@@ -556,4 +556,39 @@ fieldset input.animation-control-color {
   appearance: none;
   border: .25px solid var(--color-border-canvas);
   background: linear-gradient(90deg,rgba(0, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 97%, rgba(255, 255, 255, 1) 100%);
+}
+
+
+
+/* Preview layout */
+#popover-original:popover-open{
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-rows: 1fr 20fr;
+    place-items: center;
+
+    .content-panel{
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        right: 10rem;
+    }
+
+    .content-canvas{
+        place-self: center;
+    }
+
+    .close-button{
+        border: none;
+        height: 100%;
+        padding: 0 2em;
+        background-color: var(--color-details);
+        color: var(--color-text-one);
+
+        &:hover {
+            background-color: var(--color-hover-one);
+        }
+    }
 }

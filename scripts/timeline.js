@@ -48,11 +48,11 @@ async function loadAnimation(filePath) {
 // Init
 // -----------------------
 
-const animationData = await loadAnimation("./scripts/animation.json");
+export const animationData = await loadAnimation("./scripts/animation.json");
 const history = new History();
 history.addMemento(animationData.getAnimation());
 
-const player = new AnimationPlayer(canvas, animationData);
+export const player = new AnimationPlayer(canvas, animationData);
 
 animationData.addEventListener("change", () => {
   buildVisualizer();
