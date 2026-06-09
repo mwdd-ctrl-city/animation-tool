@@ -551,3 +551,9 @@ details[open]::details-content {
     border-color: var(--color-border-item);
     background: transparent;
 }
+
+fieldset input.animation-control-color {
+  appearance: none;
+  border: .25px solid var(--color-border-canvas);
+  background: linear-gradient(90deg,rgba(0, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 97%, rgba(255, 255, 255, 1) 100%);
+}
