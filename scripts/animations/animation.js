@@ -13,6 +13,8 @@ export default class AnimationData extends EventTarget {
     #durationSeconds;
     #elements;
     #animations;
+    selectedText = null; 
+
 
     /**
      * @description Create an animation object storing animation data
@@ -37,6 +39,10 @@ export default class AnimationData extends EventTarget {
         // save the parameter (name, durationSeconds) in the field (#name, #durationSeconds) of this object.
         this.#name = name;
         this.#durationSeconds = durationSeconds;
+        this.selectedText = {
+            element: null,
+            id: null
+        };
     }
 
 
@@ -115,6 +121,7 @@ export default class AnimationData extends EventTarget {
 
         // "set" (operator) adds the key and value (id, elementName) to the Map #elements
         this.#elements.set(id, elementName);
+        this.setSelectedText(null, id);
 
         this.dispatchEvent(new Event("change"));
 
@@ -416,6 +423,28 @@ export default class AnimationData extends EventTarget {
     getDuration() {
         return this.#durationSeconds;
     }
+
+    // -----------------------
+    // MARK: Selected Text
+    // -----------------------
+    setSelectedText(element = null, id) {
+        this.selectedText.element = element; 
+        this.selectedText.id = id
+
+        this.dispatchEvent(new Event("change"));
+    }
+
+    clearSelectedText() {
+        this.selectedText.element = null; 
+        this.selectedText.id = null;
+
+        this.dispatchEvent(new Event("change"));
+    }
+
+    getSelectedText() {
+        return this.selectedText
+    }
+
 
     // -----------------------
     // MARK: Input/Output

@@ -56,6 +56,8 @@ const player = new AnimationPlayer(canvas, animationData);
 
 animationData.addEventListener("change", () => {
   buildVisualizer();
+  updateRangeInputs(); 
+  showSelectedText(); 
 })
 
 function getFirstElementId() {
@@ -120,7 +122,7 @@ let activeValue = null;
 
 animationControls.forEach((control) => {
   control.addEventListener("input", (event) => {
-    const elementId = getFirstElementId();
+    const elementId = animationData.getSelectedText().id ?? getFirstElementId();  // If getSelectedText == null / no text selected -> get first element
     if (!elementId) return;
 
     player.pause();
@@ -163,6 +165,8 @@ playButtonTimeline.addEventListener("click", () => {
   const isPaused = player.isPaused();
   playButtonTimeline.textContent = isPaused ? "Pause" : "Play";
   player.togglePlay();
+  const select = player.selectedText 
+  console.log(select) 
 });
 
 
@@ -193,12 +197,11 @@ function buildVisualizer() {
   container.innerHTML = "";
 
   // With the function you got the ID of the element
-  const elementId = getFirstElementId();
+  const elementId = animationData.getSelectedText().id;
   if (!elementId) return;
 
   // get the properties that are defined within the id 
   const properties = animationData.getProperties(elementId);
-
 
   // For each property you make a new track and row within the timeline
   properties.forEach((propertyName) => {
@@ -341,8 +344,8 @@ window.addEventListener('keydown', (event) => {
 // -----------------------
 
 function updateRangeInputs() {
-  // Get the first element within the list of elements 
-  const elementId = getFirstElementId();
+  // Get the active / selected element
+  const elementId = animationData.getSelectedText().id;
   if (!elementId) return;
 
   // Update each control with the current value
@@ -375,9 +378,30 @@ addTextButton.addEventListener("click", () => {
 
 function addText(text) {
   if (!text.trim()) return;
-  animationData.createElement(text);
+  const newElementId = animationData.createElement(text);
+
+  const target = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  target.contentEditable = true;
+  target.focus();
+
   history.addMemento(animationData.getAnimation());
 }
+
+function showSelectedText() {
+  const target = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  if (!target) return;
+
+  target.style.outline = "3px solid #6495ED"; 
+}
+
+canvas.addEventListener("click", (e) => {
+  const selected = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  if (!selected) return; 
+
+  if (selected.contains(e.target)) return;    // If clicked on the selected element, return, DONT clear selectedText
+
+  animationData.clearSelectedText();
+});
 
 // -----------------------
 // Playhead height fix
