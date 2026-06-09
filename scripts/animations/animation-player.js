@@ -61,7 +61,6 @@ export default class AnimationPlayer {
         const animationData = this.#animation; 
 
         Draggable.create(el, {
-            bounds: this.#canvas,
             onDragEnd: function () {
                 const dragInstance = Draggable.get(el);
                 let progress = gsapTimeline.progress(); //Get the progress of the current timeline
