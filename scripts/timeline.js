@@ -16,13 +16,12 @@ const endTimeInput = document.querySelector(".tl-time-end");
 const undoButton = document.querySelector(".undo");
 const redoButton = document.querySelector(".redo");
 
+const prevKeyframeButton = document.querySelector('.kf-prev');
+const nextKeyframeButton = document.querySelector('.kf-next');
+
 const easeSelect = document.querySelector('#animation-select-ease');
 
-
-
 const scrollHint = document.querySelector('.scroll-hint');
-
-
 
 
 
@@ -166,6 +165,7 @@ playButtonTimeline.addEventListener("click", () => {
   player.togglePlay();
 });
 
+
 // -----------------------
 // Input change timeline time
 // -----------------------
@@ -256,6 +256,84 @@ function buildVisualizer() {
   updatePlayheadHeight();
   updateScrollHint();
 }
+
+
+// -----------------------
+// Keyframe snap buttons
+// -----------------------
+
+function nextKeyframeSnap(){
+    const currentProgress = player.getProgress();
+    let nextProgress = null;
+
+    // Loop whitin the element key and the values for each keyframe 
+    animationData.getElements().keys().forEach(element =>{
+      const animationMap = animationData.getAnimations(element);
+      if(!animationMap) return;
+
+      animationMap.values().forEach(keyframes => {
+        keyframes.forEach( keyframe => {
+          // Check if the progress is higher then the current progress, so you know it comes after the currentkeyframe
+          if (keyframe.progress > currentProgress) {
+                  if (nextProgress === null || keyframe.progress < nextProgress) {
+                    // If so then the nexprogress is the point the player needs to be set on
+                      nextProgress = keyframe.progress;
+                  }
+          }
+        })
+      })
+    })
+
+  if(nextProgress !== null){
+    player.setProgress(nextProgress) 
+  } else {
+    player.setProgress(1)
+  }
+}
+
+function prevKeyframeSnap (){
+   const currentProgress = player.getProgress();
+    let prevProgress = null;
+
+    animationData.getElements().keys().forEach(element =>{
+      const animationMap = animationData.getAnimations(element);
+      if(!animationMap) return;
+
+      animationMap.values().forEach(keyframes => {
+        keyframes.forEach( keyframe => {
+          if (keyframe.progress < currentProgress - 0.0001) {
+                  if (prevProgress === null || keyframe.progress > prevProgress) {
+                      prevProgress = keyframe.progress;
+                  }
+          }
+        })
+      })
+    })
+
+  if(prevProgress !== null){
+    player.setProgress(prevProgress) 
+  } else {
+    player.setProgress(0)
+  }
+}
+
+nextKeyframeButton.addEventListener('click', (event) => {
+  nextKeyframeSnap()
+});
+
+prevKeyframeButton.addEventListener('click', (event) => {
+  prevKeyframeSnap()
+});
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowLeft'){
+    prevKeyframeSnap()
+  } 
+  
+  if (event.key === 'ArrowRight') {
+    nextKeyframeSnap()
+  } 
+})
 
 
 // -----------------------

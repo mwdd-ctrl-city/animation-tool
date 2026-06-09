@@ -5,7 +5,7 @@
     user-select: none;
     display: grid;
     grid-template-columns: 10em 1fr;
-    grid-template-rows: 40px 20px var(--gap-timeline) 1fr;
+    grid-template-rows: 40px 40px var(--gap-timeline) 1fr;
     align-items: center;
     height: 100%;
     column-gap: 2rem;
