@@ -437,7 +437,7 @@ animationControlColor.forEach((control) => {
 function getControlValue(control) {
   const sliderValue = control.value;
   
-  if (control.dataset.property === "color") {
+  if (control.dataset.property === "color" || control.dataset.property === "webkitTextStrokeColor") {
     const colorValue = parseInt(sliderValue);
     return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
   }
