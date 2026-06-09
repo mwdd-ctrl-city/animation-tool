@@ -84,8 +84,13 @@
 
                     <label>
                         Font size
-                        <input type="range" class="animation-control" data-property="fontSize" min="0" max="200"
-                            value="16" step="1" />
+                        <div class="slider-input-container">
+                            <input type="range" class="animation-control" data-property="fontSize" min="0" max="200" value="16" step="1" />
+                            <div class="number-input-wrapper">
+                                <input type="number" class="animation-control" data-property="fontSize" value="16" step="1" />
+                                <p class="unit">px</p>
+                            </div>
+                        </div>
                     </label>
 
                     <label>
@@ -101,17 +106,23 @@
                     </label>
 
                     <label>
+                        Interlinie
+                        <input type="range" class="animation-control" data-property="lineHeight" min="0" max="50"
+                            value="16" step="1" />
+                    </label>
+
+                    <!-- <label>
                         Letter spacing
                         <input type="range" class="animation-control" data-property="letterSpacing" min="-5" max="20"
                             value="0" step="0.5" />
-                    </label>
+                    </label> -->
 
                     <!-- NEW -->
-                    <label>
+                    <!-- <label>
                         Word spacing
                         <input type="range" class="animation-control" data-property="wordSpacing" min="-10" max="50"
                             value="0" step="0.5" />
-                    </label>
+                    </label> -->
 
                     <div class="text-casing">
                         <label>Text Casing</label>
@@ -139,9 +150,17 @@
                     <legend class="visually-hidden">Colors</legend>
 
                     <label>
-                        Color
-                        <input type="range" class="animation-control-color" data-property="color" min="0" max="255"
-                            value="0" step="1" />
+                        Fill
+                        <input type="range" class="animation-control-color" data-property="color" min="0" max="255" value="0" step="1"/>
+                    </label>
+                    <label>
+                        Outline
+                        <input type="range" class="animation-control-color" data-property="webkitTextStrokeColor" min="0" max="255" value="0" step="1"/>
+
+                    </label>
+                    <label>
+                        Outline width
+                        <input type="range" class="animation-control" data-property="webkitTextStrokeWidth" min="0" max="5" value="1" step="1">
                     </label>
                 </fieldset>
             </details>
@@ -291,10 +310,16 @@
 
                 <div class="tl-time">
                     <label for="start-time" class="visually-hidden">Start time</label>
-                    <input id="start-time" type="number" value="0.00" step="0.01" class="tl-time-start">
+                    <div class="number-input-wrapper">
+                        <input id="start-time" type="number" value="0.00" step="0.01" class="tl-time-start">
+                        <p class="unit">s</p>
+                    </div>
 
                     <label for="end-time" class="visually-hidden">End time</label>
-                    <input id="end-time" type="number" value="4.00" step="0.01" class="tl-time-end">
+                    <div class="number-input-wrapper">
+                        <input id="end-time" type="number" value="4.00" step="0.01" class="tl-time-end">
+                        <p class="unit">s</p>
+                    </div>
                 </div>
 
                 <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
