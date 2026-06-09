@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/png" href="./assets/icon/favicon.png">
+    <link rel="icon" type="image/png" href="./assets/icon/favicon-dark.svg" media="(prefers-color-scheme: light)">
+    <link rel="icon" type="image/png" href="./assets/icon/favicon-light.svg" media="(prefers-color-scheme: dark)">
 
     <link rel="stylesheet" href="/styles/style.css" />
     <link rel="stylesheet" href="/styles/main-layout.css" />
@@ -17,8 +18,7 @@
     <script src="/scripts/main-layout.js" type="module" defer></script>
     <script src="./scripts/timeline.js" type="module" defer></script>
 
-    <!-- MARK: !! New name maybe: (Inter)play - animationtool -->
-    <title>Animation Tool</title>
+    <title>(Inter)play - Animationtool</title>
 </head>
 
 <body>
@@ -77,23 +77,6 @@
             <div class="resize-handle handle-left"></div>
 
             <details open class="fieldset-container">
-                <summary>Settings</summary>
-
-                <fieldset class="item item-settings">
-                    <legend class="visually-hidden">Settings</legend>
-
-                    <div class="split-text">
-                        <label>Split type</label>
-                        <div class="split-text-buttons">
-                            <button id="btn-split-none">None</button>
-                            <button id="btn-split-chars">Characters</button>
-                            <button id="btn-split-words">Words</button>
-                            <button id="btn-split-lines">Lines</button>
-                        </div>
-                    </div>
-            </details>
-
-            <details open class="fieldset-container">
                 <summary>Typography</summary>
 
                 <fieldset class="item item-typography">
@@ -141,6 +124,21 @@
                             value="0" step="0.5" />
                     </label> -->
 
+                    <div class="text-casing">
+                        <label>Text Casing</label>
+                        <div class="layout-radios">
+                            <label><input data-property="textTransform" type="radio" name="text-case" value="none"
+                                    checked>
+                                Initial</label>
+                            <label><input data-property="textTransform" type="radio" name="text-case"
+                                    value="capitalize">
+                                Capitalize</label>
+                            <label><input data-property="textTransform" type="radio" name="text-case" value="lowercase">
+                                lowercase</label>
+                            <label><input data-property="textTransform" type="radio" name="text-case" value="uppercase">
+                                UPPERCASE</label>
+                        </div>
+                    </div>
 
                 </fieldset>
             </details>
@@ -220,17 +218,50 @@
                     <div class="animation-direction">
                         <label>Direction</label>
                         <div class="layout-radios">
-                            <label><input class="animation-control" data-property="rotation" type="radio" name="animation-direction" value="0" checked>
-                            Normal</label>
-                            <label><input class="animation-control" data-property="rotation" type="radio" name="animation-direction" value="-90">
+                            <label><input class="animation-control" data-property="rotation" type="radio"
+                                    name="animation-direction" value="0" checked>
+                                Normal</label>
+                            <label><input class="animation-control" data-property="rotation" type="radio"
+                                    name="animation-direction" value="-90">
                                 Left</label>
-                            <label><input class="animation-control" data-property="rotation" type="radio" name="animation-direction" value="90">
+                            <label><input class="animation-control" data-property="rotation" type="radio"
+                                    name="animation-direction" value="90">
                                 Right</label>
-                            <label><input class="animation-control" data-property="rotation" type="radio" name="animation-direction" value="180">
+                            <label><input class="animation-control" data-property="rotation" type="radio"
+                                    name="animation-direction" value="180">
                                 Reverse</label>
                         </div>
                     </div>
                 </fieldset>
+            </details>
+
+            <details open class="fieldset-container">
+                <summary>Settings</summary>
+
+                <fieldset class="item item-settings">
+                    <legend class="visually-hidden">Settings</legend>
+
+                    <div class="split-text">
+                        <label>Split type</label>
+                        <div class="split-text-buttons layout-radios">
+                            <label>
+                                <input id="btn-split-none" type="radio" checked>
+                                None
+                            </label>
+                            <label>
+                                <input id="btn-split-chars" type="radio">
+                                Characters
+                            </label>
+                            <label>
+                                <input id="btn-split-words" type="radio">
+                                Words
+                            </label>
+                            <label>
+                                <input id="btn-split-lines" type="radio">
+                                Lines
+                            </label>
+                        </div>
+                    </div>
             </details>
 
             <details open class="fieldset-container">
@@ -268,9 +299,13 @@
 
                 <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
 
-                <div>
-                    <button type="button" class="kf-prev"><</button>
-                    <button type="button" class="kf-next">></button>
+                <div class="keyframe-snap">
+                    <button type="button" class="kf-prev" aria-live="polite" aria-label="Go to next keyframe">
+                        <i aria-hidden="true">←</i>
+                    </button>
+                    <button type="button" class="kf-next" aria-live="polite" aria-label="Go to previous keyframe">
+                        <i aria-hidden="true">→</i>
+                    </button>
                 </div>
 
                 <div class="tl-time">

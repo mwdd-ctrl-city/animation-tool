@@ -157,10 +157,11 @@ timelineSlider.addEventListener("input", (e) => {
   player.setProgress(e.target.value / 100);
 });
 
+
+
 // -----------------------
 // Play button
 // -----------------------
-
 playButtonTimeline.addEventListener("click", () => {
   const isPaused = player.isPaused();
   playButtonTimeline.textContent = isPaused ? "Pause" : "Play";
@@ -169,6 +170,22 @@ playButtonTimeline.addEventListener("click", () => {
   console.log(select) 
 });
 
+document.addEventListener("keydown", (e) => {
+  // Claude: How do I check if the user is currently typing in an input field, textarea, or contenteditable element when a keydown event fires? I want to include contenteditable elements because GSAP adds contenteditable="true" to draggable elements.
+  const isTyping = e.target.closest('input, textarea, [contenteditable]') !== null;
+
+  if (e.code === "Space") {
+    if (isTyping) return;
+    e.preventDefault();
+    const isPaused = player.isPaused();
+    playButtonTimeline.textContent = isPaused ? "Pause" : "Play";
+    player.togglePlay();
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  console.log(e.target);
+});
 
 // -----------------------
 // Input change timeline time
@@ -485,6 +502,9 @@ function updateColorInputs() {
     colorControl.value = colorArray[0];
   });
 }
+
+updateColorInputs();
+
 // Split text controls
 const btnSplitNone = document.getElementById("btn-split-none");
 const btnSplitChars = document.getElementById("btn-split-chars");
@@ -517,6 +537,7 @@ if (btnSplitNone) btnSplitNone.addEventListener("click", () => applySplit("none"
 if (btnSplitWords) btnSplitWords.addEventListener("click", () => applySplit("words"));
 if (btnSplitChars) btnSplitChars.addEventListener("click", () => applySplit("chars"));
 if (btnSplitLines) btnSplitLines.addEventListener("click", () => applySplit("lines"));
+
 
 // https://www.freecodecamp.org/news/javascript-settimeout-js-timer-to-delay-n-seconds/
 // Function to let a hint appear when the container is scrollable. 

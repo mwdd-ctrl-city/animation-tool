@@ -34,11 +34,9 @@ let startMoveY;
 // -----------------------
 // MARK: EDIT PROJECT NAME
 // -----------------------
-projectNameText.addEventListener("click", () => {
-    projectNameInput.style.display = "inline";
-    projectNameText.style.display = "none";
-
-    projectNameInput.focus();
+projectNameInput.addEventListener("input", () => {
+    projectNameInput.style.width = "0";
+    projectNameInput.style.width = Math.min(projectNameInput.scrollWidth, 300) + "px";
 });
 
 projectNameInput.addEventListener("blur", () => {
@@ -46,6 +44,20 @@ projectNameInput.addEventListener("blur", () => {
 
     projectNameText.style.display = "inline";
     projectNameInput.style.display = "none";
+});
+
+projectNameText.addEventListener("click", () => {
+    projectNameInput.style.display = "inline";
+    projectNameText.style.display = "none";
+
+    projectNameInput.style.width = "0";
+    projectNameInput.style.width = Math.min(projectNameInput.scrollWidth, 300) + "px";
+
+    projectNameInput.focus();
+});
+
+projectNameInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") projectNameInput.blur();
 });
 
 
