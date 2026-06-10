@@ -38,7 +38,8 @@ async function loadAnimation(filePath) {
 // Init
 // -----------------------
 
-const animationData = await loadAnimation("./scripts/animation.json");
+// const animationData = await loadAnimation("./scripts/animation.json");
+const animationData = new AnimationData();
 const history = new History();
 history.addMemento(animationData.getAnimation());
 
@@ -58,12 +59,8 @@ function getFirstElementId() {
 undoButton.addEventListener("click", () => {
   const state = history.undo();
 
-  console.log("test");
-
   if (state !== null) {
     animationData.load(state);
-  } else {
-    console.log("no state");
   }
 });
 
@@ -100,19 +97,11 @@ player.setOnUpdateListener((timeline) => {
 // Controls (keyframes)
 // -----------------------
 
-let ease;
+let ease = easeSelect.value ?? "none";
 
-easeSelect.addEventListener('change', ()=>{
+easeSelect.addEventListener('change', () => {
   // The ? stands for a undefined property that doesn't exist in the dom so it doesn't give a undefined
   ease = easeSelect?.value ?? "none";
-
-  animationData.setKeyframe(
-    activeElementId,
-    activePropertyName,
-    player.getProgress(),
-    activeValue,
-    ease
-  );
 })
 
 let activeElementId = null;
@@ -215,7 +204,7 @@ function buildVisualizer() {
 
     row.append(label, track);
 
-     // Create for each keyframe point a point on the row
+    // Create for each keyframe point a point on the row
     keyframes.forEach((keyframe) => {
       const point = document.createElement("div");
       point.classList.add("keyframe");
@@ -234,7 +223,7 @@ function buildVisualizer() {
           const pointX = this.x + keyframe.progress * trackWidth;
 
           // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
-          const newProgress = Math.max( 0,
+          const newProgress = Math.max(0,
             Math.min(1, pointX / trackWidth)
           );
 
@@ -297,15 +286,19 @@ function addText(text) {
 
 function updatePlayheadHeight() {
   const lastRow = tracksContainer.querySelector('.row:last-of-type');
-  if (!lastRow) return;
+  let height;
 
-  // Get the height from the container that needs to be track for the height
-  // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
-  const rowBottom = lastRow.getBoundingClientRect().bottom;
-  const sliderTop = timelineSlider.getBoundingClientRect().top;
+  if (lastRow) {
+    // Get the height from the container that needs to be track for the height
+    // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
+    const rowBottom = lastRow.getBoundingClientRect().bottom;
+    const sliderTop = timelineSlider.getBoundingClientRect().top;
 
-  // Divide by eachother so it doesn't get the whole height. Add 20 to make sure it goes a little below the row.
-  const height = rowBottom - sliderTop + 20;
+    // Divide by eachother so it doesn't get the whole height. Add 20 to make sure it goes a little below the row.
+    height = rowBottom - sliderTop;
+  } else {
+    height = 0;
+  };
   timelineSlider.style.setProperty('--height-playhead', `${height}px`);
 }
 

@@ -51,14 +51,14 @@ export default class AnimationPlayer {
             el.classList.add(`el-${id}`);
             el.textContent = element;
             this.#canvas.appendChild(el);
-            this.#setupDraggable(el, id); 
-            this.#setupEditable(el, id); 
+            this.#setupDraggable(el, id);
+            this.#setupEditable(el, id);
         });
     }
 
     #setupDraggable(el, id) {
-        const gsapTimeline = this.#timeline; 
-        const animationData = this.#animation; 
+        const gsapTimeline = this.#timeline;
+        const animationData = this.#animation;
 
         Draggable.create(el, {
             bounds: this.#canvas,
@@ -68,7 +68,7 @@ export default class AnimationPlayer {
 
                 animationData.setKeyframe(id, "x", progress, this.x, "none");    //Create x keyframe
                 animationData.setKeyframe(id, "y", progress, this.y, "none");    //Create y keyframe
-            }   
+            }
         })
     }
 
@@ -84,7 +84,7 @@ export default class AnimationPlayer {
         })
 
         el.addEventListener("blur", () => {
-            el.contentEditable = false; 
+            el.contentEditable = false;
 
             const formattedText = el.innerHTML   // innerHTML gives: first<div><br></div><div><br></div><div>second</div>
                 .replace(/<div>/g, "\n")  // Replace <div> with \n -> enter - /g makes global, so not just stop at / replace  first div
@@ -92,10 +92,10 @@ export default class AnimationPlayer {
                 .replace(/<br>/g, "")   // Replace <br> with nothing
                 .replace(/&nbsp;/g, " ") // Replace &nbsp with space
 
-            if((el.textContent.trim()) === "") {
+            if ((el.textContent.trim()) === "") {
                 this.#animation.removeElement(id);
             } else {
-                this.#animation.renameElement(id, formattedText); 
+                this.#animation.renameElement(id, formattedText);
             }
 
             const dragInstance = Draggable.get(el); // Retrun draggable object that was previously created 
@@ -112,6 +112,11 @@ export default class AnimationPlayer {
         // Get all targets
         const duration = this.#animation.getDuration();
         const targetIds = this.#animation.getElements().keys();
+
+        // No animated elements/keyframes
+        if (this.#timeline.getChildren().length === 0) {
+            this.#timeline.add(gsap.delayedCall(duration, () => { }));
+        }
 
         // Apply the animations for each target
         targetIds.forEach((targetId) => {
