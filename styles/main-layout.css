@@ -593,3 +593,29 @@ fieldset input.animation-control-color {
     -webkit-appearance: none;
     margin: 0;
 }
+
+.delete-property-btn {
+    display: inline-block;
+    max-width: 0;
+    opacity: 0;
+    transform: rotate(-90deg);
+    overflow: hidden;
+    color: deeppink;
+    cursor: pointer;
+    margin-right: 0;
+    vertical-align: middle;
+    transition: all 0.3s ease-in-out;
+}
+
+.delete-property-btn.show-delete {
+    max-width: 20px;
+    opacity: 1;
+    transform: rotate(0deg);
+    margin-right: 5px;
+    padding: 0px 7px 0px 7px;
+}
+
+.delete-property-btn.show-delete:hover {
+    scale: 1.5;
+    transition: 0.1s linear;
+}

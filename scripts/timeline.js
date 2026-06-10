@@ -226,7 +226,32 @@ function buildVisualizer() {
 
     const label = document.createElement("p");
     label.classList.add("track-label");
-    label.innerHTML = `<span>${propertyName}</span>`;
+
+    // Create text
+    const labelText = document.createElement("span");
+    labelText.textContent = propertyName;
+    labelText.style.cursor = "pointer";
+
+    // Create delete button
+    const deleteBtn = document.createElement("span");
+    deleteBtn.innerHTML = "&times;";
+    deleteBtn.classList.add("delete-property-btn");
+    deleteBtn.title = `Delete ${propertyName}`;
+
+    // Toggle class that shows delete button
+    labelText.addEventListener("click", () => {
+      deleteBtn.classList.toggle ("show-delete");
+    });
+
+    // Call deleteProperty on click
+    deleteBtn.addEventListener("click", (event) => {
+      // event.stopPropagation();
+      animationData.deleteProperty(elementId, propertyName);
+      history.addMemento(animationData.getAnimation());
+    });
+
+    // Add deletebutton and label text to the <p>
+    label.append(deleteBtn, labelText);
 
     row.append(label, track);
 
@@ -271,6 +296,24 @@ function buildVisualizer() {
   updateScrollHint();
 }
 
+// Auto-close property delete buttons
+document.addEventListener("click", (event) => {
+  // Search all properties in the timeline 
+  const trackLabels = document.querySelectorAll(".track-label");
+  
+  trackLabels.forEach(label => {
+    // Check if click wasn't in this label
+    if (!label.contains(event.target)) {
+      // Search delete button
+      const deleteBtn = label.querySelector(".delete-property-btn");
+      
+      // If delete buton exist and has visible class, remove visible class
+      if (deleteBtn && deleteBtn.classList.contains("show-delete")) {
+        deleteBtn.classList.remove("show-delete");
+      }
+    }
+  });
+});
 
 // -----------------------
 // Keyframe snap buttons
