@@ -17,6 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/SplitText.min.js"></script>
     <script src="./scripts/main-layout.js" type="module" defer></script>
     <script src="./scripts/timeline.js" type="module" defer></script>
+    <script src="./scripts/preview.js" type="module" defer></script>
 
     <title>(Inter)play - Animationtool</title>
 </head>
@@ -28,7 +29,7 @@
             <input id="project-name-input" type="text" value="Untitled Project">
         </div>
 
-        <button class="preview-button">Preview</button>
+        <button popovertarget="popover-original" id="open-button" class="preview-button">Preview</button>
         <button class="save-button">Save</button>
     </header>
 
@@ -65,12 +66,21 @@
         </div>
 
         <!--  CONTENT CONTAINER    -->
-        <section class="content-panel">
-            <div class="content-canvas">
+        <section id="original-canvas" class="content-panel">
+            <div  class="content-canvas">
                 <!-- The output of the animation/timeline -->
                 <div class="canvas"></div>
             </div>
         </section>
+
+        <!-- POPOVER PREVIEW -->
+        <section id="popover-original" popover>
+            <div id="popover-content">
+
+            </div>
+            <button type="button" class="close-button" popovertarget="popover-original" popovertargetaction="hide">close</button>
+        </section>
+
 
         <!--   ITEMS CONTAINER  -->
         <section class="items-panel">
