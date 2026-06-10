@@ -120,8 +120,8 @@ export default class AnimationData extends EventTarget {
         const elementId = crypto.randomUUID();
 
         // "set" (operator) adds the key and value (id, elementName) to the Map #elements
-        this.#elements.set(id, elementName);
-        this.setSelectedText(null, id);
+        this.#elements.set(elementId, elementName);
+        this.setSelectedText(null, elementId);
 
         this.dispatchEvent(new Event("change"));
 
