@@ -166,8 +166,6 @@ playButtonTimeline.addEventListener("click", () => {
   const isPaused = player.isPaused();
   playButtonTimeline.textContent = isPaused ? "Pause" : "Play";
   player.togglePlay();
-  const select = player.selectedText 
-  console.log(select) 
 });
 
 document.addEventListener("keydown", (e) => {
@@ -181,10 +179,6 @@ document.addEventListener("keydown", (e) => {
     playButtonTimeline.textContent = isPaused ? "Pause" : "Play";
     player.togglePlay();
   }
-});
-
-document.addEventListener("keydown", (e) => {
-  console.log(e.target);
 });
 
 // -----------------------
@@ -214,7 +208,7 @@ function buildVisualizer() {
   container.innerHTML = "";
 
   // With the function you got the ID of the element
-  const elementId = animationData.getSelectedText().id;
+  const elementId = animationData.getSelectedText().id ?? getFirstElementId();
   if (!elementId) return;
 
   // get the properties that are defined within the id 
