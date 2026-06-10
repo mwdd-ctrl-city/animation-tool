@@ -26,7 +26,8 @@ const scrollHint = document.querySelector('.scroll-hint');
 
 
 
-let activeKeyframe = null;
+let activeKeyframeId = null;
+let activeKeyframeElement = null;
 
 let currentSplitType = "none";
 
@@ -56,8 +57,8 @@ const player = new AnimationPlayer(canvas, animationData);
 
 animationData.addEventListener("change", () => {
   buildVisualizer();
-  updateRangeInputs(); 
-  showSelectedText(); 
+  updateRangeInputs();
+  showSelectedText();
 })
 
 function getFirstElementId() {
@@ -126,6 +127,7 @@ animationControls.forEach((control) => {
     if (!elementId) return;
 
     player.pause();
+    playButtonTimeline.textContent = player.isPaused() ? "play" : "pause";
 
     const propertyName = event.target.dataset.property;
     const value = parseFloat(event.target.value);
@@ -134,7 +136,7 @@ animationControls.forEach((control) => {
     activePropertyName = event.target.dataset.property;
     activeValue = parseFloat(event.target.value);
 
-    animationData.setKeyframe(
+    activeKeyframeId = animationData.setKeyframe(
       activeElementId,
       activePropertyName,
       player.getProgress(),
@@ -142,6 +144,8 @@ animationControls.forEach((control) => {
       ease ?? "none",
       currentSplitType,
     );
+
+    buildVisualizer();
   });
 
   control.addEventListener("change", (event) => {
@@ -233,7 +237,7 @@ function buildVisualizer() {
     // Create for each keyframe point a point on the row
     keyframes.forEach((keyframe) => {
       const point = document.createElement("div");
-      point.classList.add("keyframe");
+      point.classList.add("keyframe", `key-${keyframe.id}`);
       point.style.setProperty("--p", keyframe.progress);
 
       track.appendChild(point);
@@ -243,6 +247,13 @@ function buildVisualizer() {
         // Type of way you can dragg the element on the x axis
         type: "x",
         bounds: track,
+        onClick() {
+          // Make the keyframe the active keyframe
+          activeKeyframeId = keyframe.id;
+          point.classList.add("active-keyframe");
+          player.setProgress(keyframe.progress);
+          buildVisualizer();
+        },
         onDragEnd() {
           // Get the width from the track and the point element which stands for the keyframe 
           const trackWidth = track.offsetWidth;
@@ -254,13 +265,20 @@ function buildVisualizer() {
           );
 
           animationData.moveKeyframe(
-            elementId,
-            propertyName,
-            keyframe.progress,
+            keyframe.id,
             newProgress
           );
+
+          // Make the keyframe the active keyframe
+          activeKeyframeId = keyframe.id;
+          point.classList.add("active-keyframe");
+          buildVisualizer();
         }
       });
+
+      // Make the keyframe the active keyframe
+      const activeKeyframeElement = document.querySelector(`.key-${activeKeyframeId}`);
+      activeKeyframeElement?.classList.add("active-keyframe");
     });
 
     // Add the elements to the html
@@ -269,6 +287,13 @@ function buildVisualizer() {
   // Update the playheadHeight on the height of the container
   updatePlayheadHeight();
   updateScrollHint();
+
+  // Retrieve the active keyframe and give it an active class
+
+  if (activeKeyframeId !== null) {
+    const activeKeyframeElement = document.querySelector(`.key-${activeKeyframeId}`)
+    activeKeyframeElement?.classList.add("active-keyframe");
+  }
 }
 
 
@@ -276,77 +301,93 @@ function buildVisualizer() {
 // Keyframe snap buttons
 // -----------------------
 
-function nextKeyframeSnap(){
-    const currentProgress = player.getProgress();
-    let nextProgress = null;
+function nextKeyframeSnap() {
+  const currentProgress = player.getProgress();
+  let nextProgress = null;
 
-    // Loop whitin the element key and the values for each keyframe 
-    animationData.getElements().keys().forEach(element =>{
-      const animationMap = animationData.getAnimations(element);
-      if(!animationMap) return;
+  // Loop whitin the element key and the values for each keyframe 
+  animationData.getElements().keys().forEach(element => {
+    const animationMap = animationData.getAnimations(element);
+    if (!animationMap) return;
 
-      animationMap.values().forEach(keyframes => {
-        keyframes.forEach( keyframe => {
-          // Check if the progress is higher then the current progress, so you know it comes after the currentkeyframe
-          if (keyframe.progress > currentProgress) {
-                  if (nextProgress === null || keyframe.progress < nextProgress) {
-                    // If so then the nexprogress is the point the player needs to be set on
-                      nextProgress = keyframe.progress;
-                  }
+    animationMap.values().forEach(keyframes => {
+      keyframes.forEach(keyframe => {
+        // Check if the progress is higher then the current progress, so you know it comes after the currentkeyframe
+        if (keyframe.progress > currentProgress) {
+          if (nextProgress === null || keyframe.progress < nextProgress) {
+            // If so then the nexprogress is the point the player needs to be set on
+            nextProgress = keyframe.progress;
+
+            // Make the keyframe the active keyframe
+            activeKeyframeId = keyframe.id;
+            const point = document.querySelector(`.key-${activeKeyframeId}`);
+            point.classList.add("active-keyframe");
+            buildVisualizer();
           }
-        })
+        }
       })
     })
+  })
 
-  if(nextProgress !== null){
-    player.setProgress(nextProgress) 
+  if (nextProgress !== null) {
+    player.setProgress(nextProgress)
   } else {
     player.setProgress(1)
   }
 }
 
-function prevKeyframeSnap (){
-   const currentProgress = player.getProgress();
-    let prevProgress = null;
+function prevKeyframeSnap() {
+  const currentProgress = player.getProgress();
+  let prevProgress = null;
 
-    animationData.getElements().keys().forEach(element =>{
-      const animationMap = animationData.getAnimations(element);
-      if(!animationMap) return;
+  animationData.getElements().keys().forEach(element => {
+    const animationMap = animationData.getAnimations(element);
+    if (!animationMap) return;
 
-      animationMap.values().forEach(keyframes => {
-        keyframes.forEach( keyframe => {
-          if (keyframe.progress < currentProgress - 0.0001) {
-                  if (prevProgress === null || keyframe.progress > prevProgress) {
-                      prevProgress = keyframe.progress;
-                  }
+    animationMap.values().forEach(keyframes => {
+      keyframes.forEach(keyframe => {
+        if (keyframe.progress < currentProgress - 0.0001) {
+          if (prevProgress === null || keyframe.progress > prevProgress) {
+            prevProgress = keyframe.progress;
+
+            // Make the keyframe the active keyframe
+            activeKeyframeId = keyframe.id;
+            const point = document.querySelector(`.key-${activeKeyframeId}`);
+            point.classList.add("active-keyframe");
+            buildVisualizer();
           }
-        })
+        }
       })
     })
+  })
 
-  if(prevProgress !== null){
-    player.setProgress(prevProgress) 
+  if (prevProgress !== null) {
+    player.setProgress(prevProgress)
   } else {
     player.setProgress(0)
   }
 }
 
 nextKeyframeButton.addEventListener('click', (event) => {
+  player.pause();
+  playButtonTimeline.textContent = player.isPaused() ? "play" : "pause";
   nextKeyframeSnap()
 });
 
 prevKeyframeButton.addEventListener('click', (event) => {
+  player.pause();
+  playButtonTimeline.textContent = player.isPaused() ? "play" : "pause";
   prevKeyframeSnap()
 });
 
 window.addEventListener('keydown', (event) => {
-  if (event.key === 'ArrowLeft'){
+  if (event.key === 'ArrowLeft') {
     prevKeyframeSnap()
-  } 
-  
+  }
+
   if (event.key === 'ArrowRight') {
     nextKeyframeSnap()
-  } 
+  }
 })
 
 
@@ -402,12 +443,12 @@ function showSelectedText() {
   const target = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
   if (!target) return;
 
-  target.style.outline = "3px solid #6495ED"; 
+  target.style.outline = "3px solid #6495ED";
 }
 
 canvas.addEventListener("click", (e) => {
   const selected = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
-  if (!selected) return; 
+  if (!selected) return;
 
   if (selected.contains(e.target)) return;    // If clicked on the selected element, return, DONT clear selectedText
 
@@ -447,12 +488,13 @@ animationControlColor.forEach((control) => {
     if (!elementId) return;
 
     player.pause();
+    playButtonTimeline.textContent = player.isPaused() ? "play" : "pause";
 
     activeElementId = elementId;
     activePropertyName = event.target.dataset.property;
     activeValue = getControlValue(event.target);
 
-    animationData.setKeyframe(
+    activeKeyframeId = animationData.setKeyframe(
       activeElementId,
       activePropertyName,
       player.getProgress(),
@@ -471,12 +513,12 @@ animationControlColor.forEach((control) => {
 
 function getControlValue(control) {
   const sliderValue = control.value;
-  
+
   if (control.dataset.property === "color" || control.dataset.property === "webkitTextStrokeColor") {
     const colorValue = parseInt(sliderValue);
     return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
   }
-  
+
   return parseFloat(sliderValue);
 }
 
@@ -540,7 +582,7 @@ export function updateScrollHint() {
   const isScrollable = tracksContainer.scrollHeight > tracksContainer.clientHeight;
   scrollHint.hidden = !isScrollable;
 
-  if(isScrollable) {
+  if (isScrollable) {
     clearTimeout(scrollHint.fadeout);
     scrollHint.classList.remove("fade-out");
 
@@ -548,4 +590,20 @@ export function updateScrollHint() {
       scrollHint.classList.add("fade-out");
     }, 5000);
   }
+}
+
+
+// -----------------------
+// Keyframe delete
+// -----------------------
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Delete") {
+    deleteActiveKeyframe();
+  }
+});
+
+function deleteActiveKeyframe() {
+  animationData.deleteKeyframe(activeKeyframeId);
+  buildVisualizer();
 }
