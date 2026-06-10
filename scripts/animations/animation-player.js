@@ -72,13 +72,19 @@ export default class AnimationPlayer {
         const animationData = this.#animation;
 
         Draggable.create(el, {
-            bounds: this.#canvas,
             onDragEnd: function () {
                 const dragInstance = Draggable.get(el);
                 let progress = gsapTimeline.progress(); //Get the progress of the current timeline
 
                 animationData.setKeyframe(id, "x", progress, this.x, "none");    //Create x keyframe
                 animationData.setKeyframe(id, "y", progress, this.y, "none");    //Create y keyframe
+            },
+            onClick: () => {
+                if (this.#animation.selectedText.id == id) {  // If text is already selected dont go thru
+                    return; 
+                } else {
+                    this.#animation.setSelectedText(el, id);
+                } 
             }
         })
     }
@@ -98,7 +104,7 @@ export default class AnimationPlayer {
             el.contentEditable = false;
 
 
-            const formattedText = el.innerHTML   // innerHTML gives: first<div><br></div><div><br></div><div>second</div>
+            const formattedText = el.textContent   // innerHTML gives: first<div><br></div><div><br></div><div>second</div>
                 .replace(/<div>/g, "\n")  // Replace <div> with \n -> enter - /g makes global, so not just stop at / replace  first div
                 .replace(/<\/div>/g, "")  // Replace </div> with nothing
                 .replace(/<br>/g, "")   // Replace <br> with nothing
@@ -109,6 +115,8 @@ export default class AnimationPlayer {
             } else {
                 this.#animation.renameElement(id, formattedText); 
             }
+
+            this.#animation.clearSelectedText(); 
 
             const dragInstance = Draggable.get(el); // Retrun draggable object that was previously created 
             if (dragInstance) {
@@ -153,7 +161,6 @@ export default class AnimationPlayer {
 
                     // Fallback values if the keyframe doesn't specify them
                     const kfSplitType = current.splitType || "none";
-                    const kfTextCase = current.textCase || "none";
 
                     // If the keyframe has a splittype that is not none and the element has a split instance, target split instance
                     if (kfSplitType !== "none") {
@@ -175,7 +182,6 @@ export default class AnimationPlayer {
                             duration: timeDifferenceSeconds,
                             ease: current.ease ?? "none",
                             stagger: staggerConfig,
-                            textTransform: kfTextCase
                         },
                         last.progress * duration
                     );

@@ -13,6 +13,8 @@ export default class AnimationData extends EventTarget {
     #durationSeconds;
     #elements;
     #animations;
+    selectedText = null; 
+
 
     /**
      * @description Create an animation object storing animation data
@@ -37,6 +39,10 @@ export default class AnimationData extends EventTarget {
         // save the parameter (name, durationSeconds) in the field (#name, #durationSeconds) of this object.
         this.#name = name;
         this.#durationSeconds = durationSeconds;
+        this.selectedText = {
+            element: null,
+            id: null
+        };
     }
 
 
@@ -114,7 +120,8 @@ export default class AnimationData extends EventTarget {
         const elementId = crypto.randomUUID();
 
         // "set" (operator) adds the key and value (id, elementName) to the Map #elements
-        this.#elements.set(id, elementName);
+        this.#elements.set(elementId, elementName);
+        this.setSelectedText(null, elementId);
 
         this.dispatchEvent(new Event("change"));
 
@@ -233,7 +240,7 @@ export default class AnimationData extends EventTarget {
     // TODO: check of animation direction nodig is op keyframe
    // Takes 5 inputs: targetId (element you want to animate), propertyName (property to animate), 
     // progress (point in time, number between 0 and 1), value (value at that point in time) and ease (easing type, defaults "none" if not provided)
-    setKeyframe(targetId, propertyName, progress, value, ease, splitType = "none", textCase = "initial") {
+    setKeyframe(targetId, propertyName, progress, value, ease, splitType = "none") {
         if (!this.#elements.has(targetId)) return false;
       
         if (!this.#isValidProgress(progress)) return false;
@@ -251,7 +258,7 @@ export default class AnimationData extends EventTarget {
         // If the keyframe does not exist, create it, else edit it
         // If it doesn't exist, it creates a new object with 3 properties: progress, value, ease.
         if (!keyframe) {
-            keyframe = { progress, value, ease, splitType, textCase };
+            keyframe = { progress, value, ease, splitType };
             keyframes.push(keyframe);
             // Resort the keyframes, so it goes from small to big.
             keyframes.sort((a, b) => a.progress - b.progress);
@@ -261,7 +268,6 @@ export default class AnimationData extends EventTarget {
             keyframe.value = value;
             keyframe.ease = ease;
             keyframe.splitType = splitType;
-            keyframe.textCase = textCase;
         }
 
         this.dispatchEvent(new Event("change"));
@@ -311,6 +317,34 @@ export default class AnimationData extends EventTarget {
 
         this.dispatchEvent(new Event("change"));
         return true;
+    }
+
+    /**
+     * @description Delete all keyframes of a specific property from a target
+     * @param {string} targetId The target to remove the property from
+     * @param {string} propertyName The property to remove
+     * @returns {boolean} true if the property was found and deleted, otherwise false
+     */
+    // The function has to know the target (element that is being animated) and the property name
+    deleteProperty(targetId, propertyName) {
+        // Check if animations has the target
+        const animationMap = this.#animations.get(targetId);
+        if (!animationMap) return false;
+
+        // Check if the map has the property and delete it
+        if (animationMap.has(propertyName)) {
+            animationMap.delete(propertyName);
+
+            // If the animationMap is empty, it deletes the targetId from the #animations map.
+            if (animationMap.size === 0) {
+                this.#animations.delete(targetId);
+            }
+
+            this.dispatchEvent(new Event("change"));
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -417,6 +451,28 @@ export default class AnimationData extends EventTarget {
     getDuration() {
         return this.#durationSeconds;
     }
+
+    // -----------------------
+    // MARK: Selected Text
+    // -----------------------
+    setSelectedText(element = null, id) {
+        this.selectedText.element = element; 
+        this.selectedText.id = id
+
+        this.dispatchEvent(new Event("change"));
+    }
+
+    clearSelectedText() {
+        this.selectedText.element = null; 
+        this.selectedText.id = null;
+
+        this.dispatchEvent(new Event("change"));
+    }
+
+    getSelectedText() {
+        return this.selectedText
+    }
+
 
     // -----------------------
     // MARK: Input/Output

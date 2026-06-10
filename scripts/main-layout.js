@@ -14,6 +14,8 @@ const itemsContainer = document.querySelector(".items-panel");
 const resizeHandleTop = document.querySelector(".handle-top");
 const resizeHandleLeft = document.querySelector(".handle-left");
 
+const colorRanges = document.querySelectorAll(".animation-control-color");
+
 // ---------------
 // MARK: VARIABLES
 // ---------------
@@ -34,11 +36,9 @@ let startMoveY;
 // -----------------------
 // MARK: EDIT PROJECT NAME
 // -----------------------
-projectNameText.addEventListener("click", () => {
-    projectNameInput.style.display = "inline";
-    projectNameText.style.display = "none";
-
-    projectNameInput.focus();
+projectNameInput.addEventListener("input", () => {
+    projectNameInput.style.width = "0";
+    projectNameInput.style.width = Math.min(projectNameInput.scrollWidth, 300) + "px";
 });
 
 projectNameInput.addEventListener("blur", () => {
@@ -46,6 +46,20 @@ projectNameInput.addEventListener("blur", () => {
 
     projectNameText.style.display = "inline";
     projectNameInput.style.display = "none";
+});
+
+projectNameText.addEventListener("click", () => {
+    projectNameInput.style.display = "inline";
+    projectNameText.style.display = "none";
+
+    projectNameInput.style.width = "0";
+    projectNameInput.style.width = Math.min(projectNameInput.scrollWidth, 300) + "px";
+
+    projectNameInput.focus();
+});
+
+projectNameInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") projectNameInput.blur();
 });
 
 
@@ -219,3 +233,16 @@ contentContainer.addEventListener("pointerup", (e) => {
     isMoving = false;
     contentContainer.style.cursor = "";
 });
+
+
+// https://dev.to/avinash_tare/how-to-detect-if-a-user-is-in-dark-mode-in-js-5hhp
+function updateTheme() {
+    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    colorRanges.forEach(range => {
+      range.defaultValue = isDark ? 255 : 0;
+    });
+}
+
+updateTheme();
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTheme);

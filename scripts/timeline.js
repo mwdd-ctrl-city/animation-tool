@@ -56,6 +56,8 @@ export const player = new AnimationPlayer(canvas, animationData);
 
 animationData.addEventListener("change", () => {
   buildVisualizer();
+  updateRangeInputs(); 
+  showSelectedText(); 
 })
 
 function getFirstElementId() {
@@ -120,7 +122,7 @@ let activeValue = null;
 
 animationControls.forEach((control) => {
   control.addEventListener("input", (event) => {
-    const elementId = getFirstElementId();
+    const elementId = animationData.getSelectedText().id ?? getFirstElementId();  // If getSelectedText == null / no text selected -> get first element
     if (!elementId) return;
 
     player.pause();
@@ -128,7 +130,6 @@ animationControls.forEach((control) => {
     const propertyName = event.target.dataset.property;
     const value = parseFloat(event.target.value);
 
-    const currentTextCase = document.querySelector('input[name="text-case"]:checked').value;
     activeElementId = elementId;
     activePropertyName = event.target.dataset.property;
     activeValue = parseFloat(event.target.value);
@@ -140,7 +141,6 @@ animationControls.forEach((control) => {
       activeValue,
       ease ?? "none",
       currentSplitType,
-      currentTextCase
     );
   });
 
@@ -157,16 +157,29 @@ timelineSlider.addEventListener("input", (e) => {
   player.setProgress(e.target.value / 100);
 });
 
+
+
 // -----------------------
 // Play button
 // -----------------------
-
 playButtonTimeline.addEventListener("click", () => {
   const isPaused = player.isPaused();
   playButtonTimeline.textContent = isPaused ? "Pause" : "Play";
   player.togglePlay();
 });
 
+document.addEventListener("keydown", (e) => {
+  // Claude: How do I check if the user is currently typing in an input field, textarea, or contenteditable element when a keydown event fires? I want to include contenteditable elements because GSAP adds contenteditable="true" to draggable elements.
+  const isTyping = e.target.closest('input, textarea, [contenteditable]') !== null;
+
+  if (e.code === "Space") {
+    if (isTyping) return;
+    e.preventDefault();
+    const isPaused = player.isPaused();
+    playButtonTimeline.textContent = isPaused ? "Pause" : "Play";
+    player.togglePlay();
+  }
+});
 
 // -----------------------
 // Input change timeline time
@@ -195,12 +208,11 @@ function buildVisualizer() {
   container.innerHTML = "";
 
   // With the function you got the ID of the element
-  const elementId = getFirstElementId();
+  const elementId = animationData.getSelectedText().id ?? getFirstElementId();
   if (!elementId) return;
 
   // get the properties that are defined within the id 
   const properties = animationData.getProperties(elementId);
-
 
   // For each property you make a new track and row within the timeline
   properties.forEach((propertyName) => {
@@ -214,7 +226,32 @@ function buildVisualizer() {
 
     const label = document.createElement("p");
     label.classList.add("track-label");
-    label.innerHTML = `<span>${propertyName}</span>`;
+
+    // Create text
+    const labelText = document.createElement("span");
+    labelText.textContent = propertyName;
+    labelText.style.cursor = "pointer";
+
+    // Create delete button
+    const deleteBtn = document.createElement("span");
+    deleteBtn.innerHTML = "&times;";
+    deleteBtn.classList.add("delete-property-btn");
+    deleteBtn.title = `Delete ${propertyName}`;
+
+    // Toggle class that shows delete button
+    labelText.addEventListener("click", () => {
+      deleteBtn.classList.toggle ("show-delete");
+    });
+
+    // Call deleteProperty on click
+    deleteBtn.addEventListener("click", (event) => {
+      // event.stopPropagation();
+      animationData.deleteProperty(elementId, propertyName);
+      history.addMemento(animationData.getAnimation());
+    });
+
+    // Add deletebutton and label text to the <p>
+    label.append(deleteBtn, labelText);
 
     row.append(label, track);
 
@@ -259,6 +296,24 @@ function buildVisualizer() {
   updateScrollHint();
 }
 
+// Auto-close property delete buttons
+document.addEventListener("click", (event) => {
+  // Search all properties in the timeline 
+  const trackLabels = document.querySelectorAll(".track-label");
+  
+  trackLabels.forEach(label => {
+    // Check if click wasn't in this label
+    if (!label.contains(event.target)) {
+      // Search delete button
+      const deleteBtn = label.querySelector(".delete-property-btn");
+      
+      // If delete buton exist and has visible class, remove visible class
+      if (deleteBtn && deleteBtn.classList.contains("show-delete")) {
+        deleteBtn.classList.remove("show-delete");
+      }
+    }
+  });
+});
 
 // -----------------------
 // Keyframe snap buttons
@@ -343,8 +398,8 @@ window.addEventListener('keydown', (event) => {
 // -----------------------
 
 function updateRangeInputs() {
-  // Get the first element within the list of elements 
-  const elementId = getFirstElementId();
+  // Get the active / selected element
+  const elementId = animationData.getSelectedText().id;
   if (!elementId) return;
 
   // Update each control with the current value
@@ -377,9 +432,30 @@ addTextButton.addEventListener("click", () => {
 
 function addText(text) {
   if (!text.trim()) return;
-  animationData.createElement(text);
+  const newElementId = animationData.createElement(text);
+
+  const target = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  target.contentEditable = true;
+  target.focus();
+
   history.addMemento(animationData.getAnimation());
 }
+
+function showSelectedText() {
+  const target = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  if (!target) return;
+
+  target.style.outline = "3px solid #6495ED"; 
+}
+
+canvas.addEventListener("click", (e) => {
+  const selected = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  if (!selected) return; 
+
+  if (selected.contains(e.target)) return;    // If clicked on the selected element, return, DONT clear selectedText
+
+  animationData.clearSelectedText();
+});
 
 // -----------------------
 // Playhead height fix
@@ -407,25 +483,6 @@ observer.observe(tracksContainer);
 
 updatePlayheadHeight();
 buildVisualizer();
-
-//! Animation direction
-
-//! Text casing
-const textCaseRadios = document.querySelectorAll('input[name="text-case"]');
-
-// Function that executes when the value of the text case radios changes
-textCaseRadios.forEach(radio => {
-  radio.addEventListener('change', (e) => {
-    const propertyName = e.target.dataset.property;
-    const value = e.target.value;
-    animationData.setKeyframe(getFirstElementId(), propertyName, player.getProgress(), value);
-  });
-});
-
-
-
-
-
 
 animationControlColor.forEach((control) => {
   control.addEventListener("input", (event) => {
@@ -458,7 +515,7 @@ animationControlColor.forEach((control) => {
 function getControlValue(control) {
   const sliderValue = control.value;
   
-  if (control.dataset.property === "color") {
+  if (control.dataset.property === "color" || control.dataset.property === "webkitTextStrokeColor") {
     const colorValue = parseInt(sliderValue);
     return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
   }
@@ -482,6 +539,9 @@ function updateColorInputs() {
     colorControl.value = colorArray[0];
   });
 }
+
+updateColorInputs();
+
 // Split text controls
 const btnSplitNone = document.getElementById("btn-split-none");
 const btnSplitChars = document.getElementById("btn-split-chars");
@@ -514,6 +574,7 @@ if (btnSplitNone) btnSplitNone.addEventListener("click", () => applySplit("none"
 if (btnSplitWords) btnSplitWords.addEventListener("click", () => applySplit("words"));
 if (btnSplitChars) btnSplitChars.addEventListener("click", () => applySplit("chars"));
 if (btnSplitLines) btnSplitLines.addEventListener("click", () => applySplit("lines"));
+
 
 // https://www.freecodecamp.org/news/javascript-settimeout-js-timer-to-delay-n-seconds/
 // Function to let a hint appear when the container is scrollable. 
