@@ -531,3 +531,35 @@ export function updateScrollHint() {
     }, 5000);
   }
 }
+
+
+const popover = document.querySelector('#popover-original');
+
+document.getElementById('open-button').addEventListener('click', () =>{
+    const orginalCanvas = document.querySelector('#original-canvas');
+    // https://developer.mozilla.org/en-US/docs/Web/API/Node/cloneNode
+    // Makes a clone from the html attribute 
+    const popoverCanvas = orginalCanvas.cloneNode(true);
+    popoverCanvas.removeAttribute('id');
+
+    // Put the clone inside the popover attribute.
+    const popoverContent = document.querySelector('#popover-content');
+    popoverContent.innerHTML = '';
+    popoverContent.appendChild(popoverCanvas);
+
+    const previewPlayer = new AnimationPlayer(popoverCanvas, animationData);
+    previewPlayer.play({loop:true});
+
+    // player.play();
+
+    const closeButton = document.querySelector('.close-button');
+
+  // closeButton.addEventListener('click', () => {
+  //   previewPlayer.pause();
+  // })
+      popover.addEventListener('close', () => {
+        previewPlayer.pause();
+    }, { loop: false });
+
+    // popover.showPopover()
+});
