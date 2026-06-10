@@ -104,7 +104,7 @@ export default class AnimationPlayer {
             el.contentEditable = false;
 
 
-            const formattedText = el.innerHTML   // innerHTML gives: first<div><br></div><div><br></div><div>second</div>
+            const formattedText = el.textContent   // innerHTML gives: first<div><br></div><div><br></div><div>second</div>
                 .replace(/<div>/g, "\n")  // Replace <div> with \n -> enter - /g makes global, so not just stop at / replace  first div
                 .replace(/<\/div>/g, "")  // Replace </div> with nothing
                 .replace(/<br>/g, "")   // Replace <br> with nothing
