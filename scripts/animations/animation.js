@@ -120,8 +120,8 @@ export default class AnimationData extends EventTarget {
         const elementId = crypto.randomUUID();
 
         // "set" (operator) adds the key and value (id, elementName) to the Map #elements
-        this.#elements.set(id, elementName);
-        this.setSelectedText(null, id);
+        this.#elements.set(elementId, elementName);
+        this.setSelectedText(null, elementId);
 
         this.dispatchEvent(new Event("change"));
 
@@ -311,6 +311,34 @@ export default class AnimationData extends EventTarget {
                 this.dispatchEvent(new Event("change"));
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    /**
+     * @description Delete all keyframes of a specific property from a target
+     * @param {string} targetId The target to remove the property from
+     * @param {string} propertyName The property to remove
+     * @returns {boolean} true if the property was found and deleted, otherwise false
+     */
+    // The function has to know the target (element that is being animated) and the property name
+    deleteProperty(targetId, propertyName) {
+        // Check if animations has the target
+        const animationMap = this.#animations.get(targetId);
+        if (!animationMap) return false;
+
+        // Check if the map has the property and delete it
+        if (animationMap.has(propertyName)) {
+            animationMap.delete(propertyName);
+
+            // If the animationMap is empty, it deletes the targetId from the #animations map.
+            if (animationMap.size === 0) {
+                this.#animations.delete(targetId);
+            }
+
+            this.dispatchEvent(new Event("change"));
+            return true;
         }
 
         return false;

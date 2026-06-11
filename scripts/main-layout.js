@@ -14,6 +14,8 @@ const itemsContainer = document.querySelector(".items-panel");
 const resizeHandleTop = document.querySelector(".handle-top");
 const resizeHandleLeft = document.querySelector(".handle-left");
 
+const colorRanges = document.querySelectorAll(".animation-control-color");
+
 // ---------------
 // MARK: VARIABLES
 // ---------------
@@ -233,5 +235,14 @@ contentContainer.addEventListener("pointerup", (e) => {
 });
 
 
+// https://dev.to/avinash_tare/how-to-detect-if-a-user-is-in-dark-mode-in-js-5hhp
+function updateTheme() {
+    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
+    colorRanges.forEach(range => {
+      range.defaultValue = isDark ? 255 : 0;
+    });
+}
 
+updateTheme();
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTheme);

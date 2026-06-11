@@ -354,8 +354,8 @@ fieldset {
         display: inline-block;
         width: 6px;
         height: 6px;
-        border-bottom: 2px solid #2B2B2B;
-        border-right: 2px solid #2B2B2B;
+        border-bottom: 2px solid var(--color-text-two);
+        border-right: 2px solid var(--color-text-two);
         transform: rotate(-45deg);
         transition: transform 0.3s ease;
     }
@@ -390,7 +390,7 @@ details[open]::details-content {
     z-index: 1000;
     padding: .75rem 1rem 0 1rem;
 
-    background-color: #FFFFFF;
+    background-color: var(--color-bg-container);
     border-top: 1px solid var(--color-border-container);
 
     display: flex;
@@ -461,6 +461,10 @@ details[open]::details-content {
 .resize-handle {
     height: 10px;
     width: 10px;
+}
+
+input[type="number"] {
+    color: var(--color-text-two);
 }
 
 
@@ -592,4 +596,80 @@ fieldset input.animation-control-color {
 .number-input-wrapper input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+
+.delete-property-btn {
+    display: inline-block;
+    max-width: 0;
+    opacity: 0;
+    transform: rotate(-90deg);
+    overflow: hidden;
+    color: deeppink;
+    cursor: pointer;
+    margin-right: 0;
+    vertical-align: middle;
+    transition: all 0.3s ease-in-out;
+}
+
+fieldset input.animation-control-color {
+  appearance: none;
+  border: .25px solid var(--color-border-canvas);
+  background: linear-gradient(90deg,rgba(0, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 97%, rgba(255, 255, 255, 1) 100%);
+}
+
+
+
+/* Preview layout */
+#popover-original:popover-open{
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-rows:20fr 2fr ;
+    place-items: center;
+    background-color: var(--color-bg-topbar);
+
+    #popover-content{
+        width: 100%;
+        height: 100%;
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr;
+        display: grid;
+        place-items: center;
+    }
+
+    .content-panel {
+        position: relative;
+        display: flex;
+        /* align-items: center; */
+        width: 35rem;
+        aspect-ratio: 1/1;
+        transform-origin: 0 0;
+        justify-content: center;
+        right: 10rem;
+        background-color: var(--color-bg-canvas);
+    }
+
+    .close-button{
+        border: none;
+        height: fit-content;
+        padding: 1rem 2em;
+        background-color: var(--color-details);
+        color: var(--color-text-one);
+
+        &:hover {
+            background-color: var(--color-hover-one);
+        }
+    }
+}
+.delete-property-btn.show-delete {
+    max-width: 20px;
+    opacity: 1;
+    transform: rotate(0deg);
+    margin-right: 5px;
+    padding: 0px 7px 0px 7px;
+}
+
+.delete-property-btn.show-delete:hover {
+    scale: 1.5;
+    transition: 0.1s linear;
 }
