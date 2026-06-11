@@ -4,19 +4,22 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/png" href="./assets/icon/favicon.png">
+    <link rel="icon" type="image/png" href="./assets/icon/favicon-dark.svg" media="(prefers-color-scheme: light)">
+    <link rel="icon" type="image/png" href="./assets/icon/favicon-light.svg" media="(prefers-color-scheme: dark)">
 
-    <link rel="stylesheet" href="/styles/style.css" />
-    <link rel="stylesheet" href="/styles/main-layout.css" />
-    <link rel="stylesheet" href="/styles/timeline.css" />
+    <link rel="stylesheet" href="./styles/style.css" />
+    <link rel="stylesheet" href="./styles/main-layout.css" />
+    <link rel="stylesheet" href="./styles/timeline.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="/scripts/main-layout.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/SplitText.min.js"></script>
+    <script src="./scripts/main-layout.js" type="module" defer></script>
     <script src="./scripts/timeline.js" type="module" defer></script>
+    <script src="./scripts/preview.js" type="module" defer></script>
 
-    <title>Animation Tool</title>
+    <title>(Inter)play - Animationtool</title>
 </head>
 
 <body>
@@ -26,7 +29,7 @@
             <input id="project-name-input" type="text" value="Untitled Project">
         </div>
 
-        <button class="preview-button">Preview</button>
+        <button popovertarget="popover-original" id="open-button" class="preview-button">Preview</button>
         <button class="save-button">Save</button>
     </header>
 
@@ -58,17 +61,35 @@
                         </svg>
                     </button>
                 </li>
+                <li class="reset-buttons-container">
+                    <button type="button" class="control-button reset" aria-label="Reset" title="Reset">
+                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m-3 5v6m-4-6v6M5 6l1.5 14a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2L19 6" 
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <button type="button" class="confirm-reset">Confirm reset</button>
+                </li>
             </ul>
 
         </div>
 
         <!--  CONTENT CONTAINER    -->
-        <section class="content-panel">
-            <div class="content-canvas">
+        <section id="original-canvas" class="content-panel">
+            <div  class="content-canvas">
                 <!-- The output of the animation/timeline -->
                 <div class="canvas"></div>
             </div>
         </section>
+
+        <!-- POPOVER PREVIEW -->
+        <section id="popover-original" popover>
+            <div id="popover-content">
+
+            </div>
+            <button type="button" class="close-button" popovertarget="popover-original" popovertargetaction="hide">close</button>
+        </section>
+
 
         <!--   ITEMS CONTAINER  -->
         <section class="items-panel">
@@ -82,8 +103,13 @@
 
                     <label>
                         Font size
-                        <input type="range" class="animation-control" data-property="fontSize" min="0" max="200"
-                            value="16" step="1" />
+                        <div class="slider-input-container">
+                            <input type="range" class="animation-control" data-property="fontSize" min="0" max="200" value="16" step="1" />
+                            <div class="number-input-wrapper">
+                                <input type="number" class="animation-control" data-property="fontSize" value="16" step="1" />
+                                <p class="unit">px</p>
+                            </div>
+                        </div>
                     </label>
 
                     <label>
@@ -97,6 +123,21 @@
                         <input type="range" class="animation-control" data-property="fontWeight" min="100" max="900"
                             value="400" step="100" />
                     </label>
+
+                    <label>
+                        Letter spacing
+                        <input type="range" class="animation-control" data-property="letterSpacing" min="-5" max="20"
+                            value="0" step="0.5" />
+                    </label>
+
+                    <!-- NEW -->
+                    <label>
+                        Word spacing
+                        <input type="range" class="animation-control" data-property="wordSpacing" min="-10" max="50"
+                            value="0" step="0.5" />
+                    </label>
+
+
                 </fieldset>
             </details>
 
@@ -123,7 +164,6 @@
                         <input type="range" class="animation-control" data-property="skewX" min="-90" max="90" value="0"
                             step="1" />
                     </label>
-
                     <label>
                         Skew Y
                         <input type="range" class="animation-control" data-property="skewY" min="-90" max="90" value="0"
@@ -151,7 +191,53 @@
                     </label>
 
 
+                    <div class="animation-direction">
+                        <label>Direction</label>
+                        <div class="layout-radios">
+                            <label><input class="animation-control" data-property="rotation" type="radio"
+                                    name="animation-direction" value="0" checked>
+                                Normal</label>
+                            <label><input class="animation-control" data-property="rotation" type="radio"
+                                    name="animation-direction" value="-90">
+                                Left</label>
+                            <label><input class="animation-control" data-property="rotation" type="radio"
+                                    name="animation-direction" value="90">
+                                Right</label>
+                            <label><input class="animation-control" data-property="rotation" type="radio"
+                                    name="animation-direction" value="180">
+                                Reverse</label>
+                        </div>
+                    </div>
                 </fieldset>
+            </details>
+
+            <details open class="fieldset-container">
+                <summary>Settings</summary>
+
+                <fieldset class="item item-settings">
+                    <legend class="visually-hidden">Settings</legend>
+
+                    <div class="split-text">
+                        <label>Split type</label>
+                        <div class="split-text-buttons layout-radios">
+                            <label>
+                                <input id="btn-split-none" type="radio" checked>
+                                None
+                            </label>
+                            <label>
+                                <input id="btn-split-chars" type="radio">
+                                Characters
+                            </label>
+                            <label>
+                                <input id="btn-split-words" type="radio">
+                                Words
+                            </label>
+                            <label>
+                                <input id="btn-split-lines" type="radio">
+                                Lines
+                            </label>
+                        </div>
+                    </div>
             </details>
 
             <details open class="fieldset-container">
@@ -159,16 +245,6 @@
 
                 <fieldset class="item item-typography">
                     <legend class="visually-hidden">Animation functions</legend>
-
-                    <div class="animation-direction">
-                        <label>Direction</label>
-                        <select id="animation-direction" data-property="rotation">
-                            <option value="0">Normal</option>
-                            <option value="-90">Left</option>
-                            <option value="90">Right</option>
-                            <option value="180">Reverse</option>
-                        </select>
-                    </div>
 
                     <div class="animation-ease">
                         <label>Easing</label>
@@ -182,29 +258,6 @@
                             <option value="back.out(1.7)">Back-out</option>
                         </select>
                     </div>
-
-                    <div class="text-casing">
-                        <label>Text casing</label>
-                        <div class="text-casing-options">
-                            <label>
-                                <input data-property="textTransform" type="radio" name="text-case" value="none" checked>
-                                <span>Initial</span>
-                            </label>
-                            <label>
-                                <input data-property="textTransform" type="radio" name="text-case" value="capitalize">
-                                <span>Capitalize</span>
-                            </label>
-                            <label>
-                                <input data-property="textTransform" type="radio" name="text-case" value="lowercase">
-                                <span>lowercase</span>
-                            </label>
-                            <label>
-                                <input data-property="textTransform" type="radio" name="text-case" value="uppercase">
-                                <span>UPPERCASE</span>
-                            </label>
-                        </div>
-                    </div>
-
                 </fieldset>
             </details>
 
@@ -213,19 +266,36 @@
 
         <!--   TIMELINE   -->
         <div class="timeline-panel">
-            <div class="resize-handle handle-top"></div>
+            <div class="resize-handle handle-top">
+                <span class="drag-dots"></span>
+            </div>
 
             <form class="timeline">
                 <button type="button" class="play-animation">Play</button>
 
                 <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
 
+                <div class="keyframe-snap">
+                    <button type="button" class="kf-prev" aria-live="polite" aria-label="Go to next keyframe">
+                        <i aria-hidden="true">←</i>
+                    </button>
+                    <button type="button" class="kf-next" aria-live="polite" aria-label="Go to previous keyframe">
+                        <i aria-hidden="true">→</i>
+                    </button>
+                </div>
+
                 <div class="tl-time">
                     <label for="start-time" class="visually-hidden">Start time</label>
-                    <input id="start-time" type="number" value="0.00" step="0.01" class="tl-time-start">
+                    <div class="number-input-wrapper">
+                        <input id="start-time" type="number" value="0.00" step="0.01" class="tl-time-start">
+                        <p class="unit">s</p>
+                    </div>
 
                     <label for="end-time" class="visually-hidden">End time</label>
-                    <input id="end-time" type="number" value="4.00" step="0.01" class="tl-time-end">
+                    <div class="number-input-wrapper">
+                        <input id="end-time" type="number" value="4.00" step="0.01" class="tl-time-end">
+                        <p class="unit">s</p>
+                    </div>
                 </div>
 
                 <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
@@ -237,6 +307,12 @@
                     </div>
                 </div>
             </form>
+
+            <!-- Claude: How do I make it accessible? -->
+            <div class="scroll-hint" role="status" aria-live="polite" aria-label="More content available, scroll down">
+                <p>scroll to see more</p>
+                <i aria-hidden="true">↓</i>
+            </div>
         </div>
 
     </main>

@@ -6,7 +6,7 @@ h2 {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    white-space: pre-line;
+    white-space: preserve nowrap; 
 }
 
 /* ------------ */
@@ -38,8 +38,8 @@ h2 {
         align-items: center;
 
         &:hover {
-            background-color: var(--color-details);
-            border: 1px solid var(--color-details);
+            background-color: var(--color-details-one);
+            border: 1px solid var(--color-details-one);
         }
     }
 
@@ -59,6 +59,23 @@ h2 {
         align-items: center;
     }
 
+    #project-name-input {
+        background: transparent;
+        border: none;
+        outline: none;
+
+        border-bottom: 1px solid var(--color-details-one);
+        color: var(--color-text-one);
+        font-size: inherit;
+        font-family: inherit;
+        text-align: center;
+        width: 20em;
+
+        &:focus {
+            border-bottom-color: var(--color-details-one);
+        }
+    }
+
     & .preview-button {
         margin-left: auto;
         margin-right: .85em;
@@ -68,7 +85,7 @@ h2 {
         border: none;
         height: 100%;
         padding: 0 2em;
-        background-color: var(--color-details);
+        background-color: var(--color-details-one);
         color: var(--color-text-one);
 
         &:hover {
@@ -153,7 +170,7 @@ h2 {
         }
 
         &:focus-visible {
-            outline: 2px solid var(--color-details);
+            outline: 2px solid var(--color-details-one);
             outline-offset: 2px;
         }
     }
@@ -257,22 +274,27 @@ fieldset {
     padding: 0;
     min-width: 0;
 
+    user-select: none;
+
     & legend {
         margin-left: -2.5px;
     }
 
     & label {
-        margin-bottom: 1em;
         font-size: clamp(1em, 1vw, 1.5em);
         font-weight: 300;
         color: var(--color-text-three);
         white-space: nowrap;
+    }
+
+    &>label {
+        margin-bottom: 1em;
 
         display: grid;
         align-items: center;
         gap: .5em;
 
-        @container (width > 20em) {
+        @container (width > 25em) {
             grid-template-columns: minmax(5em, 7em) 1fr;
         }
     }
@@ -282,8 +304,14 @@ fieldset {
 
         border-radius: 5rem;
 
-        accent-color: var(--color-details);
+        accent-color: var(--color-details-one);
         background: var(--color-bg-canvas);
+    }
+
+    & input.animation-control-color {
+        appearance: none;
+        border: .25px solid var(--color-border-canvas);
+        background: linear-gradient(90deg, rgba(0, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 97%, rgba(255, 255, 255, 1) 100%);
     }
 
     & select {
@@ -326,8 +354,8 @@ fieldset {
         display: inline-block;
         width: 6px;
         height: 6px;
-        border-bottom: 2px solid #2B2B2B;
-        border-right: 2px solid #2B2B2B;
+        border-bottom: 2px solid var(--color-text-two);
+        border-right: 2px solid var(--color-text-two);
         transform: rotate(-45deg);
         transition: transform 0.3s ease;
     }
@@ -359,10 +387,10 @@ details[open]::details-content {
     height: 15em;
     min-height: 10em;
     box-shadow: 0 0 25px var(--color-boxshadow-one);
-    z-index: 100;
-    padding: 1rem 1rem 0 1rem;
+    z-index: 1000;
+    padding: .75rem 1rem 0 1rem;
 
-    background-color: #FFFFFF;
+    background-color: var(--color-bg-container);
     border-top: 1px solid var(--color-border-container);
 
     display: flex;
@@ -376,79 +404,313 @@ details[open]::details-content {
 
         /* ChatGPT: how do I make sure my cursor changes to show it is draggable up and down? */
         cursor: ns-resize;
+
+        & .drag-dots {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            display: block;
+            width: 3.5px;
+            aspect-ratio: 1/1;
+            background: var(--color-resize);
+            border-radius: 50%;
+            margin-top: 3px;
+
+            box-shadow:
+                -6px 0 0 var(--color-resize),
+                6px 0 0 var(--color-resize);
+        }
     }
 
     & .timeline-content {
-        /* overflow-y: auto; */
-
         height: 100%;
         width: 100vw;
     }
+
+    & .scroll-hint {
+        display: flex;
+        align-items: center;
+        gap: .5em;
+
+        color: var(--color-text-two);
+        font-weight: 300;
+
+        position: fixed;
+        bottom: .5em;
+        right: 2em;
+
+        transition: opacity .3s ease;
+
+        & i {
+            font-style: normal;
+        }
+
+        &.fade-out {
+            opacity: 0;
+        }
+    }
 }
 
-/* ----- Handle for resizing (items panel and timeline panel ----- */
+.scroll-hint[hidden] {
+    display: none;
+}
+
+/* ----- Handle for resizing (items panel and timeline panel) ----- */
 .resize-handle {
     height: 10px;
     width: 10px;
 }
 
+input[type="number"] {
+    color: var(--color-text-two);
+}
+
+
+/* ----------------------- */
+/* MARK: Split text opmaak
+/* ----------------------- */
+.canvas[data-split-type="chars"] .split-char,
+.canvas[data-split-type="words"] .split-word,
+.canvas[data-split-type="lines"] .split-line {
+    display: inline-block;
+    outline: 1px dashed var(--color-details-two);
+    border-radius: 5px;
+    margin: 0 1px;
+}
+
+
+
+.layout-radios input[type="radio"] {
+    display: none;
+}
+
+
+
+/* ========================================= */
+/* --- DE ACTIVE STATES (Deeppink) ---       */
+/* ========================================= */
 
 
 
 
 
-.animation-ease,
-.animation-direction {
+.animation-ease {
     display: flex;
     gap: .5em;
 }
 
 
 
-.text-casing-options {
+.layout-radios {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    column-gap: .25em;
-    width: fit-content;
+    gap: .25em;
+    width: 100%;
+    text-align: center;
+    margin: .5em 0 1em 0;
 
-    @container (width > 25em) {
+    & label {
+        font-family: inherit;
+        font-size: .85em;
+        background-color: transparent;
+        color: var(--color-text-three);
+
+        border: 1px solid var(--color-border-button);
+        border-radius: 6px;
+
+        width: 100%;
+        padding: .5em;
+
+        cursor: pointer;
+        user-select: none;
+
+        transition: all 0.2s ease;
+
+        &:hover input[type="radio"]:not(:checked)+span {
+            border-color: var(--color-border-item);
+            background: transparent;
+        }
+    }
+
+    label:has(input[type="radio"]:checked) {
+        background-color: var(--color-details-two);
+        color: var(--color-text-one);
+        border-color: var(--color-details-two);
+        font-weight: 600;
+    }
+
+    & input[type="radio"] {
+        display: none;
+    }
+
+    @container (width > 28em) {
         grid-template-columns: repeat(4, 1fr);
         column-gap: .25em;
     }
 }
+fieldset input.animation-control-color {
+    appearance: none;
+    border: .25px solid var(--color-border-canvas);
+    background: linear-gradient(90deg,rgba(0, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 97%, rgba(255, 255, 255, 1) 100%);
+}
 
-.text-casing-options label {
+/* Font size input field (& timeline seconds input fields) */
+.slider-input-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.slider-input-container input[type="range"] {
+    flex: 1;
+}
+
+.number-input-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.number-input-wrapper input[type="number"] {
+    width: 3.8rem;
+    padding: 0.25rem 1.3rem 0.25rem 0.4rem; 
+    font-family: inherit;
+    text-align: right;
+    border: 1px solid var(--color-border-canvas);
+    border-radius: 5px;
+    background-color: var(--color-bg-canvas);
+}
+
+
+.number-input-wrapper .unit {
+    position: absolute;
+    right: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--color-text-three);
+    pointer-events: none;
+}
+
+.number-input-wrapper input[type="number"]::-webkit-outer-spin-button,
+.number-input-wrapper input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+fieldset input.animation-control-color {
+  appearance: none;
+  border: .25px solid var(--color-border-canvas);
+  background: linear-gradient(90deg,rgba(0, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 97%, rgba(255, 255, 255, 1) 100%);
+}
+
+/* Preview layout */
+#popover-original:popover-open{
+    width: 100%;
+    height: 100%;
+    display: grid;
+    gap: 5rem;
+    grid-template-rows:20fr 2fr ;
+    place-items: center;
+    background-color: var(--color-bg-canvas);
+
+    #popover-content{
+        width: 100%;
+        height: 100%;
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr;
+        display: grid;
+        place-items: center;
+        color: var(--color-text-two);
+        pointer-events: none;
+    }
+
+    .content-panel {
+        position: relative;
+        display: flex;
+        width: 35rem;
+        aspect-ratio: 1/1;
+        transform-origin: 0 0;
+        justify-content: center;
+        right: 10rem;
+        background-color: var(--color-bg-container);
+    }
+
+    .close-button{
+        border: none;
+        height: fit-content;
+        padding: 1rem 2em;
+        background-color: var(--color-details-one);
+        color: var(--color-text-one);
+
+        &:hover {
+            background-color: var(--color-hover-one);
+        }
+    }
+}
+
+/* Delete property */
+.delete-property-btn {
+    display: inline-block;
+    max-width: 0;
+    opacity: 0;
+    transform: rotate(-90deg);
+    overflow: hidden;
+    color: deeppink;
     cursor: pointer;
+    margin-right: 0;
+    vertical-align: middle;
+    transition: all 0.3s ease-in-out;
 }
 
-.text-casing-options input[type="radio"] {
-    display: none;
+.delete-property-btn.show-delete {
+    max-width: 20px;
+    opacity: 1;
+    transform: rotate(0deg);
+    margin-right: 5px;
+    padding: 0px 7px 0px 7px;
 }
 
-.text-casing-options label span {
-    display: block;
-    padding: 6px 16px;
-    border: 1px solid var(--color-border-item);
-    border-radius: 8px;
-    font-size: .7rem;
-    text-align: center;
-    background: transparent;
-    color: inherit;
-
-    transition:
-        background 0.15s,
-        border-color 0.15s, color 0.15s;
-
-    user-select: none;
+.delete-property-btn.show-delete:hover {
+    scale: 1.5;
+    transition: 0.1s linear;
 }
 
-.text-casing-options input[type="radio"]:checked+span {
-    background: var(--color-details);
-    border-color: var(--color-details);
+/* Reset button & confirm button */
+.reset-buttons-container {
+    position: relative; 
+}
+
+.confirm-reset {
+    width: max-content !important; 
+    aspect-ratio: auto !important; 
+    padding: 0.5em 1em !important; 
+    position: absolute;
+    left: calc(100% + 15px);
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--color-bg-container);
+    color: deeppink;
+    border: 1px solid deeppink;
+    border-radius: 5px;
+    white-space: nowrap;
+    cursor: pointer;
+    font-size: 0.8em;
+    box-shadow: 0 0 5px var(--color-boxshadow-one);
+    opacity: 0;
+    pointer-events: none;
+    clip-path: inset(0 100% 0 0);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.confirm-reset:hover {
+    background-color: deeppink;
     color: white;
+    border: 1px solid white;
 }
 
-.text-casing-options label:hover input[type="radio"]:not(:checked)+span {
-    border-color: var(--color-border-item);
-    background: transparent;
+.confirm-reset.show-confirm {
+    opacity: 1;
+    pointer-events: auto;
+    clip-path: inset(0 0 0 0);
 }

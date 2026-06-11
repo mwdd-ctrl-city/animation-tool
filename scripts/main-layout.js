@@ -1,3 +1,5 @@
+import { updateScrollHint } from "./timeline.js";
+
 // ---------------
 // MARK: CONSTANTS
 // ---------------
@@ -12,6 +14,8 @@ const itemsContainer = document.querySelector(".items-panel");
 const resizeHandleTop = document.querySelector(".handle-top");
 const resizeHandleLeft = document.querySelector(".handle-left");
 
+const colorRanges = document.querySelectorAll(".animation-control-color");
+
 // ---------------
 // MARK: VARIABLES
 // ---------------
@@ -19,20 +23,22 @@ let startY;
 let startX;
 let startHeight;
 let startWidth;
+let startScrollTop;
 let isDragging = false;
 let contentX = 0;
 let contentY = 0;
 let contentScale = 1;
+let isMoving = false;
+let startMoveX;
+let startMoveY;
 
 
 // -----------------------
 // MARK: EDIT PROJECT NAME
 // -----------------------
-projectNameText.addEventListener("click", () => {
-    projectNameInput.style.display = "inline";
-    projectNameText.style.display = "none";
-
-    projectNameInput.focus();
+projectNameInput.addEventListener("input", () => {
+    projectNameInput.style.width = "0";
+    projectNameInput.style.width = Math.min(projectNameInput.scrollWidth, 300) + "px";
 });
 
 projectNameInput.addEventListener("blur", () => {
@@ -40,6 +46,20 @@ projectNameInput.addEventListener("blur", () => {
 
     projectNameText.style.display = "inline";
     projectNameInput.style.display = "none";
+});
+
+projectNameText.addEventListener("click", () => {
+    projectNameInput.style.display = "inline";
+    projectNameText.style.display = "none";
+
+    projectNameInput.style.width = "0";
+    projectNameInput.style.width = Math.min(projectNameInput.scrollWidth, 300) + "px";
+
+    projectNameInput.focus();
+});
+
+projectNameInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") projectNameInput.blur();
 });
 
 
@@ -59,7 +79,7 @@ resizeHandleLeft.addEventListener("pointerdown", (e) => {
 
 resizeHandleLeft.addEventListener("pointermove", (e) => {
     if (!isDragging) return;
-    
+
     const deltaX = startX - e.clientX;
     let newWidth = startWidth + deltaX;
 
@@ -116,11 +136,11 @@ resizeHandleTop.addEventListener("pointermove", (e) => {
 
     document.documentElement.style.setProperty("--size-timeline", newHeight + "px");
 
-
-
     if (startScrollTop > 0) {
         itemsContainer.scrollTop = startScrollTop + deltaY;
     }
+
+    updateScrollHint();
 });
 
 resizeHandleTop.addEventListener("pointerup", (e) => {
@@ -179,3 +199,50 @@ contentContainer.addEventListener('wheel', e => {
         ease: "none"
     });
 }, { passive: false });
+
+
+
+// ----------------------------------
+// MARK: CONTENT AND CANVAS: DRAGGING
+// ----------------------------------
+contentContainer.addEventListener("pointerdown", (e) => {
+    const containerClicked = e.target === contentContainer;
+    const canvasClicked = e.target === contentCanvas;
+
+    if (e.button !== 0) return;
+    if (!containerClicked && !canvasClicked) return;
+
+    isMoving = true;
+    startMoveX = e.clientX - contentX;
+    startMoveY = e.clientY - contentY;
+
+    contentContainer.setPointerCapture(e.pointerId);
+    contentContainer.style.cursor = "grabbing";
+});
+
+contentContainer.addEventListener("pointermove", (e) => {
+    if (!isMoving) return;
+
+    contentX = e.clientX - startMoveX;
+    contentY = e.clientY - startMoveY;
+
+    gsap.set(contentCanvas, { x: contentX, y: contentY });
+});
+
+contentContainer.addEventListener("pointerup", (e) => {
+    isMoving = false;
+    contentContainer.style.cursor = "";
+});
+
+
+// https://dev.to/avinash_tare/how-to-detect-if-a-user-is-in-dark-mode-in-js-5hhp
+function updateTheme() {
+    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    colorRanges.forEach(range => {
+      range.defaultValue = isDark ? 255 : 0;
+    });
+}
+
+updateTheme();
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTheme);
