@@ -3,6 +3,7 @@ import AnimationPlayer from "./animations/animation-player.js";
 import History from "./memento/history.js";
 
 const timelineSlider = document.querySelector("#timeline-slider");
+const playheadTime = document.querySelector(".playhead-time");
 const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
 const animationControlColor = document.querySelectorAll(".animation-control-color");
@@ -114,6 +115,12 @@ player.setOnUpdateListener((timeline) => {
 
   if (endTimeInput) {
     endTimeInput.value = timeline.duration().toFixed(2);
+  }
+
+  if (playheadTime) {
+    playheadTime.innerHTML = `${current} <span class="unit">s</span>`;
+
+    playheadTime.style.left = `${progress * 100}%`
   }
 
   updateRangeInputs();
