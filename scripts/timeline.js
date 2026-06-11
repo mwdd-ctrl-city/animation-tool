@@ -296,10 +296,10 @@ function updatePlayheadHeight() {
 
     // Divide by eachother so it doesn't get the whole height. Add 20 to make sure it goes a little below the row.
     height = rowBottom - sliderTop;
+    timelineSlider.style.setProperty('--height-playhead', `${height}px`);
   } else {
-    height = 0;
+    timelineSlider.style.setProperty('--height-playhead', `var(--slider-runnable-track-height)`);
   };
-  timelineSlider.style.setProperty('--height-playhead', `${height}px`);
 }
 
 // API that tracks if an element changes size
