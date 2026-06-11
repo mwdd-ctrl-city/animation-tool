@@ -133,6 +133,10 @@ export default class AnimationPlayer {
         const duration = this.#animation.getDuration();
         const targetIds = this.#animation.getElements().keys();
 
+        if(this.#timeline.getChildren().length === 0){
+            this.#timeline.add(gsap.delayedCall(duration,()=>{}))
+        }
+
         // Apply the animations for each target
         targetIds.forEach((targetId) => {
             const properties = this.#animation.getProperties(targetId);

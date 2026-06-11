@@ -35,6 +35,7 @@
 
     /* Disable the default styling timeline bar */
     input[type=range] {
+        --slider-runnable-track-height: .75rem ;
         appearance: none;
         position: relative;
         width: 100%;
@@ -45,7 +46,7 @@
         /* Create/design for new background from the track */
         &::-webkit-slider-runnable-track {
             width: 100%;
-            height: .75rem;
+            height: var(--slider-runnable-track-height);
             cursor: pointer;
             background: var(--color-bar);
             border-radius: 10px;
@@ -54,15 +55,16 @@
 
         /* Styling slider element */
         &::-webkit-slider-thumb {
+            --slider-thumb-protrusion: -.5rem;
             -webkit-appearance: none;
             position: relative;
             z-index: 5;
-            height: var(--height-playhead, 80px);
+            height: calc(var(--height-playhead, 80px) - 2 * var(--slider-thumb-protrusion));
             width: 6px;
             border-radius: 5px;
             background: var(--color-details-two);
             cursor: pointer;
-            top: -.5rem;
+            top: var(--slider-thumb-protrusion);
         }
     }
 

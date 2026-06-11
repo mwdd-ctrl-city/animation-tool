@@ -51,7 +51,8 @@ async function loadAnimation(filePath) {
 // Init
 // -----------------------
 
-export const animationData = await loadAnimation("./scripts/animation.json");
+// export const animationData = await loadAnimation("./scripts/animation.json");
+export const animationData = new AnimationData();
 const history = new History();
 history.addMemento(animationData.getAnimation());
 
@@ -521,17 +522,22 @@ canvas.addEventListener("click", (e) => {
 
 function updatePlayheadHeight() {
   const lastRow = tracksContainer.querySelector('.row:last-of-type');
-  if (!lastRow) return;
+  let height;
 
-  // Get the height from the container that needs to be track for the height
-  // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
-  const rowBottom = lastRow.getBoundingClientRect().bottom;
-  const sliderTop = timelineSlider.getBoundingClientRect().top;
+  if (lastRow) {
+    // Get the height from the container that needs to be track for the height
+    // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
+    const rowBottom = lastRow.getBoundingClientRect().bottom;
+    const sliderTop = timelineSlider.getBoundingClientRect().top;
 
-  // Divide by eachother so it doesn't get the whole height. Add 20 to make sure it goes a little below the row.
-  const height = rowBottom - sliderTop + 20;
-  timelineSlider.style.setProperty('--height-playhead', `${height}px`);
-}
+    // Divide by eachother so it doesn't get the whole height. Add 20 to make sure it goes a little below the row.
+    height = rowBottom - sliderTop;
+    timelineSlider.style.setProperty('--height-playhead',` ${height}px`);
+  } else {
+
+    timelineSlider.style.setProperty('--height-playhead',`var(--slider-runnable-track-height)`);
+  };
+};
 
 // API that tracks if an element changes size
 // https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
