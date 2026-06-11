@@ -624,9 +624,10 @@ fieldset input.animation-control-color {
     width: 100%;
     height: 100%;
     display: grid;
+    gap: 5rem;
     grid-template-rows:20fr 2fr ;
     place-items: center;
-    background-color: var(--color-bg-topbar);
+    background-color: var(--color-bg-canvas);
 
     #popover-content{
         width: 100%;
@@ -635,25 +636,26 @@ fieldset input.animation-control-color {
         grid-template-rows: 1fr;
         display: grid;
         place-items: center;
+        color: var(--color-text-two);
+        pointer-events: none;
     }
 
     .content-panel {
         position: relative;
         display: flex;
-        /* align-items: center; */
         width: 35rem;
         aspect-ratio: 1/1;
         transform-origin: 0 0;
         justify-content: center;
         right: 10rem;
-        background-color: var(--color-bg-canvas);
+        background-color: var(--color-bg-container);
     }
 
     .close-button{
         border: none;
         height: fit-content;
         padding: 1rem 2em;
-        background-color: var(--color-details);
+        background-color: var(--color-details-one);
         color: var(--color-text-one);
 
         &:hover {
