@@ -16,6 +16,8 @@ const endTimeInput = document.querySelector(".tl-time-end");
 
 const undoButton = document.querySelector(".undo");
 const redoButton = document.querySelector(".redo");
+const resetButton = document.querySelector(".reset");
+const confirmResetButton = document.querySelector(".confirm-reset");
 
 const prevKeyframeButton = document.querySelector('.kf-prev');
 const nextKeyframeButton = document.querySelector('.kf-next');
@@ -83,7 +85,18 @@ redoButton.addEventListener("click", () => {
   if (state !== null) {
     animationData.load(state);
   }
-})
+});
+
+resetButton.addEventListener("click", (event) => {
+  confirmResetButton.classList.toggle("show-confirm");
+});
+
+confirmResetButton.addEventListener("click", (event) => {
+  animationData.resetCanvas();
+  history.addMemento(animationData.getAnimation());
+
+  confirmResetButton.classList.remove("show-confirm");
+});
 
 // -----------------------
 // Player update
@@ -338,6 +351,10 @@ document.addEventListener("click", (event) => {
       }
     }
   });
+
+  if (confirmResetButton && !resetButton.contains(event.target) && !confirmResetButton.contains(event.target)) {
+    confirmResetButton.classList.remove("show-confirm");
+  }
 });
 
 // -----------------------
