@@ -598,26 +598,11 @@ fieldset input.animation-control-color {
     margin: 0;
 }
 
-.delete-property-btn {
-    display: inline-block;
-    max-width: 0;
-    opacity: 0;
-    transform: rotate(-90deg);
-    overflow: hidden;
-    color: deeppink;
-    cursor: pointer;
-    margin-right: 0;
-    vertical-align: middle;
-    transition: all 0.3s ease-in-out;
-}
-
 fieldset input.animation-control-color {
   appearance: none;
   border: .25px solid var(--color-border-canvas);
   background: linear-gradient(90deg,rgba(0, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 97%, rgba(255, 255, 255, 1) 100%);
 }
-
-
 
 /* Preview layout */
 #popover-original:popover-open{
@@ -663,6 +648,21 @@ fieldset input.animation-control-color {
         }
     }
 }
+
+/* Delete property */
+.delete-property-btn {
+    display: inline-block;
+    max-width: 0;
+    opacity: 0;
+    transform: rotate(-90deg);
+    overflow: hidden;
+    color: deeppink;
+    cursor: pointer;
+    margin-right: 0;
+    vertical-align: middle;
+    transition: all 0.3s ease-in-out;
+}
+
 .delete-property-btn.show-delete {
     max-width: 20px;
     opacity: 1;
@@ -674,4 +674,43 @@ fieldset input.animation-control-color {
 .delete-property-btn.show-delete:hover {
     scale: 1.5;
     transition: 0.1s linear;
+}
+
+/* Reset button & confirm button */
+.reset-buttons-container {
+    position: relative; 
+}
+
+.confirm-reset {
+    width: max-content !important; 
+    aspect-ratio: auto !important; 
+    padding: 0.5em 1em !important; 
+    position: absolute;
+    left: calc(100% + 15px);
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--color-bg-container);
+    color: deeppink;
+    border: 1px solid deeppink;
+    border-radius: 5px;
+    white-space: nowrap;
+    cursor: pointer;
+    font-size: 0.8em;
+    box-shadow: 0 0 5px var(--color-boxshadow-one);
+    opacity: 0;
+    pointer-events: none;
+    clip-path: inset(0 100% 0 0);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.confirm-reset:hover {
+    background-color: deeppink;
+    color: white;
+    border: 1px solid white;
+}
+
+.confirm-reset.show-confirm {
+    opacity: 1;
+    pointer-events: auto;
+    clip-path: inset(0 0 0 0);
 }
