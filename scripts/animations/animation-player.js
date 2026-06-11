@@ -51,7 +51,7 @@ export default class AnimationPlayer {
         elements.forEach((element, id) => {
             const el = document.createElement("h2"); // TODO: element type should probably come from element data
             el.classList.add(`el-${id}`);
-            el.textContent = element;
+            el.innerText = element;
             this.#canvas.appendChild(el);
             this.#setupDraggable(el, id);
             this.#setupEditable(el, id);
@@ -96,24 +96,21 @@ export default class AnimationPlayer {
                 dragInstance.disable();  // Turn off gsap draggable behavior
             }
 
+            // el.textContent = el.innerText;
+
             el.contentEditable = true;
             el.focus();
         })
 
         el.addEventListener("blur", () => {
             el.contentEditable = false;
+            const textContent = el.innerText; 
 
-
-            const formattedText = el.textContent   // innerHTML gives: first<div><br></div><div><br></div><div>second</div>
-                .replace(/<div>/g, "\n")  // Replace <div> with \n -> enter - /g makes global, so not just stop at / replace  first div
-                .replace(/<\/div>/g, "")  // Replace </div> with nothing
-                .replace(/<br>/g, "")   // Replace <br> with nothing
-                .replace(/&nbsp;/g, " ") // Replace &nbsp with space
-
-            if((el.textContent.trim()) === "") {
+            if((textContent.trim()) === "") {
                 this.#animation.removeElement(id);
             } else {
-                this.#animation.renameElement(id, formattedText); 
+                console.log(textContent); 
+                this.#animation.renameElement(id, textContent); 
             }
 
             this.#animation.clearSelectedText(); 
