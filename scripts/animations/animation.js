@@ -345,22 +345,6 @@ export default class AnimationData extends EventTarget {
     }
 
     /**
-     * @description Clear all elements and animations from the data
-     * @returns {boolean} true when the reset is complete
-     */
-    resetCanvas() {
-        // Clear maps
-        this.#elements.clear();
-        this.#animations.clear();
-        
-        // Clear selected text
-        this.clearSelectedText();
-
-        this.dispatchEvent(new Event("change"));
-        return true;
-    }
-
-    /**
      * @description Move a keyframe to a different location
      * @param {string} targetId The target to move the keyframe of
      * @param {string} propertyName The property to move the keyframe of
