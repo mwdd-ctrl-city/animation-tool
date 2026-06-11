@@ -179,3 +179,7 @@
     aspect-ratio: 1;
     align-self: center;
 }
+
+.active-keyframe {
+    background-color: deeppink;
+}

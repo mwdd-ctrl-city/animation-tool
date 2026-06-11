@@ -6,14 +6,14 @@
 // "export default" makes it possible to export it to different files (where you need to import this file).
 // "extends EventTarget" makes it possible to take EventTarget (custom event listener) to different files.
 
-    // the "#" makes the field private: this way you can't break the data from outside this file.
-    // with "new Map()" you make a private field (elements, groups, animations) have a empty Map.
+// the "#" makes the field private: this way you can't break the data from outside this file.
+// with "new Map()" you make a private field (elements, groups, animations) have a empty Map.
 export default class AnimationData extends EventTarget {
     #name;
     #durationSeconds;
     #elements;
     #animations;
-    selectedText = null; 
+    selectedText = null;
 
 
     /**
@@ -28,7 +28,7 @@ export default class AnimationData extends EventTarget {
         super();
 
         // "this" refers to object that is being made.
-        this.#elements = new Map(); 
+        this.#elements = new Map();
         this.#animations = new Map();
         // Make sure the duration is a positive number
         // "throw" makes it possible to make a custom error in the console. You can "catch" later to make it visual for the user and handle the error.
@@ -234,16 +234,16 @@ export default class AnimationData extends EventTarget {
      * @param {float} progress The point in time of the keyframe (between 0 and 1 inclusive)
      * @param {number} value The value of te property at this time
      * @param {string} ease [optional] Easing function to apply to this keyframe
-     * @returns {boolean} true if the target was found and the progress is valid, otherwise false
+     * @returns {number} The id of the created element (null if failed)
      */
 
     // TODO: check of animation direction nodig is op keyframe
-   // Takes 5 inputs: targetId (element you want to animate), propertyName (property to animate), 
+    // Takes 5 inputs: targetId (element you want to animate), propertyName (property to animate), 
     // progress (point in time, number between 0 and 1), value (value at that point in time) and ease (easing type, defaults "none" if not provided)
     setKeyframe(targetId, propertyName, progress, value, ease, splitType = "none") {
-        if (!this.#elements.has(targetId)) return false;
-      
-        if (!this.#isValidProgress(progress)) return false;
+        if (!this.#elements.has(targetId)) return null;
+
+        if (!this.#isValidProgress(progress)) return null;
 
         // Get the keyframe of the specified target, property and progress
         // Gets or creates an animationMap for the target (targetId).
@@ -255,10 +255,13 @@ export default class AnimationData extends EventTarget {
         // takes input (kf, each keyframe from the array) and checks if the progress matches. 
         let keyframe = keyframes.find(kf => kf.progress === progress);
 
+        let id;
+
         // If the keyframe does not exist, create it, else edit it
-        // If it doesn't exist, it creates a new object with 3 properties: progress, value, ease.
+        // If it doesn't exist, it creates a new object with 4 properties: id, progress, value, ease.
         if (!keyframe) {
-            keyframe = { progress, value, ease, splitType };
+            id = crypto.randomUUID();
+            keyframe = { id, progress, value, ease, splitType };
             keyframes.push(keyframe);
             // Resort the keyframes, so it goes from small to big.
             keyframes.sort((a, b) => a.progress - b.progress);
@@ -268,55 +271,49 @@ export default class AnimationData extends EventTarget {
             keyframe.value = value;
             keyframe.ease = ease;
             keyframe.splitType = splitType;
+            id = keyframe.id;
         }
 
         this.dispatchEvent(new Event("change"));
-        return true;
+        return id;
     }
 
     /**
      * @description Delete a keyframe from the animation
-     * @param {string} targetId The target to remove the keyframe from
-     * @param {string} propertyName The property to remove the keyframe from
-     * @param {float} progress The point in time of the keyframe (between 0 and 1 inclusive)
-     * @returns {boolean} true if the target and property was found and the progress is 
-     * valid, otherwise false
+     * @param {string} keyFrameId The ID of the keyframe to be removed
+     * @returns {boolean} true if the keyframe was found, otherwise false
      */
-    // The function takes 3 inputs from the keyframe you want to delete.
-    deleteKeyframe(targetId, propertyName, progress) {
-        // Check if animations has the target
-        const animationMap = this.#animations.get(targetId);
-        if (!animationMap) return false;
+    /**
+     * @description Delete a keyframe from the animation
+     * @param {string} keyFrameId The ID of the keyframe to be removed
+     * @returns {boolean} true if the keyframe was found, otherwise false
+     */
+    deleteKeyframe(keyFrameId) {
+        for (const [targetId, animationMap] of this.#animations.entries()) {
+            for (const [propertyName, keyframes] of animationMap.entries()) {
 
-        // check if the target has the property
-        const keyframes = animationMap.get(propertyName);
-        if (!keyframes) return false;
+                const index = keyframes.findIndex(kf => kf.id === keyFrameId);
+                if (index === -1) continue;
 
-        // Check if the target property has a keyframe at progress.
-        // "findIndex" returns the position of the item (index) in the keyframes array
-        const index = keyframes.findIndex(kf => kf.progress === progress);
-        // "index === -1" means the whole array (keyframes) is searched, but nothing is found.
-        if (index === -1) return false;
+                // Remove the keyframe
+                keyframes.splice(index, 1);
 
-        // If so, delete the keyframe
-        // "splice" needs a number, not an object. That is why we need "findIndex" instead of "find". 
-        // "splice" deletes the value and moves the rest to fill the gap made.
-        // "1" says that 1 item needs to be deleted.
-        keyframes.splice(index, 1);
+                // Cleanup empty property
+                if (keyframes.length === 0) {
+                    animationMap.delete(propertyName);
+                }
 
-        // Cleanup if empty
-        // if the keyframes array is empty, it deletes the property (propertyName) from the animationMap.
-        if (keyframes.length === 0) {
-            animationMap.delete(propertyName);
+                // Cleanup empty animation
+                if (animationMap.size === 0) {
+                    this.#animations.delete(targetId);
+                }
+
+                this.dispatchEvent(new Event("change"));
+                return true;
+            }
         }
 
-        // if the animationMap is empty, it deletes the targetId from the #animations map.
-        if (animationMap.size === 0) {
-            this.#animations.delete(targetId);
-        }
-
-        this.dispatchEvent(new Event("change"));
-        return true;
+        return false;
     }
 
     /**
@@ -360,41 +357,57 @@ export default class AnimationData extends EventTarget {
      */
     // Takes 4 inputs: targetId (element you want to animate), propertyName (the name of the property),
     // fromProgress (current progress point) and toProgress (new progress point).
-    moveKeyframe(targetId, propertyName, fromProgress, toProgress) {
-        // Check if the target exists as an element or group
-        if (!this.#elements.has(targetId)) {
+    /**
+     * @description Move a keyframe to a different location
+     * @param {string} keyframeId The UUID of the keyframe to move
+     * @param {number} toProgress The new point in time of the keyframe
+     * (between 0 and 1 inclusive)
+     * @returns {boolean} true if the keyframe was moved successfully,
+     * false if the keyframe was not found, the progress is invalid,
+     * or another keyframe already exists at the destination progress
+     */
+    moveKeyframe(keyframeId, toProgress) {
+        if (!this.#isValidProgress(toProgress)) {
             return false;
         }
 
-        // Check if both progress values (fromProgress and toProgress) are valid: number between 0 and 1.
-        if (!this.#isValidProgress(fromProgress) || !this.#isValidProgress(toProgress)) {
+        const result = this.getKeyframe(keyframeId);
+        if (!result) return false;
+
+        const { keyframe, keyframes } = result;
+
+        const collision = keyframes.find(
+            kf => kf.id !== keyframeId && kf.progress === toProgress
+        );
+
+        if (collision) {
             return false;
         }
 
-        // Check if the target has any animations
-        const animationMap = this.#animations.get(targetId);
-        if (!animationMap) return false;
-
-        // Check if the target has keyframes for the given property
-        const keyframes = animationMap.get(propertyName);
-        if (!keyframes) return false;
-
-        // Check if a keyframe exists at fromProgress
-        const keyframe = keyframes.find(kf => kf.progress === fromProgress);
-        if (!keyframe) return false;
-
-        // Prevent overwriting an existing keyframe at toProgress
-        const collision = keyframes.find(kf => kf.progress === toProgress);
-        if (collision) return false;
-
-        // Move the keyframe and re-sort by progress (small to big)
         keyframe.progress = toProgress;
-        // It sorts based on size: if a.progress is smaller than b.prgress, then it is negative and you know that a.progress is earlier.
-        // We sort again because a keyframe is moved, so maybe there is a new order.
         keyframes.sort((a, b) => a.progress - b.progress);
 
         this.dispatchEvent(new Event("change"));
         return true;
+    }
+
+    /**
+ * @description Find a keyframe by its unique ID
+ * @param {string} keyframeId The id of the keyframe to look for 
+ * @returns {{ object} | null} the data of that keyframe if found, else null
+ */
+    getKeyframe(keyframeId) {
+        for (const animationMap of this.#animations.values()) {
+            for (const keyframes of animationMap.values()) {
+                const keyframe = keyframes.find(kf => kf.id === keyframeId);
+
+                if (keyframe) {
+                    return { keyframe, keyframes };
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -429,7 +442,7 @@ export default class AnimationData extends EventTarget {
         return Array.from(animationMap.keys());
     }
 
-    getAnimations(targetId){
+    getAnimations(targetId) {
         const animationMap = this.#animations.get(targetId);
         if (!animationMap) return false;
 
@@ -456,14 +469,14 @@ export default class AnimationData extends EventTarget {
     // MARK: Selected Text
     // -----------------------
     setSelectedText(element = null, id) {
-        this.selectedText.element = element; 
+        this.selectedText.element = element;
         this.selectedText.id = id
 
         this.dispatchEvent(new Event("change"));
     }
 
     clearSelectedText() {
-        this.selectedText.element = null; 
+        this.selectedText.element = null;
         this.selectedText.id = null;
 
         this.dispatchEvent(new Event("change"));
