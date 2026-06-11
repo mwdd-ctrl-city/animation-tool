@@ -8,6 +8,8 @@
 
 // the "#" makes the field private: this way you can't break the data from outside this file.
 // with "new Map()" you make a private field (elements, groups, animations) have a empty Map.
+// the "#" makes the field private: this way you can't break the data from outside this file.
+// with "new Map()" you make a private field (elements, groups, animations) have a empty Map.
 export default class AnimationData extends EventTarget {
     #name;
     #durationSeconds;
@@ -108,7 +110,6 @@ export default class AnimationData extends EventTarget {
     // -----------------------
     // MARK: Elements
     // -----------------------
-
     /**
      * @description Create a new element in the animation
      * @param {string} elementName The display name of the new element
@@ -116,19 +117,21 @@ export default class AnimationData extends EventTarget {
      */
 
     // Create an element with a key (id (random/unique)) and a value (elementName)
-    createElement(elementName) {
-        const elementId = crypto.randomUUID();
+    createElement(elementName, elementId) {
+        const id = elementId ?? crypto.randomUUID();
 
         // "set" (operator) adds the key and value (id, elementName) to the Map #elements
-        this.#elements.set(elementId, elementName);
-        this.setSelectedText(null, elementId);
+        this.#elements.set(id, elementName);
+        
+        if (!elementId) this.setSelectedText(null, id);
 
         this.dispatchEvent(new Event("change"));
 
         // returns id: with the id you can find the element in the Map.
         // We don't return elementName, because you can't find the id based on the value, but you can find the value based on the id.
-        return elementId;
+        return id;
     }
+
 
     /**
      * @description Remove an element from the animation, including all groups

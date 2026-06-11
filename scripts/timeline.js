@@ -65,10 +65,16 @@ animationData.addEventListener("change", () => {
   showSelectedText();
 })
 
+const CANVAS_ID = "content-canvas";
+animationData.createElement("Background", CANVAS_ID);
+
 function getFirstElementId() {
 
   // Gets the first element in the json and gives the propertie in this case the ID, not the value
-  return animationData.getElements().keys().next().value ?? null;
+  for (const id of animationData.getElements().keys()) {
+    if (id !== CANVAS_ID) return id;
+  }
+  return null;
 
 
 }
@@ -145,7 +151,7 @@ let activeValue = null;
 animationControls.forEach((control) => {
   control.addEventListener("input", (event) => {
     const elementId = animationData.getSelectedText().id ?? getFirstElementId();  // If getSelectedText == null / no text selected -> get first element
-    if (!elementId) return;
+    if (!elementId || elementId === CANVAS_ID) return;
 
     player.pause();
     playButtonTimeline.textContent = player.isPaused() ? "play" : "pause";
@@ -232,22 +238,22 @@ function buildVisualizer() {
   const container = document.querySelector(".timeline-container");
   container.innerHTML = "";
 
-  // With the function you got the ID of the element
   const elementId = animationData.getSelectedText().id ?? getFirstElementId();
   if (!elementId) return;
 
-  // get the properties that are defined within the id 
-  const properties = animationData.getProperties(elementId);
+  const ids = [CANVAS_ID, elementId];
 
-  // For each property you make a new track and row within the timeline
-  properties.forEach((propertyName) => {
-    const keyframes = animationData.getKeyframes(elementId, propertyName);
+  ids.forEach((id) => {
+    const properties = animationData.getProperties(id);
 
-    const row = document.createElement("div");
-    row.classList.add("row");
+    properties.forEach((propertyName) => {
+      const keyframes = animationData.getKeyframes(id, propertyName);
 
-    const track = document.createElement("div");
-    track.classList.add("track");
+      const row = document.createElement("div");
+      row.classList.add("row");
+
+      const track = document.createElement("div");
+      track.classList.add("track");
 
     const label = document.createElement("p");
     label.classList.add("track-label");
@@ -278,7 +284,7 @@ function buildVisualizer() {
     // Add deletebutton and label text to the <p>
     label.append(deleteBtn, labelText);
 
-    row.append(label, track);
+      row.append(label, track);
 
     // Create for each keyframe point a point on the row
     keyframes.forEach((keyframe) => {
@@ -286,7 +292,7 @@ function buildVisualizer() {
       point.classList.add("keyframe", `key-${keyframe.id}`);
       point.style.setProperty("--p", keyframe.progress);
 
-      track.appendChild(point);
+        track.appendChild(point);
 
       // Create a drag for the keyframe and update the value
       Draggable.create(point, {
@@ -305,10 +311,7 @@ function buildVisualizer() {
           const trackWidth = track.offsetWidth;
           const pointX = this.x + keyframe.progress * trackWidth;
 
-          // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
-          const newProgress = Math.max(0,
-            Math.min(1, pointX / trackWidth)
-          );
+            const newProgress = Math.max(0, Math.min(1, pointX / trackWidth));
 
           animationData.moveKeyframe(
             keyframe.id,
@@ -327,10 +330,10 @@ function buildVisualizer() {
       activeKeyframeElement?.classList.add("active-keyframe");
     });
 
-    // Add the elements to the html
-    container.appendChild(row);
+      container.appendChild(row);
+    });
   });
-  // Update the playheadHeight on the height of the container
+
   updatePlayheadHeight();
   updateScrollHint();
 
@@ -557,7 +560,9 @@ buildVisualizer();
 
 animationControlColor.forEach((control) => {
   control.addEventListener("input", (event) => {
-    const elementId = getFirstElementId();
+    const isBgColor = event.target.dataset.property === "backgroundColor";
+
+    const elementId = isBgColor ? CANVAS_ID : getFirstElementId();
     if (!elementId) return;
 
     player.pause();
@@ -586,8 +591,8 @@ animationControlColor.forEach((control) => {
 
 function getControlValue(control) {
   const sliderValue = control.value;
-
-  if (control.dataset.property === "color" || control.dataset.property === "webkitTextStrokeColor") {
+  
+  if (control.dataset.property === "color" || control.dataset.property === "webkitTextStrokeColor" || control.dataset.property === "backgroundColor") {
     const colorValue = parseInt(sliderValue);
     return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
   }
@@ -601,18 +606,37 @@ function updateColorInputs() {
   const elementId = getFirstElementId();
   if (!elementId) return;
 
-  const target = canvas.querySelector(`.el-${elementId}`);
-  if (!target) return;
+  const targetId = canvas.querySelector(`.el-${elementId}`);
+  if (!targetId) return;
 
   document.querySelectorAll('.animation-control[data-property="color"]').forEach((colorControl) => {
-    const currentColor = gsap.getProperty(target, "color");
+    const currentColor = gsap.getProperty(targetId, "color");
     const colorArray = gsap.utils.splitColor(currentColor);
     // Because we only need grey tints, the r/g/b are all the same number, so we can just use the first (r). 
     colorControl.value = colorArray[0];
   });
-}
+
+  document.querySelectorAll('.animation-control-color[data-property="backgroundColor"]').forEach((bgControl) => {
+    const currentColor = gsap.getProperty(canvas, "backgroundColor");
+    const colorArray = gsap.utils.splitColor(currentColor);
+    bgControl.value = colorArray[0];
+  });
+};
 
 updateColorInputs();
+
+
+// function updateBackgroundColor() {
+//   document.querySelectorAll('.animation-control-color[data-property="backgroundColor"]').forEach((slider) => {
+//     slider.addEventListener('input', () => {
+//       const value = parseInt(slider.value, 10);
+//       canvas.style.backgroundColor = `rgb(${value}, ${value}, ${value})`;
+//     });
+//   });
+// };
+
+// updateBackgroundColor();
+
 
 // Split text controls
 const btnSplitNone = document.getElementById("btn-split-none");

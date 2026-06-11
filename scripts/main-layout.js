@@ -242,6 +242,10 @@ function updateTheme() {
     colorRanges.forEach(range => {
       range.defaultValue = isDark ? 255 : 0;
     });
+
+    document.querySelectorAll('.animation-control-color[data-property="backgroundColor"]').forEach(range => {
+        range.defaultValue = isDark ? 0 : 255;
+    });
 }
 
 updateTheme();
