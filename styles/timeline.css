@@ -40,11 +40,12 @@
         width: 100%;
         background: transparent;
         grid-column-start: 2;
+        grid-row: 3 / 4;
 
         /* Create/design for new background from the track */
         &::-webkit-slider-runnable-track {
             width: 100%;
-            height: var(--slider-runnable-track-height);
+            height: .75rem;
             cursor: pointer;
             background: var(--color-bar);
             border-radius: 10px;
@@ -53,60 +54,15 @@
 
         /* Styling slider element */
         &::-webkit-slider-thumb {
-            --slider-thumb-protrusion: -.5rem;
             -webkit-appearance: none;
             position: relative;
             z-index: 5;
-            height: calc(var(--height-playhead, 80px) - 2 * var(--slider-thumb-protrusion));
+            height: var(--height-playhead, 80px);
             width: 6px;
             border-radius: 5px;
             background: var(--color-details-two);
             cursor: pointer;
-            top: var(--slider-thumb-protrusion);
-        }
-    }
-
-    & .keyframe-snap {
-        grid-row: 1 / 2;
-        grid-column: 1 / 2;
-
-        display: flex;
-
-        margin-bottom: .75em;
-        gap: .25em;
-
-        & button {
-            font-family: inherit;
-            color: var(--color-text-two);
-            font-weight: 300;
-
-            border-radius: 6px;
-            border: 1px solid var(--color-border-button);
-            background-color: transparent;
-            width: 100%;
-
-            padding: 1px 6px 2px 6px;
-
-            transition: background-color .3s ease;
-
-            &:hover {
-                background: var(--color-hover-two);
-                border-color: var(--color-border-button);
-            }
-
-            &:active {
-                background: var(--color-bg-canvas);
-            }
-
-            &:focus-visible {
-                outline: 2px solid var(--color-details-one);
-                outline-offset: 2px;
-            }
-        }
-
-        & i {
-            display: inline-block;
-            font-style: normal;
+            top: -.5rem;
         }
     }
 
@@ -214,8 +170,8 @@
 .keyframe {
     position: absolute;
 
-  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-  background-color: var(--color-details);
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    background-color: var(--color-details-one);
 
     --keyframe-size: 1em;
     width: var(--keyframe-size);
@@ -224,4 +180,6 @@
     align-self: center;
 }
 
-
+.active-keyframe {
+    background-color: deeppink;
+}

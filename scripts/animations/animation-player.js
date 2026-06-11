@@ -110,10 +110,10 @@ export default class AnimationPlayer {
                 .replace(/<br>/g, "")   // Replace <br> with nothing
                 .replace(/&nbsp;/g, " ") // Replace &nbsp with space
 
-            if ((el.textContent.trim()) === "") {
+            if((el.textContent.trim()) === "") {
                 this.#animation.removeElement(id);
             } else {
-                this.#animation.renameElement(id, formattedText);
+                this.#animation.renameElement(id, formattedText); 
             }
 
             this.#animation.clearSelectedText(); 
@@ -132,11 +132,6 @@ export default class AnimationPlayer {
         // Get all targets
         const duration = this.#animation.getDuration();
         const targetIds = this.#animation.getElements().keys();
-
-        // No animated elements/keyframes
-        if (this.#timeline.getChildren().length === 0) {
-            this.#timeline.add(gsap.delayedCall(duration, () => { }));
-        }
 
         // Apply the animations for each target
         targetIds.forEach((targetId) => {
