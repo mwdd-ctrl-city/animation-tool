@@ -143,6 +143,20 @@
     align-items: center;
 
     border-top: .75px solid var(--color-border-canvas);
+
+    /* .timeline-section {
+        display: grid;
+            grid-template-columns: subgrid;
+    grid-auto-rows: 50px;
+    align-items: center;
+
+        .summary {
+            width: 13rem;
+            height: 2rem;
+            overflow: clip;
+        }
+    } */
+
 }
 
 .row {
