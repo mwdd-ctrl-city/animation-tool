@@ -65,19 +65,17 @@ animationData.addEventListener("change", () => {
   showSelectedText();
 })
 
-const CANVAS_ID = "content-canvas";
-animationData.createElement("Background", CANVAS_ID);
+const canvasId = "content-canvas";
+animationData.createElement("Background", canvasId);
 
 function getFirstElementId() {
 
   // Gets the first element in the json and gives the propertie in this case the ID, not the value
   for (const id of animationData.getElements().keys()) {
-    if (id !== CANVAS_ID) return id;
+    if (id !== canvasId) return id;
   }
   return null;
-
-
-}
+};
 
 undoButton.addEventListener("click", () => {
   const state = history.undo();
@@ -151,7 +149,7 @@ let activeValue = null;
 animationControls.forEach((control) => {
   control.addEventListener("input", (event) => {
     const elementId = animationData.getSelectedText().id ?? getFirstElementId();  // If getSelectedText == null / no text selected -> get first element
-    if (!elementId || elementId === CANVAS_ID) return;
+    if (!elementId || elementId === canvasId) return;
 
     player.pause();
     playButtonTimeline.textContent = player.isPaused() ? "play" : "pause";
@@ -241,7 +239,7 @@ function buildVisualizer() {
   const elementId = animationData.getSelectedText().id ?? getFirstElementId();
   if (!elementId) return;
 
-  const ids = [CANVAS_ID, elementId];
+  const ids = [canvasId, elementId];
 
   ids.forEach((id) => {
     const properties = animationData.getProperties(id);
@@ -562,7 +560,7 @@ animationControlColor.forEach((control) => {
   control.addEventListener("input", (event) => {
     const isBgColor = event.target.dataset.property === "backgroundColor";
 
-    const elementId = isBgColor ? CANVAS_ID : getFirstElementId();
+    const elementId = isBgColor ? canvasId : getFirstElementId();
     if (!elementId) return;
 
     player.pause();
