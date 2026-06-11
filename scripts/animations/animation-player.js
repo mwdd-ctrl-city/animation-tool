@@ -49,11 +49,14 @@ export default class AnimationPlayer {
         const elements = this.#animation.getElements();
 
         elements.forEach((element, id) => {
-            if (id === "content-canvas") return;
+            if (element.type === "canvas") {
+                this.#canvas.id = `el-${id}`;
+                return;
+            };
 
             const el = document.createElement("h2"); // TODO: element type should probably come from element data
-            el.classList.add(`el-${id}`);
-            el.textContent = element;
+            el.id = `el-${id}`;
+            el.textContent = element.content;
             this.#canvas.appendChild(el);
             this.#setupDraggable(el, id);
             this.#setupEditable(el, id);
@@ -142,9 +145,7 @@ export default class AnimationPlayer {
         // Apply the animations for each target
         targetIds.forEach((targetId) => {
             const properties = this.#animation.getProperties(targetId);
-            const domElement = targetId === "content-canvas"
-                ? this.#canvas
-                : this.#canvas.querySelector(`.el-${targetId}`);
+            const domElement = document.querySelector(`#el-${targetId}`);
 
             if (!domElement) return;
 
@@ -153,7 +154,7 @@ export default class AnimationPlayer {
                 const keyframes = this.#animation.getKeyframes(targetId, propertyName);
 
                 // Set the first keyframe
-                gsap.set(targetId === "content-canvas" ? this.#canvas : `.el-${targetId}`, {
+                gsap.set(`#el-${targetId}`, {
                     [propertyName]: keyframes[0].value,
                     ease: keyframes[0].ease ?? "none",
                 });
@@ -166,7 +167,7 @@ export default class AnimationPlayer {
                     // Time difference between keyframes
                     let timeDifferenceSeconds = (current.progress - last.progress) * duration;
 
-                    let animationTarget = targetId === "content-canvas" ? this.#canvas : `.el-${targetId}`;
+                    let animationTarget = `#el-${targetId}`;
                     let staggerConfig = null;
 
                     // Fallback values if the keyframe doesn't specify them

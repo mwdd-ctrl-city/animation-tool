@@ -117,19 +117,17 @@ export default class AnimationData extends EventTarget {
      */
 
     // Create an element with a key (id (random/unique)) and a value (elementName)
-    createElement(elementName, elementId) {
-        const id = elementId ?? crypto.randomUUID();
+    createElement(elementContent, elementType = "text") {
+        const elementId = crypto.randomUUID();
 
         // "set" (operator) adds the key and value (id, elementName) to the Map #elements
-        this.#elements.set(id, elementName);
-        
-        if (!elementId) this.setSelectedText(null, id);
+        this.#elements.set(elementId, {type: elementType, content: elementContent});
 
         this.dispatchEvent(new Event("change"));
 
         // returns id: with the id you can find the element in the Map.
         // We don't return elementName, because you can't find the id based on the value, but you can find the value based on the id.
-        return id;
+        return elementId;
     }
 
 
@@ -164,7 +162,7 @@ export default class AnimationData extends EventTarget {
     renameElement(elementId, elementName) {
         if (!this.#elements.has(elementId)) return false;
 
-        this.#elements.set(elementId, elementName.trim());
+        this.#elements.set(elementId, {type: this.#elements.get(elementId).type, content: elementName.trim()});
 
         this.dispatchEvent(new Event("change"));
         return true;

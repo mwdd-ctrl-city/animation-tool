@@ -65,17 +65,12 @@ animationData.addEventListener("change", () => {
   showSelectedText();
 })
 
-const canvasId = "content-canvas";
-animationData.createElement("Background", canvasId);
 
+// MARK: TIJDELIJKE FUNCTIE -> VERANDEREN!
 function getFirstElementId() {
-
-  // Gets the first element in the json and gives the propertie in this case the ID, not the value
-  for (const id of animationData.getElements().keys()) {
-    if (id !== canvasId) return id;
-  }
-  return null;
-};
+  // Gets the first element in the json and gives the property in this case the ID, not the value
+  return animationData.getElements().keys().next().value ?? null;
+}
 
 undoButton.addEventListener("click", () => {
   const state = history.undo();
@@ -146,37 +141,34 @@ let activeElementId = null;
 let activePropertyName = null;
 let activeValue = null;
 
-animationControls.forEach((control) => {
-  control.addEventListener("input", (event) => {
-    const elementId = animationData.getSelectedText().id ?? getFirstElementId();  // If getSelectedText == null / no text selected -> get first element
-    if (!elementId || elementId === canvasId) return;
+// animationControls.forEach((control) => {
+//   control.addEventListener("input", (event) => {
+//     const elementId = animationData.getSelectedText().id ?? getFirstElementId();  // If getSelectedText == null / no text selected -> get first element
+//     if (!elementId || elementId === canvasId) return;
 
-    player.pause();
-    playButtonTimeline.textContent = player.isPaused() ? "play" : "pause";
+//     player.pause();
 
-    const propertyName = event.target.dataset.property;
-    const value = parseFloat(event.target.value);
+//     const propertyName = event.target.dataset.property;
+//     const value = parseFloat(event.target.value);
 
-    activeElementId = elementId;
-    activePropertyName = event.target.dataset.property;
-    activeValue = parseFloat(event.target.value);
+//     activeElementId = elementId;
+//     activePropertyName = event.target.dataset.property;
+//     activeValue = parseFloat(event.target.value);
 
-    activeKeyframeId = animationData.setKeyframe(
-      activeElementId,
-      activePropertyName,
-      player.getProgress(),
-      activeValue,
-      ease ?? "none",
-      currentSplitType,
-    );
+//     animationData.setKeyframe(
+//       activeElementId,
+//       activePropertyName,
+//       player.getProgress(),
+//       activeValue,
+//       ease ?? "none",
+//       currentSplitType,
+//     );
+//   });
 
-    buildVisualizer();
-  });
-
-  control.addEventListener("change", (event) => {
-    history.addMemento(animationData.getAnimation());
-  });
-});
+//   control.addEventListener("change", (event) => {
+//     history.addMemento(animationData.getAnimation());
+//   });
+// });
 
 // -----------------------
 // Timeline slider
@@ -239,19 +231,18 @@ function buildVisualizer() {
   const elementId = animationData.getSelectedText().id ?? getFirstElementId();
   if (!elementId) return;
 
-  const ids = [canvasId, elementId];
+  // get the properties that are defined within the id 
+  const properties = animationData.getProperties(elementId);
 
-  ids.forEach((id) => {
-    const properties = animationData.getProperties(id);
+  // For each property you make a new track and row within the timeline
+  properties.forEach((propertyName) => {
+    const keyframes = animationData.getKeyframes(elementId, propertyName);
 
-    properties.forEach((propertyName) => {
-      const keyframes = animationData.getKeyframes(id, propertyName);
+    const row = document.createElement("div");
+    row.classList.add("row");
 
-      const row = document.createElement("div");
-      row.classList.add("row");
-
-      const track = document.createElement("div");
-      track.classList.add("track");
+    const track = document.createElement("div");
+    track.classList.add("track");
 
     const label = document.createElement("p");
     label.classList.add("track-label");
@@ -282,7 +273,7 @@ function buildVisualizer() {
     // Add deletebutton and label text to the <p>
     label.append(deleteBtn, labelText);
 
-      row.append(label, track);
+    row.append(label, track);
 
     // Create for each keyframe point a point on the row
     keyframes.forEach((keyframe) => {
@@ -290,7 +281,7 @@ function buildVisualizer() {
       point.classList.add("keyframe", `key-${keyframe.id}`);
       point.style.setProperty("--p", keyframe.progress);
 
-        track.appendChild(point);
+      track.appendChild(point);
 
       // Create a drag for the keyframe and update the value
       Draggable.create(point, {
@@ -309,7 +300,10 @@ function buildVisualizer() {
           const trackWidth = track.offsetWidth;
           const pointX = this.x + keyframe.progress * trackWidth;
 
-            const newProgress = Math.max(0, Math.min(1, pointX / trackWidth));
+          // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
+          const newProgress = Math.max(0,
+            Math.min(1, pointX / trackWidth)
+          );
 
           animationData.moveKeyframe(
             keyframe.id,
@@ -328,9 +322,9 @@ function buildVisualizer() {
       activeKeyframeElement?.classList.add("active-keyframe");
     });
 
+      // Add the elements to the html
       container.appendChild(row);
     });
-  });
 
   updatePlayheadHeight();
   updateScrollHint();
@@ -556,25 +550,55 @@ observer.observe(tracksContainer);
 updatePlayheadHeight();
 buildVisualizer();
 
-animationControlColor.forEach((control) => {
-  control.addEventListener("input", (event) => {
-    const isBgColor = event.target.dataset.property === "backgroundColor";
 
-    const elementId = isBgColor ? canvasId : getFirstElementId();
+
+
+
+animationControls.forEach((control) => {
+  control.addEventListener("input", (event) => {
+
+    const sliderValue = event.target.value;
+    const activePropertyName = event.target.dataset.property;
+
+    let elementId;
+    let value;
+    let colorValue;
+
+    switch (event.target.dataset.propertyType) {
+      case "color":
+        elementId = animationData.getSelectedText().id ?? getFirstElementId();
+        colorValue = parseInt(sliderValue);
+        value = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+        break;
+      case "background-color":
+        elementId = animationData.getSelectedText().id ?? getFirstElementId();
+        colorValue = parseInt(sliderValue);
+        value = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+        break;
+      default:
+        elementId = animationData.getSelectedText().id ?? getFirstElementId();
+        value = parseFloat(sliderValue);
+        break;
+    };
+
     if (!elementId) return;
 
     player.pause();
     playButtonTimeline.textContent = player.isPaused() ? "play" : "pause";
 
-    activeElementId = elementId;
-    activePropertyName = event.target.dataset.property;
-    activeValue = getControlValue(event.target);
+    if (animationData.getElement(elementId).type === "canvas" && event.target.dataset.propertyType !== "background-color") {
+      return;
+    }
+
+    console.log(elementId)
+    console.log(activePropertyName)
+    console.log(value);
 
     activeKeyframeId = animationData.setKeyframe(
       activeElementId,
       activePropertyName,
       player.getProgress(),
-      activeValue,
+      value,
       ease ?? "none"
     );
   });
@@ -587,41 +611,41 @@ animationControlColor.forEach((control) => {
 
 
 
-function getControlValue(control) {
-  const sliderValue = control.value;
+// function getControlValue(control) {
+//   const sliderValue = control.value;
   
-  if (control.dataset.property === "color" || control.dataset.property === "webkitTextStrokeColor" || control.dataset.property === "backgroundColor") {
-    const colorValue = parseInt(sliderValue);
-    return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
-  }
+//   if (control.dataset.property === "color" || control.dataset.property === "webkitTextStrokeColor" || control.dataset.property === "backgroundColor") {
+//     const colorValue = parseInt(sliderValue);
+//     return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+//   }
 
-  return parseFloat(sliderValue);
-}
+//   return parseFloat(sliderValue);
+// }
 
-// https://gsap.com/docs/v3/GSAP/gsap.getProperty()/
-// https://gsap.com/docs/v3/GSAP/UtilityMethods/splitColor()
-function updateColorInputs() {
-  const elementId = getFirstElementId();
-  if (!elementId) return;
+// // https://gsap.com/docs/v3/GSAP/gsap.getProperty()/
+// // https://gsap.com/docs/v3/GSAP/UtilityMethods/splitColor()
+// function updateColorInputs() {
+//   const elementId = getFirstElementId();
+//   if (!elementId) return;
 
-  const targetId = canvas.querySelector(`.el-${elementId}`);
-  if (!targetId) return;
+//   const targetId = canvas.querySelector(`.el-${elementId}`);
+//   if (!targetId) return;
 
-  document.querySelectorAll('.animation-control[data-property="color"]').forEach((colorControl) => {
-    const currentColor = gsap.getProperty(targetId, "color");
-    const colorArray = gsap.utils.splitColor(currentColor);
-    // Because we only need grey tints, the r/g/b are all the same number, so we can just use the first (r). 
-    colorControl.value = colorArray[0];
-  });
+//   document.querySelectorAll('.animation-control[data-property="color"]').forEach((colorControl) => {
+//     const currentColor = gsap.getProperty(targetId, "color");
+//     const colorArray = gsap.utils.splitColor(currentColor);
+//     // Because we only need grey tints, the r/g/b are all the same number, so we can just use the first (r). 
+//     colorControl.value = colorArray[0];
+//   });
 
-  document.querySelectorAll('.animation-control-color[data-property="backgroundColor"]').forEach((bgControl) => {
-    const currentColor = gsap.getProperty(canvas, "backgroundColor");
-    const colorArray = gsap.utils.splitColor(currentColor);
-    bgControl.value = colorArray[0];
-  });
-};
+//   document.querySelectorAll('.animation-control-color[data-property="backgroundColor"]').forEach((bgControl) => {
+//     const currentColor = gsap.getProperty(canvas, "backgroundColor");
+//     const colorArray = gsap.utils.splitColor(currentColor);
+//     bgControl.value = colorArray[0];
+//   });
+// };
 
-updateColorInputs();
+// updateColorInputs();
 
 
 // function updateBackgroundColor() {
