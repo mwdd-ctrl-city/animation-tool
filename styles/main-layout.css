@@ -308,7 +308,7 @@ fieldset {
         background: var(--color-bg-canvas);
     }
 
-    & input.animation-control[data-property-type*="color"] {
+    & input.animation-control[data-property-type="color"] {
         appearance: none;
         border: .25px solid var(--color-border-canvas);
         background: linear-gradient(90deg, rgba(0, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 97%, rgba(255, 255, 255, 1) 100%);

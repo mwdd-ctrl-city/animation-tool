@@ -570,11 +570,6 @@ animationControls.forEach((control) => {
         colorValue = parseInt(sliderValue);
         value = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
         break;
-      case "background-color":
-        elementId = animationData.getSelectedText().id ?? getFirstElementId();
-        colorValue = parseInt(sliderValue);
-        value = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
-        break;
       default:
         elementId = animationData.getSelectedText().id ?? getFirstElementId();
         value = parseFloat(sliderValue);
@@ -586,7 +581,7 @@ animationControls.forEach((control) => {
     player.pause();
     playButtonTimeline.textContent = player.isPaused() ? "play" : "pause";
 
-    if (animationData.getElement(elementId).type === "canvas" && event.target.dataset.propertyType !== "background-color") {
+    if (animationData.getElement(elementId).type === "canvas" && event.target.dataset.property !== "backgroundColor") {
       return;
     }
 

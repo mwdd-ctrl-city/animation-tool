@@ -243,7 +243,7 @@ function updateTheme() {
       range.defaultValue = isDark ? 255 : 0;
     });
 
-    document.querySelectorAll('.animation-control[data-property-type="background-color"]').forEach(range => {
+    document.querySelectorAll('.animation-control[data-property="backgroundColor"]').forEach(range => {
         range.defaultValue = isDark ? 0 : 255;
     });
 }
