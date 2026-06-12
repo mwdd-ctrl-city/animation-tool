@@ -10,6 +10,7 @@ const animationControlColor = document.querySelectorAll(".animation-control-colo
 const deleteTextButton = document.querySelector(".delete-text button"); 
 const tracksContainer = document.querySelector(".timeline-container");
 const canvas = document.querySelector(".content-canvas");
+const canvasContainer = document.querySelector("#original-canvas")
 
 const addTextButton = document.querySelector(".add-text-button");
 
@@ -182,6 +183,28 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+
+
+// Claude: Waarom werkt dit niet?
+canvasContainer.addEventListener('dblclick', (event) =>{
+  let canvasId = null
+
+  animationData.getElements().forEach((el, id) => {
+    // Search for the type canvas whitin the elements
+    if (el.type === "canvas") {
+      canvasId = id
+
+      // When it's clicked then the activeElement becomes the canvas id to animate the background
+      activeElementId = canvasId
+
+    }
+    // If it does'nt exist then return null
+    if (!canvasId) return;
+
+    // Gives the selected id from the canvas 
+    animationData.setSelectedText(canvas, canvasId)
+  }) 
+});
 // -----------------------
 // Input change timeline time
 // -----------------------
