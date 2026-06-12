@@ -6,6 +6,7 @@ const timelineSlider = document.querySelector("#timeline-slider");
 const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
 const animationControlColor = document.querySelectorAll(".animation-control-color");
+const deleteTextButton = document.querySelector(".delete-text button"); 
 const tracksContainer = document.querySelector(".timeline-container");
 const canvas = document.querySelector(".content-canvas");
 
@@ -166,6 +167,13 @@ animationControls.forEach((control) => {
     history.addMemento(animationData.getAnimation());
   });
 });
+
+deleteTextButton.addEventListener("click", () => {
+  const selectedElement = animationData.getSelectedText().id; 
+  if(!selectedElement) return; 
+
+  animationData.removeElement(selectedElement)
+})
 
 // -----------------------
 // Timeline slider
