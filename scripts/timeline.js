@@ -65,12 +65,11 @@ animationData.addEventListener("change", () => {
   showSelectedText();
 })
 
+
+// MARK: TIJDELIJKE FUNCTIE -> VERANDEREN!
 function getFirstElementId() {
-
-  // Gets the first element in the json and gives the propertie in this case the ID, not the value
+  // Gets the first element in the json and gives the property in this case the ID, not the value
   return animationData.getElements().keys().next().value ?? null;
-
-
 }
 
 undoButton.addEventListener("click", () => {
@@ -142,37 +141,6 @@ let activeElementId = null;
 let activePropertyName = null;
 let activeValue = null;
 
-animationControls.forEach((control) => {
-  control.addEventListener("input", (event) => {
-    const elementId = animationData.getSelectedText().id ?? getFirstElementId();  // If getSelectedText == null / no text selected -> get first element
-    if (!elementId) return;
-
-    player.pause();
-    playButtonTimeline.textContent = player.isPaused() ? "play" : "pause";
-
-    const propertyName = event.target.dataset.property;
-    const value = parseFloat(event.target.value);
-
-    activeElementId = elementId;
-    activePropertyName = event.target.dataset.property;
-    activeValue = parseFloat(event.target.value);
-
-    activeKeyframeId = animationData.setKeyframe(
-      activeElementId,
-      activePropertyName,
-      player.getProgress(),
-      activeValue,
-      ease ?? "none",
-      currentSplitType,
-    );
-
-    buildVisualizer();
-  });
-
-  control.addEventListener("change", (event) => {
-    history.addMemento(animationData.getAnimation());
-  });
-});
 
 // -----------------------
 // Timeline slider
@@ -232,7 +200,6 @@ function buildVisualizer() {
   const container = document.querySelector(".timeline-container");
   container.innerHTML = "";
 
-  // With the function you got the ID of the element
   const elementId = animationData.getSelectedText().id ?? getFirstElementId();
   if (!elementId) return;
 
@@ -327,10 +294,10 @@ function buildVisualizer() {
       activeKeyframeElement?.classList.add("active-keyframe");
     });
 
-    // Add the elements to the html
-    container.appendChild(row);
-  });
-  // Update the playheadHeight on the height of the container
+      // Add the elements to the html
+      container.appendChild(row);
+    });
+
   updatePlayheadHeight();
   updateScrollHint();
 
@@ -472,7 +439,7 @@ function updateRangeInputs() {
   animationControls.forEach((control) => {
     const propertyName = control.dataset.property;
 
-    let target = canvas.querySelector(`.el-${elementId}`);
+    let target = canvas.querySelector(`#el-${elementId}`);
     if (!target) return;
 
     // Get current split type from the active split button, set target to first split element of that type
@@ -500,7 +467,7 @@ function addText(text) {
   if (!text.trim()) return;
   const newElementId = animationData.createElement(text);
 
-  const target = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  const target = canvas.querySelector(`#el-${animationData.getSelectedText().id}`);
   target.contentEditable = true;
   target.focus();
 
@@ -508,14 +475,14 @@ function addText(text) {
 }
 
 function showSelectedText() {
-  const target = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  const target = canvas.querySelector(`#el-${animationData.getSelectedText().id}`);
   if (!target) return;
 
   target.style.outline = "3px solid #6495ED";
 }
 
 canvas.addEventListener("click", (e) => {
-  const selected = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  const selected = canvas.querySelector(`#el-${animationData.getSelectedText().id}`);
   if (!selected) return;
 
   if (selected.contains(e.target)) return;    // If clicked on the selected element, return, DONT clear selectedText
@@ -555,23 +522,46 @@ observer.observe(tracksContainer);
 updatePlayheadHeight();
 buildVisualizer();
 
-animationControlColor.forEach((control) => {
+
+
+
+
+animationControls.forEach((control) => {
   control.addEventListener("input", (event) => {
-    const elementId = getFirstElementId();
+
+    const sliderValue = event.target.value;
+    const activePropertyName = event.target.dataset.property;
+
+    let elementId;
+    let value;
+    let colorValue;
+
+    switch (event.target.dataset.propertyType) {
+      case "color":
+        elementId = animationData.getSelectedText().id;
+        colorValue = parseInt(sliderValue);
+        value = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+        break;
+      default:
+        elementId = animationData.getSelectedText().id ?? getFirstElementId();
+        value = parseFloat(sliderValue);
+        break;
+    };
+
     if (!elementId) return;
 
     player.pause();
     playButtonTimeline.textContent = player.isPaused() ? "play" : "pause";
 
-    activeElementId = elementId;
-    activePropertyName = event.target.dataset.property;
-    activeValue = getControlValue(event.target);
+    if (animationData.getElement(elementId).type === "canvas" && event.target.dataset.property !== "backgroundColor") {
+      return;
+    }
 
     activeKeyframeId = animationData.setKeyframe(
-      activeElementId,
+      elementId,
       activePropertyName,
       player.getProgress(),
-      activeValue,
+      value,
       ease ?? "none"
     );
   });
@@ -584,35 +574,43 @@ animationControlColor.forEach((control) => {
 
 
 
-function getControlValue(control) {
-  const sliderValue = control.value;
+// function getControlValue(control) {
+//   const sliderValue = control.value;
+  
+//   if (control.dataset.property === "color" || control.dataset.property === "webkitTextStrokeColor" || control.dataset.property === "backgroundColor") {
+//     const colorValue = parseInt(sliderValue);
+//     return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+//   }
 
-  if (control.dataset.property === "color" || control.dataset.property === "webkitTextStrokeColor") {
-    const colorValue = parseInt(sliderValue);
-    return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
-  }
+//   return parseFloat(sliderValue);
+// }
 
-  return parseFloat(sliderValue);
-}
+// // https://gsap.com/docs/v3/GSAP/gsap.getProperty()/
+// // https://gsap.com/docs/v3/GSAP/UtilityMethods/splitColor()
+// function updateColorInputs() {
+//   const elementId = getFirstElementId();
+//   if (!elementId) return;
 
-// https://gsap.com/docs/v3/GSAP/gsap.getProperty()/
-// https://gsap.com/docs/v3/GSAP/UtilityMethods/splitColor()
-function updateColorInputs() {
-  const elementId = getFirstElementId();
-  if (!elementId) return;
+//   const targetId = canvas.querySelector(`.el-${elementId}`);
+//   if (!targetId) return;
 
-  const target = canvas.querySelector(`.el-${elementId}`);
-  if (!target) return;
+//   document.querySelectorAll('.animation-control[data-property="color"]').forEach((colorControl) => {
+//     const currentColor = gsap.getProperty(targetId, "color");
+//     const colorArray = gsap.utils.splitColor(currentColor);
+//     // Because we only need grey tints, the r/g/b are all the same number, so we can just use the first (r). 
+//     colorControl.value = colorArray[0];
+//   });
 
-  document.querySelectorAll('.animation-control[data-property="color"]').forEach((colorControl) => {
-    const currentColor = gsap.getProperty(target, "color");
-    const colorArray = gsap.utils.splitColor(currentColor);
-    // Because we only need grey tints, the r/g/b are all the same number, so we can just use the first (r). 
-    colorControl.value = colorArray[0];
-  });
-}
+//   document.querySelectorAll('.animation-control-color[data-property="backgroundColor"]').forEach((bgControl) => {
+//     const currentColor = gsap.getProperty(canvas, "backgroundColor");
+//     const colorArray = gsap.utils.splitColor(currentColor);
+//     bgControl.value = colorArray[0];
+//   });
+// };
 
-updateColorInputs();
+// updateColorInputs();
+
+
 
 // Split text controls
 const btnSplitNone = document.getElementById("btn-split-none");
