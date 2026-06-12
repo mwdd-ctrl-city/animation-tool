@@ -467,41 +467,23 @@ input[type="number"] {
     color: var(--color-text-two);
 }
 
-
-/* ----------------------- */
-/* MARK: Split text opmaak
-/* ----------------------- */
-.canvas[data-split-type="chars"] .split-char,
-.canvas[data-split-type="words"] .split-word,
-.canvas[data-split-type="lines"] .split-line {
-    display: inline-block;
+/* splittype outline & controls */
+.content-canvas[data-split-type="chars"] .split-char,
+.content-canvas[data-split-type="words"] .split-word,
+.content-canvas[data-split-type="lines"] .split-line {
     outline: 1px dashed var(--color-details-two);
     border-radius: 5px;
-    margin: 0 1px;
 }
 
-
-
+/* animation direction radio buttons */
 .layout-radios input[type="radio"] {
     display: none;
 }
-
-
-
-/* ========================================= */
-/* --- DE ACTIVE STATES (Deeppink) ---       */
-/* ========================================= */
-
-
-
-
 
 .animation-ease {
     display: flex;
     gap: .5em;
 }
-
-
 
 .layout-radios {
     display: grid;
@@ -656,7 +638,7 @@ fieldset input.animation-control-color {
     opacity: 0;
     transform: rotate(-90deg);
     overflow: hidden;
-    color: deeppink;
+    color: var(--color-details-two);
     cursor: pointer;
     margin-right: 0;
     vertical-align: middle;
@@ -690,8 +672,8 @@ fieldset input.animation-control-color {
     top: 50%;
     transform: translateY(-50%);
     background-color: var(--color-bg-container);
-    color: deeppink;
-    border: 1px solid deeppink;
+    color: var(--color-details-two);
+    border: 1px solid var(--color-details-two);
     border-radius: 5px;
     white-space: nowrap;
     cursor: pointer;
@@ -704,7 +686,7 @@ fieldset input.animation-control-color {
 }
 
 .confirm-reset:hover {
-    background-color: deeppink;
+    background-color: var(--color-details-two);
     color: white;
     border: 1px solid white;
 }

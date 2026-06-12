@@ -618,18 +618,7 @@ const btnSplitLines = document.getElementById("btn-split-lines");
 function applySplit(type) {
   currentSplitType = type;
 
-  // Remove active class from all buttons
-  document.querySelectorAll('.split-text-buttons button').forEach(btn => {
-    btn.classList.remove('active');
-  });
-
-  // Add active class to the clicked button and set the split type as a data attribute on the canvas
-  const activeButton = document.getElementById(`btn-split-${type}`);
-  if (activeButton) {
-    activeButton.classList.add('active');
-  }
-
-  const canvas = document.querySelector(".canvas");
+  const canvas = document.querySelector(".content-canvas");
   if (canvas) {
     canvas.setAttribute("data-split-type", type);
   }
