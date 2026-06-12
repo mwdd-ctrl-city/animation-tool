@@ -7,6 +7,7 @@ const playheadTime = document.querySelector(".playhead-time");
 const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
 const animationControlColor = document.querySelectorAll(".animation-control-color");
+const deleteTextButton = document.querySelector(".delete-text button"); 
 const tracksContainer = document.querySelector(".timeline-container");
 const canvas = document.querySelector(".content-canvas");
 
@@ -141,6 +142,13 @@ let activeElementId = null;
 let activePropertyName = null;
 let activeValue = null;
 
+
+deleteTextButton.addEventListener("click", () => {
+  const selectedElement = animationData.getSelectedText().id; 
+  if(!selectedElement) return; 
+
+  animationData.removeElement(selectedElement)
+})
 
 // -----------------------
 // Timeline slider
