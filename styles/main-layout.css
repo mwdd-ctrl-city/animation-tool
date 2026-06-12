@@ -6,7 +6,7 @@ h2 {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    white-space: preserve nowrap; 
+    white-space: preserve nowrap;
 }
 
 /* ------------ */
@@ -81,12 +81,14 @@ h2 {
         margin-right: .85em;
     }
 
-    & .save-button {
+    & .save-button,
+    .load-button {
         border: none;
         height: 100%;
         padding: 0 2em;
         background-color: var(--color-details-one);
         color: var(--color-text-one);
+        margin-left: 1em;
 
         &:hover {
             background-color: var(--color-hover-one);
@@ -550,10 +552,11 @@ input[type="number"] {
         column-gap: .25em;
     }
 }
+
 fieldset input.animation-control-color {
     appearance: none;
     border: .25px solid var(--color-border-canvas);
-    background: linear-gradient(90deg,rgba(0, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 97%, rgba(255, 255, 255, 1) 100%);
+    background: linear-gradient(90deg, rgba(0, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 97%, rgba(255, 255, 255, 1) 100%);
 }
 
 /* Font size input field (& timeline seconds input fields) */
@@ -575,7 +578,7 @@ fieldset input.animation-control-color {
 
 .number-input-wrapper input[type="number"] {
     width: 3.8rem;
-    padding: 0.25rem 1.3rem 0.25rem 0.4rem; 
+    padding: 0.25rem 1.3rem 0.25rem 0.4rem;
     font-family: inherit;
     text-align: right;
     border: 1px solid var(--color-border-canvas);
@@ -599,22 +602,22 @@ fieldset input.animation-control-color {
 }
 
 fieldset input.animation-control-color {
-  appearance: none;
-  border: .25px solid var(--color-border-canvas);
-  background: linear-gradient(90deg,rgba(0, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 97%, rgba(255, 255, 255, 1) 100%);
+    appearance: none;
+    border: .25px solid var(--color-border-canvas);
+    background: linear-gradient(90deg, rgba(0, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 97%, rgba(255, 255, 255, 1) 100%);
 }
 
 /* Preview layout */
-#popover-original:popover-open{
+#popover-original:popover-open {
     width: 100%;
     height: 100%;
     display: grid;
     gap: 5rem;
-    grid-template-rows:20fr 2fr ;
+    grid-template-rows: 20fr 2fr;
     place-items: center;
     background-color: var(--color-bg-canvas);
 
-    #popover-content{
+    #popover-content {
         width: 100%;
         height: 100%;
         grid-template-columns: 1fr;
@@ -636,7 +639,7 @@ fieldset input.animation-control-color {
         background-color: var(--color-bg-container);
     }
 
-    .close-button{
+    .close-button {
         border: none;
         height: fit-content;
         padding: 1rem 2em;
@@ -678,13 +681,13 @@ fieldset input.animation-control-color {
 
 /* Reset button & confirm button */
 .reset-buttons-container {
-    position: relative; 
+    position: relative;
 }
 
 .confirm-reset {
-    width: max-content !important; 
-    aspect-ratio: auto !important; 
-    padding: 0.5em 1em !important; 
+    width: max-content !important;
+    aspect-ratio: auto !important;
+    padding: 0.5em 1em !important;
     position: absolute;
     left: calc(100% + 15px);
     top: 50%;
