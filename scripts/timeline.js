@@ -52,8 +52,8 @@ async function loadAnimation(filePath) {
 // Init
 // -----------------------
 
-// export const animationData = await loadAnimation("./scripts/animation.json");
-export const animationData = new AnimationData();
+export const animationData = await loadAnimation("./scripts/animation.json");
+// export const animationData = new AnimationData();
 const history = new History();
 history.addMemento(animationData.getAnimation());
 
@@ -232,7 +232,7 @@ function buildVisualizer() {
 
     // Toggle class that shows delete button
     labelText.addEventListener("click", () => {
-      deleteBtn.classList.toggle ("show-delete");
+      deleteBtn.classList.toggle("show-delete");
     });
 
     // Call deleteProperty on click
@@ -294,9 +294,9 @@ function buildVisualizer() {
       activeKeyframeElement?.classList.add("active-keyframe");
     });
 
-      // Add the elements to the html
-      container.appendChild(row);
-    });
+    // Add the elements to the html
+    container.appendChild(row);
+  });
 
   updatePlayheadHeight();
   updateScrollHint();
@@ -313,13 +313,13 @@ function buildVisualizer() {
 document.addEventListener("click", (event) => {
   // Search all properties in the timeline 
   const trackLabels = document.querySelectorAll(".track-label");
-  
+
   trackLabels.forEach(label => {
     // Check if click wasn't in this label
     if (!label.contains(event.target)) {
       // Search delete button
       const deleteBtn = label.querySelector(".delete-property-btn");
-      
+
       // If delete buton exist and has visible class, remove visible class
       if (deleteBtn && deleteBtn.classList.contains("show-delete")) {
         deleteBtn.classList.remove("show-delete");
@@ -506,10 +506,10 @@ function updatePlayheadHeight() {
 
     // Divide by eachother so it doesn't get the whole height. Add 20 to make sure it goes a little below the row.
     height = rowBottom - sliderTop;
-    timelineSlider.style.setProperty('--height-playhead',` ${height}px`);
+    timelineSlider.style.setProperty('--height-playhead', ` ${height}px`);
   } else {
 
-    timelineSlider.style.setProperty('--height-playhead',`var(--slider-runnable-track-height)`);
+    timelineSlider.style.setProperty('--height-playhead', `var(--slider-runnable-track-height)`);
   };
 };
 
@@ -576,7 +576,7 @@ animationControls.forEach((control) => {
 
 // function getControlValue(control) {
 //   const sliderValue = control.value;
-  
+
 //   if (control.dataset.property === "color" || control.dataset.property === "webkitTextStrokeColor" || control.dataset.property === "backgroundColor") {
 //     const colorValue = parseInt(sliderValue);
 //     return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
