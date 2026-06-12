@@ -498,6 +498,15 @@ canvas.addEventListener("click", (e) => {
   animationData.clearSelectedText();
 });
 
+const originalCanvas = document.querySelector("#original-canvas");
+originalCanvas.addEventListener("click", (event) => {
+  if (canvas.contains(event.target)) {
+    return;
+  }
+
+  animationData.clearSelectedText();
+});
+
 // -----------------------
 // Playhead height fix
 // -----------------------
