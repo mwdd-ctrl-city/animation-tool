@@ -14,7 +14,7 @@ const itemsContainer = document.querySelector(".items-panel");
 const resizeHandleTop = document.querySelector(".handle-top");
 const resizeHandleLeft = document.querySelector(".handle-left");
 
-const colorRanges = document.querySelectorAll(".animation-control-color");
+const colorRanges = document.querySelectorAll('.animation-control[data-property-type="color"]');
 
 // ---------------
 // MARK: VARIABLES
@@ -241,6 +241,10 @@ function updateTheme() {
 
     colorRanges.forEach(range => {
       range.defaultValue = isDark ? 255 : 0;
+    });
+
+    document.querySelectorAll('.animation-control[data-property="backgroundColor"]').forEach(range => {
+        range.defaultValue = isDark ? 0 : 255;
     });
 }
 

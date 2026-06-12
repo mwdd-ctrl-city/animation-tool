@@ -49,6 +49,11 @@ export default class AnimationPlayer {
         const elements = this.#animation.getElements();
 
         elements.forEach((element, id) => {
+            if (element.type === "canvas") {
+                this.#canvas.id = `el-${id}`;
+                return;
+            };
+
             const el = document.createElement("h2"); // TODO: element type should probably come from element data
             el.classList.add(`el-${id}`);
             el.innerText = element;
@@ -63,7 +68,7 @@ export default class AnimationPlayer {
                 wordsClass: "split-word",
                 linesClass: "split-line"
             });
-            el.splitInstance = split; 
+            el.splitInstance = split;
         });
     }
 
@@ -81,10 +86,10 @@ export default class AnimationPlayer {
             },
             onClick: () => {
                 if (this.#animation.selectedText.id == id) {  // If text is already selected dont go thru
-                    return; 
+                    return;
                 } else {
                     this.#animation.setSelectedText(el, id);
-                } 
+                }
             }
         })
     }
@@ -124,9 +129,9 @@ export default class AnimationPlayer {
                 this.#animation.renameElement(id, textContent); 
             }
 
-            this.#animation.clearSelectedText(); 
+            this.#animation.clearSelectedText();
 
-            const dragInstance = Draggable.get(el); // Retrun draggable object that was previously created 
+            const dragInstance = Draggable.get(el); // Return draggable object that was previously created 
             if (dragInstance) {
                 dragInstance.enable();  // Turn on gsap draggable behavior
             }
@@ -141,17 +146,23 @@ export default class AnimationPlayer {
         const duration = this.#animation.getDuration();
         const targetIds = this.#animation.getElements().keys();
 
+        if(this.#timeline.getChildren().length === 0){
+            this.#timeline.add(gsap.delayedCall(duration,()=>{}))
+        }
+
         // Apply the animations for each target
         targetIds.forEach((targetId) => {
             const properties = this.#animation.getProperties(targetId);
-            const domElement = this.#canvas.querySelector(`.el-${targetId}`);
+            const domElement = document.querySelector(`#el-${targetId}`);
+
+            if (!domElement) return;
 
             // Loop through all properties
             properties.forEach((propertyName) => {
                 const keyframes = this.#animation.getKeyframes(targetId, propertyName);
 
                 // Set the first keyframe
-                gsap.set(`.el-${targetId}`, {
+                gsap.set(`#el-${targetId}`, {
                     [propertyName]: keyframes[0].value,
                     ease: keyframes[0].ease ?? "none",
                 });
@@ -164,7 +175,7 @@ export default class AnimationPlayer {
                     // Time difference between keyframes
                     let timeDifferenceSeconds = (current.progress - last.progress) * duration;
 
-                    let animationTarget = `.el-${targetId}`;
+                    let animationTarget = `#el-${targetId}`;
                     let staggerConfig = null;
 
                     // Fallback values if the keyframe doesn't specify them
