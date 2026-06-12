@@ -611,17 +611,6 @@ animationControls.forEach((control) => {
 // updateColorInputs();
 
 
-// function updateBackgroundColor() {
-//   document.querySelectorAll('.animation-control-color[data-property="backgroundColor"]').forEach((slider) => {
-//     slider.addEventListener('input', () => {
-//       const value = parseInt(slider.value, 10);
-//       canvas.style.backgroundColor = `rgb(${value}, ${value}, ${value})`;
-//     });
-//   });
-// };
-
-// updateBackgroundColor();
-
 
 // Split text controls
 const btnSplitNone = document.getElementById("btn-split-none");
