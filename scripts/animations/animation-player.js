@@ -123,7 +123,7 @@ export default class AnimationPlayer {
 
             this.#animation.clearSelectedText();
 
-            const dragInstance = Draggable.get(el); // Retrun draggable object that was previously created 
+            const dragInstance = Draggable.get(el); // Return draggable object that was previously created 
             if (dragInstance) {
                 dragInstance.enable();  // Turn on gsap draggable behavior
             }

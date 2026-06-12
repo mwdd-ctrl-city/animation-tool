@@ -439,7 +439,7 @@ function updateRangeInputs() {
   animationControls.forEach((control) => {
     const propertyName = control.dataset.property;
 
-    let target = canvas.querySelector(`.el-${elementId}`);
+    let target = canvas.querySelector(`#el-${elementId}`);
     if (!target) return;
 
     // Get current split type from the active split button, set target to first split element of that type
@@ -467,7 +467,7 @@ function addText(text) {
   if (!text.trim()) return;
   const newElementId = animationData.createElement(text);
 
-  const target = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  const target = canvas.querySelector(`#el-${animationData.getSelectedText().id}`);
   target.contentEditable = true;
   target.focus();
 
@@ -475,14 +475,14 @@ function addText(text) {
 }
 
 function showSelectedText() {
-  const target = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  const target = canvas.querySelector(`#el-${animationData.getSelectedText().id}`);
   if (!target) return;
 
   target.style.outline = "3px solid #6495ED";
 }
 
 canvas.addEventListener("click", (e) => {
-  const selected = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  const selected = canvas.querySelector(`#el-${animationData.getSelectedText().id}`);
   if (!selected) return;
 
   if (selected.contains(e.target)) return;    // If clicked on the selected element, return, DONT clear selectedText
@@ -538,7 +538,7 @@ animationControls.forEach((control) => {
 
     switch (event.target.dataset.propertyType) {
       case "color":
-        elementId = animationData.getSelectedText().id ?? getFirstElementId();
+        elementId = animationData.getSelectedText().id;
         colorValue = parseInt(sliderValue);
         value = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
         break;
@@ -557,12 +557,8 @@ animationControls.forEach((control) => {
       return;
     }
 
-    console.log(elementId)
-    console.log(activePropertyName)
-    console.log(value);
-
     activeKeyframeId = animationData.setKeyframe(
-      activeElementId,
+      elementId,
       activePropertyName,
       player.getProgress(),
       value,
