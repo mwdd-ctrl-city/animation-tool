@@ -141,34 +141,6 @@ let activeElementId = null;
 let activePropertyName = null;
 let activeValue = null;
 
-// animationControls.forEach((control) => {
-//   control.addEventListener("input", (event) => {
-//     const elementId = animationData.getSelectedText().id ?? getFirstElementId();  // If getSelectedText == null / no text selected -> get first element
-//     if (!elementId || elementId === canvasId) return;
-
-//     player.pause();
-
-//     const propertyName = event.target.dataset.property;
-//     const value = parseFloat(event.target.value);
-
-//     activeElementId = elementId;
-//     activePropertyName = event.target.dataset.property;
-//     activeValue = parseFloat(event.target.value);
-
-//     animationData.setKeyframe(
-//       activeElementId,
-//       activePropertyName,
-//       player.getProgress(),
-//       activeValue,
-//       ease ?? "none",
-//       currentSplitType,
-//     );
-//   });
-
-//   control.addEventListener("change", (event) => {
-//     history.addMemento(animationData.getAnimation());
-//   });
-// });
 
 // -----------------------
 // Timeline slider
