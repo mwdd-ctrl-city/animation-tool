@@ -3,6 +3,7 @@ import AnimationPlayer from "./animations/animation-player.js";
 import History from "./memento/history.js";
 
 const timelineSlider = document.querySelector("#timeline-slider");
+const playheadTime = document.querySelector(".playhead-time");
 const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
 const animationControlColor = document.querySelectorAll(".animation-control-color");
@@ -115,6 +116,12 @@ player.setOnUpdateListener((timeline) => {
 
   if (endTimeInput) {
     endTimeInput.value = timeline.duration().toFixed(2);
+  }
+
+  if (playheadTime) {
+    playheadTime.innerHTML = `${current} <span class="unit">s</span>`;
+
+    playheadTime.style.left = `${progress * 100}%`
   }
 
   updateRangeInputs();
@@ -617,18 +624,7 @@ const btnSplitLines = document.getElementById("btn-split-lines");
 function applySplit(type) {
   currentSplitType = type;
 
-  // Remove active class from all buttons
-  document.querySelectorAll('.split-text-buttons button').forEach(btn => {
-    btn.classList.remove('active');
-  });
-
-  // Add active class to the clicked button and set the split type as a data attribute on the canvas
-  const activeButton = document.getElementById(`btn-split-${type}`);
-  if (activeButton) {
-    activeButton.classList.add('active');
-  }
-
-  const canvas = document.querySelector(".canvas");
+  const canvas = document.querySelector(".content-canvas");
   if (canvas) {
     canvas.setAttribute("data-split-type", type);
   }

@@ -78,7 +78,6 @@
         <section id="original-canvas" class="content-panel">
             <div  class="content-canvas">
                 <!-- The output of the animation/timeline -->
-                <div class="canvas"></div>
             </div>
         </section>
 
@@ -248,19 +247,19 @@
                         <label>Split type</label>
                         <div class="split-text-buttons layout-radios">
                             <label>
-                                <input id="btn-split-none" type="radio" checked>
+                                <input id="btn-split-none" name="split-type" type="radio" checked>
                                 None
                             </label>
                             <label>
-                                <input id="btn-split-chars" type="radio">
+                                <input id="btn-split-chars" name="split-type" type="radio">
                                 Characters
                             </label>
                             <label>
-                                <input id="btn-split-words" type="radio">
+                                <input id="btn-split-words" name="split-type" type="radio">
                                 Words
                             </label>
                             <label>
-                                <input id="btn-split-lines" type="radio">
+                                <input id="btn-split-lines" name="split-type" type="radio">
                                 Lines
                             </label>
                         </div>
@@ -326,7 +325,12 @@
                 </div>
 
                 <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
-                <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
+
+                <div class="slider-wrapper">
+                    <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
+                    <div class="playhead-time">0,00 <span class="unit">s</span></div>
+                </div>
+
 
                 <div class="timeline-container">
                     <div class="track">
