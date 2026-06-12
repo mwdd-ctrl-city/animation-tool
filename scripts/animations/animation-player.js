@@ -98,13 +98,24 @@ export default class AnimationPlayer {
 
             // el.textContent = el.innerText;
 
+            if (el.splitInstance) {
+                el.splitInstance.revert();
+            }
+
             el.contentEditable = true;
             el.focus();
+        });
+
+        el.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                document.execCommand("insertLineBreak");
+            }
         })
 
         el.addEventListener("blur", () => {
             el.contentEditable = false;
-            const textContent = el.innerText; 
+            let textContent = el.innerText; 
 
             if((textContent.trim()) === "") {
                 this.#animation.removeElement(id);

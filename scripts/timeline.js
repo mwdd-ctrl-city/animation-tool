@@ -24,6 +24,9 @@ const easeSelect = document.querySelector('#animation-select-ease');
 
 const scrollHint = document.querySelector('.scroll-hint');
 
+const duplicateBtn = document.querySelector(".duplicate-button");
+const numberInput = document.querySelector(".number-input");
+
 
 
 let activeKeyframe = null;
@@ -549,3 +552,40 @@ export function updateScrollHint() {
     }, 5000);
   }
 }
+
+// Duplicate text with button
+duplicateBtn.addEventListener('click', () => {
+  const elementId = animationData.getSelectedText().id ?? getFirstElementId();
+    if (!elementId) return;
+
+    const selectedItem = canvas.querySelector(`#el-${elementId}`);
+
+    if (!selectedItem) return;
+    
+    // Get the number, if not a number or less than/equal to 0 return
+    const number = parseInt(numberInput.value, 10);
+    if (isNaN(number) || number <= 0) return;
+
+    if (selectedItem.splitInstance) {
+        selectedItem.splitInstance.revert();
+    }
+
+    if (!selectedItem.dataset.originalText) {
+        selectedItem.dataset.originalText = selectedItem.innerText;
+    }
+
+    // Use the original text content as the basis for duplication
+    const originalText = selectedItem.dataset.originalText;
+    let newText = selectedItem.innerText;
+
+    // Add the original text to the element the specified number of times
+    for (let i = 0; i < number; i++) {
+      newText += "\n" + originalText;
+    }
+
+    animationData.renameElement(elementId, newText);
+
+    history.addMemento(animationData.getAnimation());
+
+    numberInput.value = '';
+});
