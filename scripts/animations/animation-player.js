@@ -83,6 +83,8 @@ export default class AnimationPlayer {
 
                 animationData.setKeyframe(id, "x", progress, this.x, "none");    //Create x keyframe
                 animationData.setKeyframe(id, "y", progress, this.y, "none");    //Create y keyframe
+
+                animationData.setSelectedText(el, id);        // Also select text when dragging element
             },
             onClick: () => {
                 if (this.#animation.selectedText.id == id) {  // If text is already selected dont go thru
