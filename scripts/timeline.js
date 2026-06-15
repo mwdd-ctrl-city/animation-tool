@@ -665,7 +665,7 @@ export function updateScrollHint() {
 // -----------------------
 
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Delete") {
+  if (e.key === "Backspace") {
     deleteActiveKeyframe();
   }
 });
