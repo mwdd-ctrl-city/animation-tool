@@ -611,7 +611,8 @@ animationControls.forEach((control) => {
       activePropertyName,
       player.getProgress(),
       value,
-      ease ?? "none"
+      ease ?? "none",
+      currentSplitType
     );
 
     
