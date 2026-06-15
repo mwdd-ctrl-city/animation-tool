@@ -208,6 +208,8 @@ document.querySelector('.tl-time-end').addEventListener('change', (e) => {
 
 // Claude: Waarom werkt dit niet?
 canvasContainer.addEventListener('dblclick', (event) =>{
+  if (event.target != canvasContainer) return;  // If double clicked on selected text, dont select canvas
+
   let canvasId = null
   
   animationData.getElements().forEach((el, id) => {
