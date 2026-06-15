@@ -3,9 +3,11 @@ import AnimationPlayer from "./animations/animation-player.js";
 import History from "./memento/history.js";
 
 const timelineSlider = document.querySelector("#timeline-slider");
+const playheadTime = document.querySelector(".playhead-time");
 const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
 const animationControlColor = document.querySelectorAll(".animation-control-color");
+const deleteTextButton = document.querySelector(".delete-text button"); 
 const tracksContainer = document.querySelector(".timeline-container");
 const canvas = document.querySelector(".content-canvas");
 
@@ -16,6 +18,8 @@ const endTimeInput = document.querySelector(".tl-time-end");
 
 const undoButton = document.querySelector(".undo");
 const redoButton = document.querySelector(".redo");
+const resetButton = document.querySelector(".reset");
+const confirmResetButton = document.querySelector(".confirm-reset");
 
 const prevKeyframeButton = document.querySelector('.kf-prev');
 const nextKeyframeButton = document.querySelector('.kf-next');
@@ -26,7 +30,8 @@ const scrollHint = document.querySelector('.scroll-hint');
 
 
 
-let activeKeyframe = null;
+let activeKeyframeId = null;
+let activeKeyframeElement = null;
 
 let currentSplitType = "none";
 
@@ -48,24 +53,24 @@ async function loadAnimation(filePath) {
 // Init
 // -----------------------
 
-const animationData = await loadAnimation("./scripts/animation.json");
+// export const animationData = await loadAnimation("./scripts/animation.json");
+export const animationData = new AnimationData();
 const history = new History();
 history.addMemento(animationData.getAnimation());
 
-const player = new AnimationPlayer(canvas, animationData);
+export const player = new AnimationPlayer(canvas, animationData);
 
 animationData.addEventListener("change", () => {
   buildVisualizer();
-  updateRangeInputs(); 
-  showSelectedText(); 
+  updateRangeInputs();
+  showSelectedText();
 })
 
+
+// MARK: TIJDELIJKE FUNCTIE -> VERANDEREN!
 function getFirstElementId() {
-
-  // Gets the first element in the json and gives the propertie in this case the ID, not the value
+  // Gets the first element in the json and gives the property in this case the ID, not the value
   return animationData.getElements().keys().next().value ?? null;
-
-
 }
 
 undoButton.addEventListener("click", () => {
@@ -82,7 +87,18 @@ redoButton.addEventListener("click", () => {
   if (state !== null) {
     animationData.load(state);
   }
-})
+});
+
+resetButton.addEventListener("click", (event) => {
+  confirmResetButton.classList.toggle("show-confirm");
+});
+
+confirmResetButton.addEventListener("click", (event) => {
+  animationData.resetCanvas();
+  history.addMemento(animationData.getAnimation());
+
+  confirmResetButton.classList.remove("show-confirm");
+});
 
 // -----------------------
 // Player update
@@ -100,6 +116,12 @@ player.setOnUpdateListener((timeline) => {
 
   if (endTimeInput) {
     endTimeInput.value = timeline.duration().toFixed(2);
+  }
+
+  if (playheadTime) {
+    playheadTime.innerHTML = `${current} <span class="unit">s</span>`;
+
+    playheadTime.style.left = `${progress * 100}%`
   }
 
   updateRangeInputs();
@@ -120,34 +142,13 @@ let activeElementId = null;
 let activePropertyName = null;
 let activeValue = null;
 
-animationControls.forEach((control) => {
-  control.addEventListener("input", (event) => {
-    const elementId = animationData.getSelectedText().id ?? getFirstElementId();  // If getSelectedText == null / no text selected -> get first element
-    if (!elementId) return;
 
-    player.pause();
+deleteTextButton.addEventListener("click", () => {
+  const selectedElement = animationData.getSelectedText().id; 
+  if(!selectedElement) return; 
 
-    const propertyName = event.target.dataset.property;
-    const value = parseFloat(event.target.value);
-
-    activeElementId = elementId;
-    activePropertyName = event.target.dataset.property;
-    activeValue = parseFloat(event.target.value);
-
-    animationData.setKeyframe(
-      activeElementId,
-      activePropertyName,
-      player.getProgress(),
-      activeValue,
-      ease ?? "none",
-      currentSplitType,
-    );
-  });
-
-  control.addEventListener("change", (event) => {
-    history.addMemento(animationData.getAnimation());
-  });
-});
+  animationData.removeElement(selectedElement)
+})
 
 // -----------------------
 // Timeline slider
@@ -207,7 +208,6 @@ function buildVisualizer() {
   const container = document.querySelector(".timeline-container");
   container.innerHTML = "";
 
-  // With the function you got the ID of the element
   const elementId = animationData.getSelectedText().id ?? getFirstElementId();
   if (!elementId) return;
 
@@ -226,14 +226,39 @@ function buildVisualizer() {
 
     const label = document.createElement("p");
     label.classList.add("track-label");
-    label.innerHTML = `<span>${propertyName}</span>`;
+
+    // Create text
+    const labelText = document.createElement("span");
+    labelText.textContent = propertyName;
+    labelText.style.cursor = "pointer";
+
+    // Create delete button
+    const deleteBtn = document.createElement("span");
+    deleteBtn.innerHTML = "&times;";
+    deleteBtn.classList.add("delete-property-btn");
+    deleteBtn.title = `Delete ${propertyName}`;
+
+    // Toggle class that shows delete button
+    labelText.addEventListener("click", () => {
+      deleteBtn.classList.toggle ("show-delete");
+    });
+
+    // Call deleteProperty on click
+    deleteBtn.addEventListener("click", (event) => {
+      // event.stopPropagation();
+      animationData.deleteProperty(elementId, propertyName);
+      history.addMemento(animationData.getAnimation());
+    });
+
+    // Add deletebutton and label text to the <p>
+    label.append(deleteBtn, labelText);
 
     row.append(label, track);
 
     // Create for each keyframe point a point on the row
     keyframes.forEach((keyframe) => {
       const point = document.createElement("div");
-      point.classList.add("keyframe");
+      point.classList.add("keyframe", `key-${keyframe.id}`);
       point.style.setProperty("--p", keyframe.progress);
 
       track.appendChild(point);
@@ -243,6 +268,13 @@ function buildVisualizer() {
         // Type of way you can dragg the element on the x axis
         type: "x",
         bounds: track,
+        onClick() {
+          // Make the keyframe the active keyframe
+          activeKeyframeId = keyframe.id;
+          point.classList.add("active-keyframe");
+          player.setProgress(keyframe.progress);
+          buildVisualizer();
+        },
         onDragEnd() {
           // Get the width from the track and the point element which stands for the keyframe 
           const trackWidth = track.offsetWidth;
@@ -254,99 +286,151 @@ function buildVisualizer() {
           );
 
           animationData.moveKeyframe(
-            elementId,
-            propertyName,
-            keyframe.progress,
+            keyframe.id,
             newProgress
           );
+
+          // Make the keyframe the active keyframe
+          activeKeyframeId = keyframe.id;
+          point.classList.add("active-keyframe");
+          buildVisualizer();
         }
       });
+
+      // Make the keyframe the active keyframe
+      const activeKeyframeElement = document.querySelector(`.key-${activeKeyframeId}`);
+      activeKeyframeElement?.classList.add("active-keyframe");
     });
 
-    // Add the elements to the html
-    container.appendChild(row);
-  });
-  // Update the playheadHeight on the height of the container
+      // Add the elements to the html
+      container.appendChild(row);
+    });
+
   updatePlayheadHeight();
   updateScrollHint();
+
+  // Retrieve the active keyframe and give it an active class
+
+  if (activeKeyframeId !== null) {
+    const activeKeyframeElement = document.querySelector(`.key-${activeKeyframeId}`)
+    activeKeyframeElement?.classList.add("active-keyframe");
+  }
 }
 
+// Auto-close property delete buttons
+document.addEventListener("click", (event) => {
+  // Search all properties in the timeline 
+  const trackLabels = document.querySelectorAll(".track-label");
+  
+  trackLabels.forEach(label => {
+    // Check if click wasn't in this label
+    if (!label.contains(event.target)) {
+      // Search delete button
+      const deleteBtn = label.querySelector(".delete-property-btn");
+      
+      // If delete buton exist and has visible class, remove visible class
+      if (deleteBtn && deleteBtn.classList.contains("show-delete")) {
+        deleteBtn.classList.remove("show-delete");
+      }
+    }
+  });
+
+  if (confirmResetButton && !resetButton.contains(event.target) && !confirmResetButton.contains(event.target)) {
+    confirmResetButton.classList.remove("show-confirm");
+  }
+});
 
 // -----------------------
 // Keyframe snap buttons
 // -----------------------
 
-function nextKeyframeSnap(){
-    const currentProgress = player.getProgress();
-    let nextProgress = null;
+function nextKeyframeSnap() {
+  const currentProgress = player.getProgress();
+  let nextProgress = null;
 
-    // Loop whitin the element key and the values for each keyframe 
-    animationData.getElements().keys().forEach(element =>{
-      const animationMap = animationData.getAnimations(element);
-      if(!animationMap) return;
+  // Loop whitin the element key and the values for each keyframe 
+  animationData.getElements().keys().forEach(element => {
+    const animationMap = animationData.getAnimations(element);
+    if (!animationMap) return;
 
-      animationMap.values().forEach(keyframes => {
-        keyframes.forEach( keyframe => {
-          // Check if the progress is higher then the current progress, so you know it comes after the currentkeyframe
-          if (keyframe.progress > currentProgress) {
-                  if (nextProgress === null || keyframe.progress < nextProgress) {
-                    // If so then the nexprogress is the point the player needs to be set on
-                      nextProgress = keyframe.progress;
-                  }
+    animationMap.values().forEach(keyframes => {
+      keyframes.forEach(keyframe => {
+        // Check if the progress is higher then the current progress, so you know it comes after the currentkeyframe
+        if (keyframe.progress > currentProgress) {
+          if (nextProgress === null || keyframe.progress < nextProgress) {
+            // If so then the nexprogress is the point the player needs to be set on
+            nextProgress = keyframe.progress;
+
+            // Make the keyframe the active keyframe
+            activeKeyframeId = keyframe.id;
+            const point = document.querySelector(`.key-${activeKeyframeId}`);
+            point.classList.add("active-keyframe");
+            buildVisualizer();
           }
-        })
+        }
       })
     })
+  })
 
-  if(nextProgress !== null){
-    player.setProgress(nextProgress) 
+  if (nextProgress !== null) {
+    player.setProgress(nextProgress)
   } else {
     player.setProgress(1)
   }
 }
 
-function prevKeyframeSnap (){
-   const currentProgress = player.getProgress();
-    let prevProgress = null;
+function prevKeyframeSnap() {
+  const currentProgress = player.getProgress();
+  let prevProgress = null;
 
-    animationData.getElements().keys().forEach(element =>{
-      const animationMap = animationData.getAnimations(element);
-      if(!animationMap) return;
+  animationData.getElements().keys().forEach(element => {
+    const animationMap = animationData.getAnimations(element);
+    if (!animationMap) return;
 
-      animationMap.values().forEach(keyframes => {
-        keyframes.forEach( keyframe => {
-          if (keyframe.progress < currentProgress - 0.0001) {
-                  if (prevProgress === null || keyframe.progress > prevProgress) {
-                      prevProgress = keyframe.progress;
-                  }
+    animationMap.values().forEach(keyframes => {
+      keyframes.forEach(keyframe => {
+        if (keyframe.progress < currentProgress - 0.0001) {
+          if (prevProgress === null || keyframe.progress > prevProgress) {
+            prevProgress = keyframe.progress;
+
+            // Make the keyframe the active keyframe
+            activeKeyframeId = keyframe.id;
+            const point = document.querySelector(`.key-${activeKeyframeId}`);
+            point.classList.add("active-keyframe");
+            buildVisualizer();
           }
-        })
+        }
       })
     })
+  })
 
-  if(prevProgress !== null){
-    player.setProgress(prevProgress) 
+  if (prevProgress !== null) {
+    player.setProgress(prevProgress)
   } else {
     player.setProgress(0)
   }
 }
 
 nextKeyframeButton.addEventListener('click', (event) => {
+  player.pause();
+  playButtonTimeline.textContent = player.isPaused() ? "play" : "pause";
   nextKeyframeSnap()
 });
 
 prevKeyframeButton.addEventListener('click', (event) => {
+  player.pause();
+  playButtonTimeline.textContent = player.isPaused() ? "play" : "pause";
   prevKeyframeSnap()
 });
 
 window.addEventListener('keydown', (event) => {
-  if (event.key === 'ArrowLeft'){
+  if (event.key === 'ArrowLeft') {
     prevKeyframeSnap()
-  } 
-  
+  }
+
   if (event.key === 'ArrowRight') {
     nextKeyframeSnap()
-  } 
+  }
 })
 
 
@@ -363,7 +447,7 @@ function updateRangeInputs() {
   animationControls.forEach((control) => {
     const propertyName = control.dataset.property;
 
-    let target = canvas.querySelector(`.el-${elementId}`);
+    let target = canvas.querySelector(`#el-${elementId}`);
     if (!target) return;
 
     // Get current split type from the active split button, set target to first split element of that type
@@ -391,7 +475,7 @@ function addText(text) {
   if (!text.trim()) return;
   const newElementId = animationData.createElement(text);
 
-  const target = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  const target = canvas.querySelector(`#el-${animationData.getSelectedText().id}`);
   target.contentEditable = true;
   target.focus();
 
@@ -399,17 +483,26 @@ function addText(text) {
 }
 
 function showSelectedText() {
-  const target = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  const target = canvas.querySelector(`#el-${animationData.getSelectedText().id}`);
   if (!target) return;
 
-  target.style.outline = "3px solid #6495ED"; 
+  target.style.outline = "3px solid #6495ED";
 }
 
 canvas.addEventListener("click", (e) => {
-  const selected = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
-  if (!selected) return; 
+  const selected = canvas.querySelector(`#el-${animationData.getSelectedText().id}`);
+  if (!selected) return;
 
   if (selected.contains(e.target)) return;    // If clicked on the selected element, return, DONT clear selectedText
+
+  animationData.clearSelectedText();
+});
+
+const originalCanvas = document.querySelector("#original-canvas");
+originalCanvas.addEventListener("click", (event) => {
+  if (canvas.contains(event.target)) {
+    return;
+  }
 
   animationData.clearSelectedText();
 });
@@ -420,17 +513,22 @@ canvas.addEventListener("click", (e) => {
 
 function updatePlayheadHeight() {
   const lastRow = tracksContainer.querySelector('.row:last-of-type');
-  if (!lastRow) return;
+  let height;
 
-  // Get the height from the container that needs to be track for the height
-  // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
-  const rowBottom = lastRow.getBoundingClientRect().bottom;
-  const sliderTop = timelineSlider.getBoundingClientRect().top;
+  if (lastRow) {
+    // Get the height from the container that needs to be track for the height
+    // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
+    const rowBottom = lastRow.getBoundingClientRect().bottom;
+    const sliderTop = timelineSlider.getBoundingClientRect().top;
 
-  // Divide by eachother so it doesn't get the whole height. Add 20 to make sure it goes a little below the row.
-  const height = rowBottom - sliderTop + 20;
-  timelineSlider.style.setProperty('--height-playhead', `${height}px`);
-}
+    // Divide by eachother so it doesn't get the whole height. Add 20 to make sure it goes a little below the row.
+    height = rowBottom - sliderTop;
+    timelineSlider.style.setProperty('--height-playhead',` ${height}px`);
+  } else {
+
+    timelineSlider.style.setProperty('--height-playhead',`var(--slider-runnable-track-height)`);
+  };
+};
 
 // API that tracks if an element changes size
 // https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
@@ -441,22 +539,46 @@ observer.observe(tracksContainer);
 updatePlayheadHeight();
 buildVisualizer();
 
-animationControlColor.forEach((control) => {
+
+
+
+
+animationControls.forEach((control) => {
   control.addEventListener("input", (event) => {
-    const elementId = getFirstElementId();
+
+    const sliderValue = event.target.value;
+    const activePropertyName = event.target.dataset.property;
+
+    let elementId;
+    let value;
+    let colorValue;
+
+    switch (event.target.dataset.propertyType) {
+      case "color":
+        elementId = animationData.getSelectedText().id;
+        colorValue = parseInt(sliderValue);
+        value = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+        break;
+      default:
+        elementId = animationData.getSelectedText().id ?? getFirstElementId();
+        value = parseFloat(sliderValue);
+        break;
+    };
+
     if (!elementId) return;
 
     player.pause();
+    playButtonTimeline.textContent = player.isPaused() ? "play" : "pause";
 
-    activeElementId = elementId;
-    activePropertyName = event.target.dataset.property;
-    activeValue = getControlValue(event.target);
+    if (animationData.getElement(elementId).type === "canvas" && event.target.dataset.property !== "backgroundColor") {
+      return;
+    }
 
-    animationData.setKeyframe(
-      activeElementId,
+    activeKeyframeId = animationData.setKeyframe(
+      elementId,
       activePropertyName,
       player.getProgress(),
-      activeValue,
+      value,
       ease ?? "none"
     );
   });
@@ -469,35 +591,43 @@ animationControlColor.forEach((control) => {
 
 
 
-function getControlValue(control) {
-  const sliderValue = control.value;
+// function getControlValue(control) {
+//   const sliderValue = control.value;
   
-  if (control.dataset.property === "color" || control.dataset.property === "webkitTextStrokeColor") {
-    const colorValue = parseInt(sliderValue);
-    return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
-  }
-  
-  return parseFloat(sliderValue);
-}
+//   if (control.dataset.property === "color" || control.dataset.property === "webkitTextStrokeColor" || control.dataset.property === "backgroundColor") {
+//     const colorValue = parseInt(sliderValue);
+//     return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+//   }
 
-// https://gsap.com/docs/v3/GSAP/gsap.getProperty()/
-// https://gsap.com/docs/v3/GSAP/UtilityMethods/splitColor()
-function updateColorInputs() {
-  const elementId = getFirstElementId();
-  if (!elementId) return;
+//   return parseFloat(sliderValue);
+// }
 
-  const target = canvas.querySelector(`.el-${elementId}`);
-  if (!target) return;
+// // https://gsap.com/docs/v3/GSAP/gsap.getProperty()/
+// // https://gsap.com/docs/v3/GSAP/UtilityMethods/splitColor()
+// function updateColorInputs() {
+//   const elementId = getFirstElementId();
+//   if (!elementId) return;
 
-  document.querySelectorAll('.animation-control[data-property="color"]').forEach((colorControl) => {
-    const currentColor = gsap.getProperty(target, "color");
-    const colorArray = gsap.utils.splitColor(currentColor);
-    // Because we only need grey tints, the r/g/b are all the same number, so we can just use the first (r). 
-    colorControl.value = colorArray[0];
-  });
-}
+//   const targetId = canvas.querySelector(`.el-${elementId}`);
+//   if (!targetId) return;
 
-updateColorInputs();
+//   document.querySelectorAll('.animation-control[data-property="color"]').forEach((colorControl) => {
+//     const currentColor = gsap.getProperty(targetId, "color");
+//     const colorArray = gsap.utils.splitColor(currentColor);
+//     // Because we only need grey tints, the r/g/b are all the same number, so we can just use the first (r). 
+//     colorControl.value = colorArray[0];
+//   });
+
+//   document.querySelectorAll('.animation-control-color[data-property="backgroundColor"]').forEach((bgControl) => {
+//     const currentColor = gsap.getProperty(canvas, "backgroundColor");
+//     const colorArray = gsap.utils.splitColor(currentColor);
+//     bgControl.value = colorArray[0];
+//   });
+// };
+
+// updateColorInputs();
+
+
 
 // Split text controls
 const btnSplitNone = document.getElementById("btn-split-none");
@@ -509,18 +639,7 @@ const btnSplitLines = document.getElementById("btn-split-lines");
 function applySplit(type) {
   currentSplitType = type;
 
-  // Remove active class from all buttons
-  document.querySelectorAll('.split-text-buttons button').forEach(btn => {
-    btn.classList.remove('active');
-  });
-
-  // Add active class to the clicked button and set the split type as a data attribute on the canvas
-  const activeButton = document.getElementById(`btn-split-${type}`);
-  if (activeButton) {
-    activeButton.classList.add('active');
-  }
-
-  const canvas = document.querySelector(".canvas");
+  const canvas = document.querySelector(".content-canvas");
   if (canvas) {
     canvas.setAttribute("data-split-type", type);
   }
@@ -540,7 +659,7 @@ export function updateScrollHint() {
   const isScrollable = tracksContainer.scrollHeight > tracksContainer.clientHeight;
   scrollHint.hidden = !isScrollable;
 
-  if(isScrollable) {
+  if (isScrollable) {
     clearTimeout(scrollHint.fadeout);
     scrollHint.classList.remove("fade-out");
 
@@ -548,4 +667,20 @@ export function updateScrollHint() {
       scrollHint.classList.add("fade-out");
     }, 5000);
   }
+}
+
+
+// -----------------------
+// Keyframe delete
+// -----------------------
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Delete") {
+    deleteActiveKeyframe();
+  }
+});
+
+function deleteActiveKeyframe() {
+  animationData.deleteKeyframe(activeKeyframeId);
+  buildVisualizer();
 }

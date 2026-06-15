@@ -17,6 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/SplitText.min.js"></script>
     <script src="./scripts/main-layout.js" type="module" defer></script>
     <script src="./scripts/timeline.js" type="module" defer></script>
+    <script src="./scripts/preview.js" type="module" defer></script>
 
     <title>(Inter)play - Animationtool</title>
 </head>
@@ -28,7 +29,7 @@
             <input id="project-name-input" type="text" value="Untitled Project">
         </div>
 
-        <button class="preview-button">Preview</button>
+        <button popovertarget="popover-original" id="open-button" class="preview-button">Preview</button>
         <button class="save-button">Save</button>
     </header>
 
@@ -60,17 +61,34 @@
                         </svg>
                     </button>
                 </li>
+                <li class="reset-buttons-container">
+                    <button type="button" class="control-button reset" aria-label="Reset" title="Reset">
+                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m-3 5v6m-4-6v6M5 6l1.5 14a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2L19 6" 
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <button type="button" class="confirm-reset">Confirm reset</button>
+                </li>
             </ul>
 
         </div>
 
         <!--  CONTENT CONTAINER    -->
-        <section class="content-panel">
-            <div class="content-canvas">
+        <section id="original-canvas" class="content-panel">
+            <div  class="content-canvas">
                 <!-- The output of the animation/timeline -->
-                <div class="canvas"></div>
             </div>
         </section>
+
+        <!-- POPOVER PREVIEW -->
+        <section id="popover-original" popover>
+            <div id="popover-content">
+
+            </div>
+            <button type="button" class="close-button" popovertarget="popover-original" popovertargetaction="hide">close</button>
+        </section>
+
 
         <!--   ITEMS CONTAINER  -->
         <section class="items-panel">
@@ -106,7 +124,7 @@
                     </label>
 
                     <label>
-                        Interlinie
+                        Line height
                         <input type="range" class="animation-control" data-property="lineHeight" min="0" max="50"
                             value="16" step="1" />
                     </label>
@@ -117,7 +135,6 @@
                             value="0" step="0.5" />
                     </label> -->
 
-                    <!-- NEW -->
                     <!-- <label>
                         Word spacing
                         <input type="range" class="animation-control" data-property="wordSpacing" min="-10" max="50"
@@ -135,16 +152,20 @@
 
                     <label>
                         Fill
-                        <input type="range" class="animation-control-color" data-property="color" min="0" max="255" value="0" step="1"/>
+                        <input type="range" class="animation-control" data-property="color" data-property-type="color" min="0" max="255" value="0" step="1"/>
+                    </label>
+                    <label>
+                        Background
+                        <input type="range" class="animation-control" data-property="backgroundColor" data-property-type="color" min="0" max="255" value="255" step="1"/>
                     </label>
                     <label>
                         Outline
-                        <input type="range" class="animation-control-color" data-property="webkitTextStrokeColor" min="0" max="255" value="0" step="1"/>
+                        <input type="range" class="animation-control" data-property="webkitTextStrokeColor" data-property-type="color" min="0" max="255" value="0" step="1"/>
 
                     </label>
                     <label>
                         Outline width
-                        <input type="range" class="animation-control" data-property="webkitTextStrokeWidth" min="0" max="5" value="1" step="1">
+                        <input type="range" class="animation-control" data-property="webkitTextStrokeWidth" min="0" max="5" value="0" step="1">
                     </label>
                 </fieldset>
             </details>
@@ -229,19 +250,19 @@
                         <label>Split type</label>
                         <div class="split-text-buttons layout-radios">
                             <label>
-                                <input id="btn-split-none" type="radio" checked>
+                                <input id="btn-split-none" name="split-type" type="radio" checked>
                                 None
                             </label>
                             <label>
-                                <input id="btn-split-chars" type="radio">
+                                <input id="btn-split-chars" name="split-type" type="radio">
                                 Characters
                             </label>
                             <label>
-                                <input id="btn-split-words" type="radio">
+                                <input id="btn-split-words" name="split-type" type="radio">
                                 Words
                             </label>
                             <label>
-                                <input id="btn-split-lines" type="radio">
+                                <input id="btn-split-lines" name="split-type" type="radio">
                                 Lines
                             </label>
                         </div>
@@ -269,6 +290,18 @@
                 </fieldset>
             </details>
 
+            <details open class="fieldset-container">
+                <summary>Delete</summary>
+                
+                <fieldset class="item">
+                    <legend class="visually-hidden">Delete</legend>
+
+                    <div class="delete-text">
+                        <label>Delete</label>
+                        <button>Delete</button>
+                    </div>
+                </fieldset>
+            </details>
         </section>
 
 
@@ -307,7 +340,12 @@
                 </div>
 
                 <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
-                <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
+
+                <div class="slider-wrapper">
+                    <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
+                    <div class="playhead-time">0,00 <span class="unit">s</span></div>
+                </div>
+
 
                 <div class="timeline-container">
                     <div class="track">

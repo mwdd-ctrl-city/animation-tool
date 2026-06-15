@@ -1,23 +1,32 @@
 {
-  "name": "animation-name",
-  "duration": 5,
-  "elements": {
-    "31918104-d817-4ff2-9b5a-7b81e5daa0a8": "Recursivity"
-  },
-  "animations": {
-    "31918104-d817-4ff2-9b5a-7b81e5daa0a8": {
-      "rotate": [
-        {
-          "progress": 0,
-          "value": 0,
-          "ease": "none"
+    "name": "Recursivity Animation",
+    "duration": 5,
+    "elements": {
+        "31918104-d817-4ff2-9b5a-7b81e5daa0a8": {
+            "content": "Recursivity",
+            "type": "text"
         },
-        {
-          "progress": 1,
-          "value": 0,
-          "ease": "none"
+        "31918104-d817-4ff2-9b5a-7b81e5daa0a7": {
+            "content": "canvas",
+            "type": "canvas"
         }
-      ]
+    },
+    "animations": {
+        "31918104-d817-4ff2-9b5a-7b81e5daa0a8": {
+            "rotate": [
+                {
+                    "id": "31918104-d817-4ff2-9b5a-7b81e5daa0a7",
+                    "progress": 0,
+                    "value": 0,
+                    "ease": "none"
+                },
+                {
+                    "id": "31918104-d817-4ff2-9b5a-7b81e5daa0a6",
+                    "progress": 1,
+                    "value": 0,
+                    "ease": "none"
+                }
+            ]
+        }
     }
-  }
 }

@@ -16,6 +16,8 @@
         padding: 1rem;
         border-radius: 10px;
 
+        background-color: var(--color-button);
+
         color: var(--color-text-two);
         text-transform: uppercase;
         font-weight: 800;
@@ -33,6 +35,7 @@
 
     /* Disable the default styling timeline bar */
     input[type=range] {
+        --slider-runnable-track-height: .75rem ;
         appearance: none;
         position: relative;
         width: 100%;
@@ -43,7 +46,7 @@
         /* Create/design for new background from the track */
         &::-webkit-slider-runnable-track {
             width: 100%;
-            height: .75rem;
+            height: var(--slider-runnable-track-height);
             cursor: pointer;
             background: var(--color-bar);
             border-radius: 10px;
@@ -52,15 +55,16 @@
 
         /* Styling slider element */
         &::-webkit-slider-thumb {
+            --slider-thumb-protrusion: -.5rem;
             -webkit-appearance: none;
             position: relative;
             z-index: 5;
-            height: var(--height-playhead, 80px);
+            height: calc(var(--height-playhead, 80px) - 2 * var(--slider-thumb-protrusion));
             width: 6px;
             border-radius: 5px;
             background: var(--color-details-two);
             cursor: pointer;
-            top: -.5rem;
+            top: var(--slider-thumb-protrusion);
         }
     }
 
@@ -176,4 +180,56 @@
     left: calc(var(--p) * 100% - var(--keyframe-size) / 2);
     aspect-ratio: 1;
     align-self: center;
+}
+
+.active-keyframe {
+    background-color: deeppink;
+}
+
+/* current time on the playhead */
+.slider-wrapper {
+    position: relative;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.slider-wrapper input[type="range"] {
+    width: 100%;
+    margin: 0;
+}
+
+.playhead-time {
+    position: absolute;
+    top: -24px;
+    left: 0;
+    transform: translateX(-50%);
+    width: 3.8rem;
+    
+    /* background-color: var(--color-bg-canvas); */
+    background-color: var(--color-details-two);
+    color: var(--color-text-two);
+    border: 1px solid var(--color-border-canvas);
+    border-radius: 5px;
+    height: 20px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.4rem;
+    gap: 0.2rem;
+    
+    font-family: inherit;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    
+    box-shadow: 0 1px 3px var(--color-boxshadow-one, rgba(0,0,0,0.1));
+    
+    pointer-events: none; 
+}
+
+.playhead-time .unit {
+    right: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--color-text-three);
+    pointer-events: none;
 }

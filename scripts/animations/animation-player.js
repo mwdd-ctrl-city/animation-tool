@@ -49,9 +49,14 @@ export default class AnimationPlayer {
         const elements = this.#animation.getElements();
 
         elements.forEach((element, id) => {
+            if (element.type === "canvas") {
+                this.#canvas.id = `el-${id}`;
+                return;
+            };
+
             const el = document.createElement("h2"); // TODO: element type should probably come from element data
-            el.classList.add(`el-${id}`);
-            el.textContent = element;
+            el.id = `el-${id}`;
+            el.textContent = element.content;
             this.#canvas.appendChild(el);
             this.#setupDraggable(el, id);
             this.#setupEditable(el, id);
@@ -63,7 +68,7 @@ export default class AnimationPlayer {
                 wordsClass: "split-word",
                 linesClass: "split-line"
             });
-            el.splitInstance = split; 
+            el.splitInstance = split;
         });
     }
 
@@ -81,10 +86,10 @@ export default class AnimationPlayer {
             },
             onClick: () => {
                 if (this.#animation.selectedText.id == id) {  // If text is already selected dont go thru
-                    return; 
+                    return;
                 } else {
                     this.#animation.setSelectedText(el, id);
-                } 
+                }
             }
         })
     }
@@ -110,15 +115,15 @@ export default class AnimationPlayer {
                 .replace(/<br>/g, "")   // Replace <br> with nothing
                 .replace(/&nbsp;/g, " ") // Replace &nbsp with space
 
-            if((el.textContent.trim()) === "") {
+            if ((el.textContent.trim()) === "") {
                 this.#animation.removeElement(id);
             } else {
-                this.#animation.renameElement(id, formattedText); 
+                this.#animation.renameElement(id, formattedText);
             }
 
-            this.#animation.clearSelectedText(); 
+            this.#animation.clearSelectedText();
 
-            const dragInstance = Draggable.get(el); // Retrun draggable object that was previously created 
+            const dragInstance = Draggable.get(el); // Return draggable object that was previously created 
             if (dragInstance) {
                 dragInstance.enable();  // Turn on gsap draggable behavior
             }
@@ -133,17 +138,23 @@ export default class AnimationPlayer {
         const duration = this.#animation.getDuration();
         const targetIds = this.#animation.getElements().keys();
 
+        if(this.#timeline.getChildren().length === 0){
+            this.#timeline.add(gsap.delayedCall(duration,()=>{}))
+        }
+
         // Apply the animations for each target
         targetIds.forEach((targetId) => {
             const properties = this.#animation.getProperties(targetId);
-            const domElement = this.#canvas.querySelector(`.el-${targetId}`);
+            const domElement = document.querySelector(`#el-${targetId}`);
+
+            if (!domElement) return;
 
             // Loop through all properties
             properties.forEach((propertyName) => {
                 const keyframes = this.#animation.getKeyframes(targetId, propertyName);
 
                 // Set the first keyframe
-                gsap.set(`.el-${targetId}`, {
+                gsap.set(`#el-${targetId}`, {
                     [propertyName]: keyframes[0].value,
                     ease: keyframes[0].ease ?? "none",
                 });
@@ -156,7 +167,7 @@ export default class AnimationPlayer {
                     // Time difference between keyframes
                     let timeDifferenceSeconds = (current.progress - last.progress) * duration;
 
-                    let animationTarget = `.el-${targetId}`;
+                    let animationTarget = `#el-${targetId}`;
                     let staggerConfig = null;
 
                     // Fallback values if the keyframe doesn't specify them
