@@ -476,8 +476,9 @@ function addText(text) {
   const newElementId = animationData.createElement(text);
 
   const target = canvas.querySelector(`#el-${animationData.getSelectedText().id}`);
-  target.contentEditable = true;
-  target.focus();
+  console.log(target); 
+  // target.contentEditable = true;
+  // target.focus();
 
   history.addMemento(animationData.getAnimation());
 }
@@ -499,13 +500,14 @@ canvas.addEventListener("click", (e) => {
 });
 
 const originalCanvas = document.querySelector("#original-canvas");
-originalCanvas.addEventListener("click", (event) => {
-  if (canvas.contains(event.target)) {
-    return;
-  }
+originalCanvas.addEventListener("click", (e) => {        // Event for clearing / deselecting selectedText 
+  const selectedText = animationData.getSelectedText(); 
+  if (!selectedText || !selectedText.element || !selectedText.id) return;
 
-  animationData.clearSelectedText();
-});
+  if(e.target == originalCanvas) {
+    animationData.clearSelectedText(); 
+  }; 
+})
 
 // -----------------------
 // Playhead height fix
