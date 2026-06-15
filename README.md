@@ -7,13 +7,13 @@ Welkom bij (Inter) play animationtool, deze tool is designed en ontworpen voor M
 - [Vereisten](#vereisten)
 - [Installatie](#eerste-gebruik)
 - [Gegevens opslaan en inladen](#gegevens-opslaan-en-inladen)
-- [Configuratie](#configuratie)
+<!-- - [Configuratie](#configuratie) -->
 - [Mappenstructuur](#mappenstructuur)
-- [Veelgestelde vragen & valkuilen](#veelgestelde-vragen--valkuilen)
+<!-- - [Veelgestelde vragen & valkuilen](#veelgestelde-vragen--valkuilen)
 - [Bijdragen aan dit project](#bijdragen-aan-dit-project)
 - [Contactpersonen](#contactpersonen)
 - [Overdrachtsnotities](#overdrachtsnotities)
-- [Licentie](#licentie)
+- [Licentie](#licentie) -->
 
 ## Over dit project
 Het doel van deze tool is om makkelijker animaties te maken bij specifieke termen die uit Marjolijn Ruijg haar PD project (Inter)facing the Hybrid city komen. 
@@ -84,6 +84,27 @@ Stappenplan:
 4. Open de ZIP file
 5. Open de .html file 
 6. Kopieer de code die in .html staat en voeg dit in het zojuist aangemaakt file in Astro.
+
+## Mappenstructuur
+```
+├── 📁 assets/                             # Static files (images, fonts)
+│   ├── 📁 fonts/                          # Fonts
+├── 📁 scripts/                            # JS
+│   ├── 📁 animation/                      # Animation logic
+│       └── 📄 animation.js                # Domain logic
+│       └── 📄 animation-player.js         # GSAP
+│   ├── 📁 ui/                             # UI logic
+│        └── 📄 timeline.js                # Timeline controller
+│        └── 📄 misc.js                    # Miscellaneous
+├── 📁 styles/                             # Styling
+│   └── 📄 ?.css                           # ?
+│   └── 📄 ?.css                           # ?
+│   └── 📄 ?.css                           # ?
+├── 📄 index.html                          # HTML
+├── 📄 .gitignore                          # Git ignore rules
+├── 📄 LICENSE                             # Project open-source license
+└── 📄 README.md                           # Main project landing page```
+⁠```
 
 ## Bronnen
 ### Fonts
