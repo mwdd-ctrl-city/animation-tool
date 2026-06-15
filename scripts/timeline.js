@@ -208,104 +208,122 @@ function buildVisualizer() {
   const container = document.querySelector(".timeline-container");
   container.innerHTML = "";
 
-  const elementId = animationData.getSelectedText().id ?? getFirstElementId();
-  if (!elementId) return;
+  // Size is the length of the map
+  if (animationData.getAnimation().animations.size === 0) return;
 
-  // get the properties that are defined within the id 
-  const properties = animationData.getProperties(elementId);
+  // Loopen through each element to create a track for every single element and property
+  animationData.getAnimation().elements.forEach((value, elementId) => {
 
-  // For each property you make a new track and row within the timeline
-  properties.forEach((propertyName) => {
-    const keyframes = animationData.getKeyframes(elementId, propertyName);
+    // Whitin the timeline create a dialog and put it in the container
+    const timelineSection = document.createElement('details');
+    timelineSection.classList.add("timeline-section")
 
-    const row = document.createElement("div");
-    row.classList.add("row");
+    // Add a summary which is the elementId or value and set it in the details 
+    const timelineSectionSummary = document.createElement('summary');
+    timelineSectionSummary.innerHTML = value;
+    timelineSection.appendChild(timelineSectionSummary);
 
-    const track = document.createElement("div");
-    track.classList.add("track");
 
-    const label = document.createElement("p");
-    label.classList.add("track-label");
+    container.appendChild(timelineSection);
 
-    // Create text
-    const labelText = document.createElement("span");
-    labelText.textContent = propertyName;
-    labelText.style.cursor = "pointer";
 
-    // Create delete button
-    const deleteBtn = document.createElement("span");
-    deleteBtn.innerHTML = "&times;";
-    deleteBtn.classList.add("delete-property-btn");
-    deleteBtn.title = `Delete ${propertyName}`;
+    // get the properties that are defined within the id 
+    const properties = animationData.getProperties(elementId);
 
-    // Toggle class that shows delete button
-    labelText.addEventListener("click", () => {
-      deleteBtn.classList.toggle ("show-delete");
-    });
 
-    // Call deleteProperty on click
-    deleteBtn.addEventListener("click", (event) => {
-      // event.stopPropagation();
-      animationData.deleteProperty(elementId, propertyName);
-      history.addMemento(animationData.getAnimation());
-    });
+    // For each property you make a new track and row within the timeline
+    properties.forEach((propertyName) => {
+      const keyframes = animationData.getKeyframes(elementId, propertyName);
 
-    // Add deletebutton and label text to the <p>
-    label.append(deleteBtn, labelText);
+      const row = document.createElement("div");
+      row.classList.add("row");
 
-    row.append(label, track);
+      const track = document.createElement("div");
+      track.classList.add("track");
 
-    // Create for each keyframe point a point on the row
-    keyframes.forEach((keyframe) => {
-      const point = document.createElement("div");
-      point.classList.add("keyframe", `key-${keyframe.id}`);
-      point.style.setProperty("--p", keyframe.progress);
+      const label = document.createElement("p");
+      label.classList.add("track-label");
 
-      track.appendChild(point);
+      // Create text
+      const labelText = document.createElement("span");
+      labelText.textContent = propertyName;
+      labelText.style.cursor = "pointer";
 
-      // Create a drag for the keyframe and update the value
-      Draggable.create(point, {
-        // Type of way you can dragg the element on the x axis
-        type: "x",
-        bounds: track,
-        onClick() {
-          // Make the keyframe the active keyframe
-          activeKeyframeId = keyframe.id;
-          point.classList.add("active-keyframe");
-          player.setProgress(keyframe.progress);
-          buildVisualizer();
-        },
-        onDragEnd() {
-          // Get the width from the track and the point element which stands for the keyframe 
-          const trackWidth = track.offsetWidth;
-          const pointX = this.x + keyframe.progress * trackWidth;
+      // Create delete button
+      const deleteBtn = document.createElement("span");
+      deleteBtn.innerHTML = "&times;";
+      deleteBtn.classList.add("delete-property-btn");
+      deleteBtn.title = `Delete ${propertyName}`;
 
-          // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
-          const newProgress = Math.max(0,
-            Math.min(1, pointX / trackWidth)
-          );
-
-          animationData.moveKeyframe(
-            keyframe.id,
-            newProgress
-          );
-
-          // Make the keyframe the active keyframe
-          activeKeyframeId = keyframe.id;
-          point.classList.add("active-keyframe");
-          buildVisualizer();
-        }
+      // Toggle class that shows delete button
+      labelText.addEventListener("click", () => {
+        deleteBtn.classList.toggle("show-delete");
       });
 
-      // Make the keyframe the active keyframe
-      const activeKeyframeElement = document.querySelector(`.key-${activeKeyframeId}`);
-      activeKeyframeElement?.classList.add("active-keyframe");
-    });
+      // Call deleteProperty on click
+      deleteBtn.addEventListener("click", (event) => {
+        // event.stopPropagation();
+        animationData.deleteProperty(elementId, propertyName);
+        history.addMemento(animationData.getAnimation());
+      });
+
+      // Add deletebutton and label text to the <p>
+      label.append(deleteBtn, labelText);
+
+      row.append(label, track);
+
+      // Create for each keyframe point a point on the row
+      keyframes.forEach((keyframe) => {
+        const point = document.createElement("div");
+        point.classList.add("keyframe", `key-${keyframe.id}`);
+        point.style.setProperty("--p", keyframe.progress);
+
+        track.appendChild(point);
+
+        // Create a drag for the keyframe and update the value
+        Draggable.create(point, {
+          // Type of way you can dragg the element on the x axis
+          type: "x",
+          bounds: track,
+          onClick() {
+            // Make the keyframe the active keyframe
+            activeKeyframeId = keyframe.id;
+            point.classList.add("active-keyframe");
+            player.setProgress(keyframe.progress);
+            buildVisualizer();
+          },
+          onDragEnd() {
+            // Get the width from the track and the point element which stands for the keyframe 
+            const trackWidth = track.offsetWidth;
+            const pointX = this.x + keyframe.progress * trackWidth;
+
+            // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
+            const newProgress = Math.max(0,
+              Math.min(1, pointX / trackWidth)
+            );
+
+            animationData.moveKeyframe(
+              keyframe.id,
+              newProgress
+            );
+
+            // Make the keyframe the active keyframe
+            activeKeyframeId = keyframe.id;
+            point.classList.add("active-keyframe");
+            buildVisualizer();
+          }
+        });
+
+        // Make the keyframe the active keyframe
+        const activeKeyframeElement = document.querySelector(`.key-${activeKeyframeId}`);
+        activeKeyframeElement?.classList.add("active-keyframe");
+      });
 
       // Add the elements to the html
-      container.appendChild(row);
+      timelineSection.appendChild(row);
     });
-
+  });
+  // Update the playheadHeight on the height of the container
   updatePlayheadHeight();
   updateScrollHint();
 
