@@ -326,6 +326,7 @@ fieldset {
     }
 }
 
+/* MARK: details */
 .fieldset-container {
     background-color: var(--color-bg-container);
     padding-top: .25em;
