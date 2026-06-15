@@ -7,7 +7,7 @@ const playheadTime = document.querySelector(".playhead-time");
 const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
 const animationControlColor = document.querySelectorAll(".animation-control-color");
-const deleteTextButton = document.querySelector(".delete-text button"); 
+const deleteTextButton = document.querySelector(".delete-text button");
 const tracksContainer = document.querySelector(".timeline-container");
 const canvas = document.querySelector(".content-canvas");
 
@@ -27,7 +27,6 @@ const nextKeyframeButton = document.querySelector('.kf-next');
 const easeSelect = document.querySelector('#animation-select-ease');
 
 const scrollHint = document.querySelector('.scroll-hint');
-
 
 
 let activeKeyframeId = null;
@@ -144,8 +143,8 @@ let activeValue = null;
 
 
 deleteTextButton.addEventListener("click", () => {
-  const selectedElement = animationData.getSelectedText().id; 
-  if(!selectedElement) return; 
+  const selectedElement = animationData.getSelectedText().id;
+  if (!selectedElement) return;
 
   animationData.removeElement(selectedElement)
 })
@@ -216,11 +215,12 @@ function buildVisualizer() {
 
     // Whitin the timeline create a dialog and put it in the container
     const timelineSection = document.createElement('details');
-    timelineSection.classList.add("timeline-section")
+    timelineSection.classList.add("timeline-section");
+    timelineSection.open = true;
 
     // Add a summary which is the elementId or value and set it in the details 
     const timelineSectionSummary = document.createElement('summary');
-    timelineSectionSummary.innerHTML = value;
+    timelineSectionSummary.innerHTML = elementId.content;
     timelineSection.appendChild(timelineSectionSummary);
 
 
@@ -328,7 +328,6 @@ function buildVisualizer() {
   updateScrollHint();
 
   // Retrieve the active keyframe and give it an active class
-
   if (activeKeyframeId !== null) {
     const activeKeyframeElement = document.querySelector(`.key-${activeKeyframeId}`)
     activeKeyframeElement?.classList.add("active-keyframe");
@@ -339,13 +338,13 @@ function buildVisualizer() {
 document.addEventListener("click", (event) => {
   // Search all properties in the timeline 
   const trackLabels = document.querySelectorAll(".track-label");
-  
+
   trackLabels.forEach(label => {
     // Check if click wasn't in this label
     if (!label.contains(event.target)) {
       // Search delete button
       const deleteBtn = label.querySelector(".delete-property-btn");
-      
+
       // If delete buton exist and has visible class, remove visible class
       if (deleteBtn && deleteBtn.classList.contains("show-delete")) {
         deleteBtn.classList.remove("show-delete");
@@ -358,10 +357,10 @@ document.addEventListener("click", (event) => {
   }
 });
 
+
 // -----------------------
 // Keyframe snap buttons
 // -----------------------
-
 function nextKeyframeSnap() {
   const currentProgress = player.getProgress();
   let nextProgress = null;
@@ -455,7 +454,6 @@ window.addEventListener('keydown', (event) => {
 // -----------------------
 // Range inputs sync
 // -----------------------
-
 function updateRangeInputs() {
   // Get the active / selected element
   const elementId = animationData.getSelectedText().id;
@@ -481,10 +479,10 @@ function updateRangeInputs() {
   });
 }
 
+
 // -----------------------
 // Text input
 // -----------------------
-
 addTextButton.addEventListener("click", () => {
   addText("Type something here...")
 })
@@ -525,12 +523,26 @@ originalCanvas.addEventListener("click", (event) => {
   animationData.clearSelectedText();
 });
 
+
 // -----------------------
 // Playhead height fix
 // -----------------------
+// API that tracks if an element changes size
+// https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
+const observer = new ResizeObserver(updatePlayheadHeight);
+const observerHint = new ResizeObserver(updateScrollHint);
+observer.observe(tracksContainer);
+
+tracksContainer.addEventListener("toggle", () => {
+  setTimeout(updatePlayheadHeight, 10);
+}, true);
+
+updatePlayheadHeight();
+buildVisualizer();
 
 function updatePlayheadHeight() {
-  const lastRow = tracksContainer.querySelector('.row:last-of-type');
+  const rows = tracksContainer.querySelectorAll(".timeline-section[open] .row")
+  const lastRow = rows[rows.length - 1];
   let height;
 
   if (lastRow) {
@@ -541,24 +553,12 @@ function updatePlayheadHeight() {
 
     // Divide by eachother so it doesn't get the whole height. Add 20 to make sure it goes a little below the row.
     height = rowBottom - sliderTop;
-    timelineSlider.style.setProperty('--height-playhead',` ${height}px`);
+    timelineSlider.style.setProperty('--height-playhead', ` ${height}px`);
   } else {
 
-    timelineSlider.style.setProperty('--height-playhead',`var(--slider-runnable-track-height)`);
+    timelineSlider.style.setProperty('--height-playhead', `var(--slider-runnable-track-height)`);
   };
 };
-
-// API that tracks if an element changes size
-// https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
-const observer = new ResizeObserver(updatePlayheadHeight);
-const observerHint = new ResizeObserver(updateScrollHint);
-observer.observe(tracksContainer);
-
-updatePlayheadHeight();
-buildVisualizer();
-
-
-
 
 
 animationControls.forEach((control) => {
@@ -611,7 +611,7 @@ animationControls.forEach((control) => {
 
 // function getControlValue(control) {
 //   const sliderValue = control.value;
-  
+
 //   if (control.dataset.property === "color" || control.dataset.property === "webkitTextStrokeColor" || control.dataset.property === "backgroundColor") {
 //     const colorValue = parseInt(sliderValue);
 //     return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
