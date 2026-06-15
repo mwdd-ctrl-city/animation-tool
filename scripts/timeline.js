@@ -206,7 +206,9 @@ document.querySelector('.tl-time-end').addEventListener('change', (e) => {
 // -----------------------
 
 // Claude: Waarom werkt dit niet?
-canvasContainer.addEventListener('dblclick', (event) => {
+canvasContainer.addEventListener('dblclick', (event) =>{
+  if (event.target != canvasContainer) return;  // If double clicked on selected text, dont select canvas
+
   let canvasId = null
 
   animationData.getElements().forEach((el, id) => {
@@ -512,11 +514,22 @@ function addText(text) {
   if (!text.trim()) return;
   const newElementId = animationData.createElement(text);
 
-  const target = canvas.querySelector(`#el-${animationData.getSelectedText().id}`);
+  const target = canvas.querySelector(`#el-${newElementId}`);
   target.contentEditable = true;
   target.focus();
 
+  selectDefaultText(target); 
+
   history.addMemento(animationData.getAnimation());
+}
+
+function selectDefaultText(newElement) {
+  const range = document.createRange();    // make an empty marker for some text
+  range.selectNodeContents(newElement);    // mark all the text inside newElement
+
+  const selection = window.getSelection();    // Reach for the page's selection — the one highlighter shared by the whole document
+  selection.removeAllRanges();  // Erase whatever that highlighter was already highlighting
+  selection.addRange(range);    // acctually highlight the text inside newElement
 }
 
 function showSelectedText() {
@@ -536,13 +549,14 @@ canvas.addEventListener("click", (e) => {
 });
 
 const originalCanvas = document.querySelector("#original-canvas");
-originalCanvas.addEventListener("click", (event) => {
-  if (canvas.contains(event.target)) {
-    return;
-  }
+originalCanvas.addEventListener("click", (e) => {        // Event for clearing / deselecting selectedText 
+  const selectedText = animationData.getSelectedText(); 
+  if (!selectedText || !selectedText.element || !selectedText.id) return;
 
-  animationData.clearSelectedText();
-});
+  if(e.target == originalCanvas) {
+    animationData.clearSelectedText(); 
+  }; 
+})
 
 
 // -----------------------
@@ -619,7 +633,8 @@ animationControls.forEach((control) => {
       activePropertyName,
       player.getProgress(),
       value,
-      ease ?? "none"
+      ease ?? "none",
+      currentSplitType
     );
 
 
