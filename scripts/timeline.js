@@ -52,11 +52,17 @@ async function loadAnimation(filePath) {
 // Init
 // -----------------------
 
-// export const animationData = await loadAnimation("./scripts/animation.json");
-export const animationData = new AnimationData();
-const history = new History();
-history.addMemento(animationData.getAnimation());
+// Create a default animation
+export const animationData = new AnimationData("Hello World", 5);
+const defaultElement = animationData.createElement("Hello World!");
+animationData.setKeyframe(defaultElement, "fontSize", 0, 0, "bounce.out");
+animationData.setKeyframe(defaultElement, "fontSize", 0.05, 32, "bounce.out");
 
+// Create the history object
+export const history = new History();
+history.addMemento(animationData.getAnimation()); // Add initial state as base state
+
+// Create the player object
 export const player = new AnimationPlayer(canvas, animationData);
 
 animationData.addEventListener("change", () => {
@@ -66,11 +72,8 @@ animationData.addEventListener("change", () => {
 })
 
 function getFirstElementId() {
-
   // Gets the first element in the json and gives the propertie in this case the ID, not the value
   return animationData.getElements().keys().next().value ?? null;
-
-
 }
 
 undoButton.addEventListener("click", () => {
