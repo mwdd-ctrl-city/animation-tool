@@ -54,9 +54,15 @@ async function loadAnimation(filePath) {
 
 // Create a default animation
 export const animationData = new AnimationData("Hello World", 5);
-const defaultElement = animationData.createElement("Hello World!");
-animationData.setKeyframe(defaultElement, "fontSize", 0, 0, "bounce.out");
-animationData.setKeyframe(defaultElement, "fontSize", 0.05, 32, "bounce.out");
+
+const animationDataLocalStorage = localStorage.getItem("animationData");
+const loadedFromStorage = animationDataLocalStorage && animationData.fromJSON(animationDataLocalStorage);
+
+if (!loadedFromStorage) {
+  const defaultElement = animationData.createElement("Hello World!");
+  animationData.setKeyframe(defaultElement, "fontSize", 0, 0, "bounce.out");
+  animationData.setKeyframe(defaultElement, "fontSize", 0.05, 32, "bounce.out");
+}
 
 // Create the history object
 export const history = new History();
@@ -98,7 +104,10 @@ resetButton.addEventListener("click", (event) => {
 
 confirmResetButton.addEventListener("click", (event) => {
   animationData.resetCanvas();
-  history.addMemento(animationData.getAnimation());
+  const defaultElement = animationData.createElement("Hello World!");
+  animationData.setKeyframe(defaultElement, "fontSize", 0, 0, "bounce.out");
+  animationData.setKeyframe(defaultElement, "fontSize", 0.05, 32, "bounce.out");
+  createSnapshot(animationData);
 
   confirmResetButton.classList.remove("show-confirm");
 });
@@ -167,7 +176,7 @@ animationControls.forEach((control) => {
   });
 
   control.addEventListener("change", (event) => {
-    history.addMemento(animationData.getAnimation());
+    createSnapshot(animationData);
   });
 });
 
@@ -218,7 +227,7 @@ document.querySelector('.tl-time-end').addEventListener('change', (e) => {
   const time = parseFloat(e.target.value);
   animationData.setDuration(time)
 
-  history.addMemento(animationData.getAnimation())
+  createSnapshot(animationData);
 });
 
 // -----------------------
@@ -269,7 +278,7 @@ function buildVisualizer() {
     deleteBtn.addEventListener("click", (event) => {
       // event.stopPropagation();
       animationData.deleteProperty(elementId, propertyName);
-      history.addMemento(animationData.getAnimation());
+      createSnapshot(animationData);
     });
 
     // Add deletebutton and label text to the <p>
@@ -501,7 +510,7 @@ function addText(text) {
   target.contentEditable = true;
   target.focus();
 
-  history.addMemento(animationData.getAnimation());
+  createSnapshot(animationData);
 }
 
 function showSelectedText() {
@@ -574,7 +583,7 @@ animationControlColor.forEach((control) => {
   });
 
   control.addEventListener("change", () => {
-    history.addMemento(animationData.getAnimation());
+    createSnapshot(animationData);
   });
 })
 
@@ -660,6 +669,11 @@ export function updateScrollHint() {
       scrollHint.classList.add("fade-out");
     }, 5000);
   }
+}
+
+function createSnapshot(animationData) {
+  localStorage.setItem("animationData", animationData.toJSON());
+  history.addMemento(animationData.getAnimation());
 }
 
 
@@ -947,7 +961,7 @@ loadInput.addEventListener("change", (e) => {
     const success = animationData.fromJSON(json);
 
     if (success) {
-      history.addMemento(animationData.getAnimation());
+      createSnapshot(animationData);
 
       // Reset UI state tied to the previous animation
       activeKeyframeId = null;
