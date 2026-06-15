@@ -204,28 +204,41 @@ document.querySelector('.tl-time-end').addEventListener('change', (e) => {
 // -----------------------
 // Select canvas
 // -----------------------
+let selectedCanvas = false;
 
 // Claude: Waarom werkt dit niet?
 canvasContainer.addEventListener('dblclick', (event) =>{
-  if (event.target != canvasContainer) return;  // If double clicked on selected text, dont select canvas
+  if(selectedCanvas === false) {
+    if (event.target != canvasContainer) return;  // If double clicked on selected text, dont select canvas
 
-  let canvasId = null
+    let canvasId = null
 
-  animationData.getElements().forEach((el, id) => {
-    // Search for the type canvas whitin the elements
-    if (el.type === "canvas") {
-      canvasId = id
+    animationData.getElements().forEach((el, id) => {
+      if (event.target != canvasContainer) return;
+      // Search for the type canvas whitin the elements
+      if (el.type === "canvas") {
+        canvasId = id
+      }
+      
+      // If it does'nt exist then return null
+      if (!canvasId) return;
 
-      // When it's clicked then the activeElement becomes the canvas id to animate the background
-      activeElementId = canvasId
-    }
-    // If it does'nt exist then return null
-    if (!canvasId) return;
+        // When it's clicked then the activeElement becomes the canvas id to animate the background
+        activeElementId = canvasId
+        
+        canvas.style.outline = "3px solid #6495ED";
+        // Gives the selected id from the canvas 
+        animationData.setSelectedText(canvas, canvasId)
+      });
 
-    // Gives the selected id from the canvas 
-    animationData.setSelectedText(canvas, canvasId)
+      selectedCanvas = true;
+  } else {
+    canvas.style.outline = "none";
+    selectedCanvas = false;
+  }
+  
   })
-});
+
 
 // -----------------------
 // Visualizer
@@ -307,6 +320,7 @@ function buildVisualizer() {
           const trackWidth = track.offsetWidth;
           const pointX = this.x + keyframe.progress * trackWidth;
 
+          // Chatgpt to make the calculation: How to make the calculation for the new progress
           // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
           const newProgress = Math.max(0,
             Math.min(1, pointX / trackWidth)
@@ -605,17 +619,14 @@ animationControls.forEach((control) => {
     let value;
     let colorValue;
 
-    switch (event.target.dataset.propertyType) {
-      case "color":
+    if (event.target.dataset.propertyType === "color"){
         elementId = animationData.getSelectedText().id;
         colorValue = parseInt(sliderValue);
         value = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
-        break;
-      default:
+    } else {
         elementId = animationData.getSelectedText().id ?? getFirstElementId();
         value = parseFloat(sliderValue);
-        break;
-    };
+    }
 
     if (!elementId) return;
 
