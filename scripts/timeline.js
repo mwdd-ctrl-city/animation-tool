@@ -475,12 +475,22 @@ function addText(text) {
   if (!text.trim()) return;
   const newElementId = animationData.createElement(text);
 
-  const target = canvas.querySelector(`#el-${animationData.getSelectedText().id}`);
-  console.log(target); 
-  // target.contentEditable = true;
-  // target.focus();
+  const target = canvas.querySelector(`#el-${newElementId}`);
+  target.contentEditable = true;
+  target.focus();
+
+  selectDefaultText(target); 
 
   history.addMemento(animationData.getAnimation());
+}
+
+function selectDefaultText(newElement) {
+  const range = document.createRange();    // make an empty marker for some text
+  range.selectNodeContents(newElement);    // mark all the text inside newElement
+
+  const selection = window.getSelection();    // Reach for the page's selection — the one highlighter shared by the whole document
+  selection.removeAllRanges();  // Erase whatever that highlighter was already highlighting
+  selection.addRange(range);    // acctually highlight the text inside newElement
 }
 
 function showSelectedText() {
