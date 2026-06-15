@@ -352,7 +352,7 @@ export default class AnimationData extends EventTarget {
         // Clear maps
         this.#elements.clear();
         this.#animations.clear();
-        
+
         // Clear selected text
         this.clearSelectedText();
 
@@ -575,5 +575,7 @@ export default class AnimationData extends EventTarget {
         } catch {
             return false;
         }
+
+        this.dispatchEvent(new Event("change"));
     }
 }

@@ -64,9 +64,10 @@ if (!loadedFromStorage) {
   animationData.setKeyframe(defaultElement, "fontSize", 0.05, 32, "bounce.out");
 }
 
+projectNameText.textContent = animationData.getName();
+
 // Create the history object
 export const history = new History();
-history.addMemento(animationData.getAnimation()); // Add initial state as base state
 
 // Create the player object
 export const player = new AnimationPlayer(canvas, animationData);
@@ -689,6 +690,7 @@ document.addEventListener("keydown", (e) => {
 
 function deleteActiveKeyframe() {
   animationData.deleteKeyframe(activeKeyframeId);
+  createSnapshot(animationData);
   buildVisualizer();
 }
 
@@ -961,6 +963,7 @@ loadInput.addEventListener("change", (e) => {
     const success = animationData.fromJSON(json);
 
     if (success) {
+      history.clear();
       createSnapshot(animationData);
 
       // Reset UI state tied to the previous animation
