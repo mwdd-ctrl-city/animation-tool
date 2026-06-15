@@ -326,6 +326,7 @@ fieldset {
     }
 }
 
+/* MARK: details */
 .fieldset-container {
     background-color: var(--color-bg-container);
     padding-top: .25em;
@@ -473,9 +474,42 @@ details[open]::details-content {
     }
 
     .timeline-section::details-content {
-        transition: block-size .3s ease;
-        transition-behavior: normal;
-        /* geen allow-discrete meer nodig */
+        /* background-color: aquamarine; */
+        overflow: clip;
+        transition: block-size .3s ease, content-visibility .3s ease;
+        transition-behavior: allow-discrete;
+    }
+
+    /* MARK: Jeppe */
+    .timeline-section {
+        & summary {
+            gap: 10px;
+            display: flex;
+            align-items: center;
+            list-style: none;
+            cursor: pointer;
+            user-select: none;
+            padding: 4px 4px 0 4px; 
+        }
+
+        & summary::-webkit-details-marker {
+            display: none;
+        }
+
+        & summary::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-bottom: 2px solid var(--color-text-two);
+            border-right: 2px solid var(--color-text-two);
+            transform: rotate(-45deg);
+            transition: transform 0.3s ease;
+        }
+
+        &[open] summary::before {
+            transform: rotate(45deg);
+        }
     }
 }
 
@@ -677,7 +711,6 @@ fieldset input.animation-control-color {
     opacity: 1;
     transform: rotate(0deg);
     margin-right: 5px;
-    padding: 0px 7px 0px 7px;
 }
 
 .delete-property-btn.show-delete:hover {
