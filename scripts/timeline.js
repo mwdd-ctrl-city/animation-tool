@@ -10,6 +10,7 @@ const animationControlColor = document.querySelectorAll(".animation-control-colo
 const deleteTextButton = document.querySelector(".delete-text button"); 
 const tracksContainer = document.querySelector(".timeline-container");
 const canvas = document.querySelector(".content-canvas");
+const canvasContainer = document.querySelector("#original-canvas");
 
 const addTextButton = document.querySelector(".add-text-button");
 
@@ -53,8 +54,8 @@ async function loadAnimation(filePath) {
 // Init
 // -----------------------
 
-// export const animationData = await loadAnimation("./scripts/animation.json");
-export const animationData = new AnimationData();
+export const animationData = await loadAnimation("./scripts/animation.json");
+// export const animationData = new AnimationData();
 const history = new History();
 history.addMemento(animationData.getAnimation());
 
@@ -198,6 +199,31 @@ document.querySelector('.tl-time-end').addEventListener('change', (e) => {
   animationData.setDuration(time)
 
   history.addMemento(animationData.getAnimation())
+});
+
+
+// -----------------------
+// Select canvas
+// -----------------------
+
+// Claude: Waarom werkt dit niet?
+canvasContainer.addEventListener('dblclick', (event) =>{
+  let canvasId = null
+  
+  animationData.getElements().forEach((el, id) => {
+    // Search for the type canvas whitin the elements
+    if (el.type === "canvas") {
+      canvasId = id
+
+      // When it's clicked then the activeElement becomes the canvas id to animate the background
+      activeElementId = canvasId
+    }
+    // If it does'nt exist then return null
+    if (!canvasId) return;
+
+    // Gives the selected id from the canvas 
+    animationData.setSelectedText(canvas, canvasId)
+  }) 
 });
 
 // -----------------------
@@ -443,11 +469,12 @@ function updateRangeInputs() {
   const elementId = animationData.getSelectedText().id;
   if (!elementId) return;
 
+
   // Update each control with the current value
   animationControls.forEach((control) => {
     const propertyName = control.dataset.property;
 
-    let target = canvas.querySelector(`#el-${elementId}`);
+    let target = canvas.querySelector(`#el-${elementId}`); 
     if (!target) return;
 
     // Get current split type from the active split button, set target to first split element of that type
@@ -457,6 +484,7 @@ function updateRangeInputs() {
       else if (splitType === "words" && target.splitInstance.words) target = target.splitInstance.words[0];
       else if (splitType === "lines" && target.splitInstance.lines) target = target.splitInstance.lines[0];
     }
+    
 
     // To animate the controls, you need gsap to get the value in between the keyframes
     control.value = gsap.getProperty(target, propertyName);
@@ -507,6 +535,7 @@ originalCanvas.addEventListener("click", (event) => {
   animationData.clearSelectedText();
 });
 
+
 // -----------------------
 // Playhead height fix
 // -----------------------
@@ -545,6 +574,7 @@ buildVisualizer();
 
 animationControls.forEach((control) => {
   control.addEventListener("input", (event) => {
+    console.log(animationData.getSelectedText());
 
     const sliderValue = event.target.value;
     const activePropertyName = event.target.dataset.property;
@@ -574,6 +604,8 @@ animationControls.forEach((control) => {
       return;
     }
 
+  
+
     activeKeyframeId = animationData.setKeyframe(
       elementId,
       activePropertyName,
@@ -581,6 +613,8 @@ animationControls.forEach((control) => {
       value,
       ease ?? "none"
     );
+
+    
   });
 
   control.addEventListener("change", () => {
