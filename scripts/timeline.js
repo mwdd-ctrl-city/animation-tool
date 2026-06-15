@@ -218,9 +218,17 @@ function buildVisualizer() {
     timelineSection.classList.add("timeline-section");
     timelineSection.open = true;
 
+    // MARK: WEGHALEN!
+    // timelineSection.addEventListener("toggle", () => {
+    //     updatePlayheadHeight();
+    //     updateScrollHint();
+    // });
+
+    observer.observe(timelineSection);
+
     // Add a summary which is the elementId or value and set it in the details 
     const timelineSectionSummary = document.createElement('summary');
-    timelineSectionSummary.innerHTML = elementId.content;
+    timelineSectionSummary.innerHTML = animationData.getElement(elementId).content;
     timelineSection.appendChild(timelineSectionSummary);
 
 
@@ -248,6 +256,9 @@ function buildVisualizer() {
       const labelText = document.createElement("span");
       labelText.textContent = propertyName;
       labelText.style.cursor = "pointer";
+
+      console.log(elementId)
+      console.log(propertyName)
 
       // Create delete button
       const deleteBtn = document.createElement("span");
@@ -529,23 +540,23 @@ originalCanvas.addEventListener("click", (event) => {
 // -----------------------
 // API that tracks if an element changes size
 // https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
-const observer = new ResizeObserver(updatePlayheadHeight);
-const observerHint = new ResizeObserver(updateScrollHint);
-observer.observe(tracksContainer);
+const observer = new ResizeObserver(() => {
+  requestAnimationFrame(updatePlayheadHeight);
+  updateScrollHint();
+});
+// const observerHint = new ResizeObserver(updateScrollHint);
 
-tracksContainer.addEventListener("toggle", () => {
-  setTimeout(updatePlayheadHeight, 10);
-}, true);
+tracksContainer.addEventListener("scroll", updatePlayheadHeight);
 
-updatePlayheadHeight();
 buildVisualizer();
+updatePlayheadHeight();
 
 function updatePlayheadHeight() {
   const rows = tracksContainer.querySelectorAll(".timeline-section[open] .row")
   const lastRow = rows[rows.length - 1];
   let height;
 
-  if (lastRow) {
+  if (rows.length > 0 && lastRow) {
     // Get the height from the container that needs to be track for the height
     // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
     const rowBottom = lastRow.getBoundingClientRect().bottom;
@@ -553,12 +564,17 @@ function updatePlayheadHeight() {
 
     // Divide by eachother so it doesn't get the whole height. Add 20 to make sure it goes a little below the row.
     height = rowBottom - sliderTop;
+
+    const containerScrollTop = tracksContainer.scrollTop;
+    height = height + containerScrollTop;
+
     timelineSlider.style.setProperty('--height-playhead', ` ${height}px`);
   } else {
 
     timelineSlider.style.setProperty('--height-playhead', `var(--slider-runnable-track-height)`);
   };
 };
+
 
 
 animationControls.forEach((control) => {
