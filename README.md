@@ -27,11 +27,15 @@ Designers/Developers:
 ## Requirements
 No additional software is required to install or use this tool.
 
+Only requirement is a working laptop.
+
 ## Browser Compatibility?
 In welke browser werkt de tool het beste?
 
 ## Features?
 Wat is er mogelijk met de tool, animation properties, save/load, blablabla
+
+In de tool kan je 
 
 ## Known Bugs/Limitations?
 Kort lijstje met dingen die (nog) niet optimaal werken.
