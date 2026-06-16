@@ -5,10 +5,13 @@ Welcome to the (Inter)play Animation Tool. This tool was designed and developed 
 ## Table of Contents
 - [About this Project](#about-this-project)
 - [Requirements](#requirements)
+- [Browser Compatibility](#browser-compatibility)
+- [Features](#features)
 - [Installation](#installation)
 - [First-Time Use](#first-time-use)
 - [Embedding an Animation into Your Website](#embedding-an-animation-into-your-website)
 - [File Structure](#file-structure)
+- [Recommendations](#recommendations)
 - [Contact Persons](#contact-persons)
 - [License](#license)
 
@@ -30,23 +33,17 @@ No additional software is required to install or use this tool.
 Only requirement is a working laptop.
 
 ## Browser Compatibility?
-In welke browser werkt de tool het beste?
+The best working browser for this animation tool is Google Chrome.
+
+But it's also working in the browsers:
+- Safari 
 
 ## Features?
-Wat is er mogelijk met de tool, animation properties, save/load, blablabla
-
-In de tool kan je 
-
+In the tool there are different funcitonalities: 
 <img width="1596" height="878" alt="cheatsheet-animation-tool" src="https://github.com/user-attachments/assets/eae4bcc5-bae7-499f-be07-b8b1b227626c" />
 
 
-## Known Bugs/Limitations?
-Kort lijstje met dingen die (nog) niet optimaal werken.
-
-als er iets veranderd in de code wat relevant is voor het opslaan van de animatie dan moet dat met de hand ook aangepast worden in de buildStandaloneHTML function in timeline.js
-
 ## Installation
-
 ### For Personal Use
 Open the following link in your browser:
 [Open the Animation Tool](https://mwdd-ctrl-city.github.io/animation-tool/)
@@ -65,9 +62,7 @@ cd animation-tool
 ```
 
 ## First-Time Use
-
 ### Using the Tool
-
 #### Step 1
 Start by clicking the "T" to add a text field to the canvas. In the text field, type your own word or text.
 
@@ -93,15 +88,12 @@ Finished and satisfied with your animation? Give your project a name at the top 
 The ZIP file contains:
 
 ```bash
+# Filename revers to the name you gave to your files.
 ├── 📄 filename.html                       # Open this file to preview the animation.
 ├── 📄 filename.json                       # Import this file back into the tool to edit the animation.
-├── 📁 Embedded/                           # Folder for implementing the animation on your own website
-│   ├── 📄 ?                               # ?
-│   ├── 📄 ?                               # ?
 ```
 
 ### For Development
-
 Open the project in Visual Studio Code and click **"Go Live"** in the bottom-right corner to launch the local development version. In order to see the live preview, the user had to install the Live Server extension (by Ritwick Dey).
 
 ## Embedding an Animation into Your Website
@@ -111,13 +103,11 @@ Requirements:
 - A website built with Astro
 
 Steps:
-
 1. Open the source code of your website.
 2. Navigate to `public -> src -> animations`.
 3. Create a new file with your preferred filename, for example: `animation-name.astro`.
-4. Open the ZIP file → folder → ???
-5. ....
-6. Copy the code from the `.html` file and paste it into the newly created Astro file.
+4. Open the ZIP file 
+5. Copy the code from the `.html` file and paste it into the newly created Astro file.
 
 ## File Structure
 
@@ -131,6 +121,7 @@ Steps:
 │       └── 📄 animation-player.js         # GSAP integration
 │   ├── 📁 memento/                        # History logic
 │        └── 📄 history.js                 # Undo and redo functionality
+│   ├── 📄 animation.json                  # Template of the json: This isn't necessary for the animation to work
 │   ├── 📄 main-layout.js                  # General layout functionality
 │   ├── 📄 preview.js                      # Preview functionality
 │   ├── 📄 timeline.js                     # Timeline panel functionality
@@ -143,6 +134,11 @@ Steps:
 ├── 📄 LICENSE                             # Open-source license
 └── 📄 README.md                           # Main project documentation
 ```
+
+## Recommendations
+Some of the recommendations we had that could possibly improve the project:
+- 
+
 
 ## Contact Persons
 
