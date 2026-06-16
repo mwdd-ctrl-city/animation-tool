@@ -59,7 +59,7 @@ export default class AnimationPlayer {
             el.innerText = element.content;
             el.dataset.text = element.content; 
             this.#canvas.appendChild(el);
-            this.#setupDraggable(el, id);
+            // this.#setupDraggable(el, id);
             this.#setupEditable(el, id);
 
             // split the element in lines, words and characters using GSAP's SplitText plugin, and store the split instance on the element for later reference in animations
@@ -73,32 +73,32 @@ export default class AnimationPlayer {
         });
     }
 
-    #setupDraggable(el, id) {
-        const gsapTimeline = this.#timeline;
-        const animationData = this.#animation;
+    // #setupDraggable(el, id) {
+    //     const gsapTimeline = this.#timeline;
+    //     const animationData = this.#animation;
 
-        Draggable.create(el, {
-            onDrag: function () {
-                console.log("sup")
-            },
-            onDragEnd: function () {
-                const dragInstance = Draggable.get(el);
-                let progress = gsapTimeline.progress(); //Get the progress of the current timeline
+    //     Draggable.create(el, {
+    //         onDrag: function () {
+    //             console.log("sup")
+    //         },
+    //         onDragEnd: function () {
+    //             const dragInstance = Draggable.get(el);
+    //             let progress = gsapTimeline.progress(); //Get the progress of the current timeline
 
-                animationData.setKeyframe(id, "x", progress, this.x, "none");    //Create x keyframe
-                animationData.setKeyframe(id, "y", progress, this.y, "none");    //Create y keyframe
+    //             animationData.setKeyframe(id, "x", progress, this.x, "none");    //Create x keyframe
+    //             animationData.setKeyframe(id, "y", progress, this.y, "none");    //Create y keyframe
 
-                animationData.setSelectedText(el, id);        // Also select text when dragging element
-            },
-            onClick: () => {
-                if (this.#animation.selectedText.id == id) {  // If text is already selected dont go thru
-                    return;
-                } else {
-                    this.#animation.setSelectedText(el, id);
-                }
-            }
-        })
-    }
+    //             animationData.setSelectedText(el, id);        // Also select text when dragging element
+    //         },
+    //         onClick: () => {
+    //             if (this.#animation.selectedText.id == id) {  // If text is already selected dont go thru
+    //                 return;
+    //             } else {
+    //                 this.#animation.setSelectedText(el, id);
+    //             }
+    //         }
+    //     })
+    // }
 
     #setupEditable(el, id) {
         el.addEventListener("dblclick", () => {

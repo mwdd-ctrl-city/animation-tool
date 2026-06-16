@@ -64,6 +64,7 @@ animationData.addEventListener("change", () => {
   buildVisualizer();
   updateRangeInputs();
   showSelectedText();
+  setupDraggable(); 
 })
 
 
@@ -99,6 +100,8 @@ confirmResetButton.addEventListener("click", (event) => {
 
   confirmResetButton.classList.remove("show-confirm");
 });
+
+setupDraggable(); 
 
 // -----------------------
 // Player update
@@ -552,18 +555,12 @@ originalCanvas.addEventListener("click", (e) => {        // Event for clearing /
   const selectedText = animationData.getSelectedText(); 
   if (!selectedText || !selectedText.element || !selectedText.id) return;
 
-  visualOffset(); 
-  console.log(player.onDragListener); 
-
   if(e.target == originalCanvas) {
     animationData.clearSelectedText(); 
   }; 
 })
 
-function visualOffset() {
-  const elementId = animationData.getSelectedText().id; 
-  const element = document.querySelector(`#el-${elementId}`);
-
+function visualOffset(element) {
   const boundsCanvas = canvas.getBoundingClientRect(); 
   const boundsElement = element.getBoundingClientRect(); 
 
@@ -573,6 +570,38 @@ function visualOffset() {
   const left = Math.max(0, boundsCanvas.left - boundsElement.left);
 
   element.style.setProperty('--clip', `inset(${top}px ${right}px ${bottom}px ${left}px)`);
+}
+
+function setupDraggable() {
+  const elements = animationData.getElements(); 
+  elements.forEach((element, key) => {
+    const elementObject = canvas.querySelector(`#el-${key}`);
+    if(!elementObject) return; 
+
+    visualOffset(elementObject); 
+
+    Draggable.create(elementObject, {
+      onDrag: function () {
+          visualOffset(elementObject); 
+      },
+      onDragEnd: function () {
+          const dragInstance = Draggable.get(elementObject);
+          let progress = player.getProgress(); //Get the progress of the current timeline
+
+          animationData.setKeyframe(key, "x", progress, this.x, "none");    //Create x keyframe
+          animationData.setKeyframe(key, "y", progress, this.y, "none");    //Create y keyframe
+
+          animationData.setSelectedText(elementObject, key);        // Also select text when dragging element
+      },
+      onClick: () => {
+          if (animationData.selectedText.id == key) {  // If text is already selected dont go thru
+              return;
+          } else {
+              animationData.setSelectedText(elementObject, key);
+          }
+      }
+    })
+  })
 }
 
 
