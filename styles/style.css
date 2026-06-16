@@ -5,30 +5,29 @@
     margin: 0;
 }
 
-@media (prefers-color-scheme:light) {
-    :root {
-        /* COLORS */
-        --color-bg-canvas: #F2F1F3;
-        --color-bg-container: #FFFFFF;
-        --color-bg-topbar: #2B2B2B;
-        --color-text-one: #F2F2F2;
-        --color-text-two: #2B2B2B;
-        --color-text-three: #888;
-        --color-border-button: #F2F2F2;
-        --color-border-container: rgba(200, 200, 200, 0.4);
-        --color-border-canvas: #CCCCCC;
-        --color-border-item: rgba(200, 200, 200, 0.4);
-        --color-boxshadow-one: rgba(0, 0, 0, 0.1);
-        --color-details-one: #6495ED;
-        --color-details-two: #FF1493;
-        --color-hover-one: #4C78D0;
-        --color-hover-two: rgba(200, 200, 200, 0.4);
-        --color-bar: #eaeaea;
-        --color-track: #dde7fa;
-        --color-resize: #cbcaca;
-        --color-button: #eaeaea;
+:root {
+    color-scheme: light dark;
+
+    --color-bg-canvas: #F2F1F3;
+    --color-bg-container: #FFFFFF;
+    --color-bg-topbar: #2B2B2B;
+    --color-text-one: #F2F2F2;
+    --color-text-two: #2B2B2B;
+    --color-text-three: #888;
+    --color-border-button: #F2F2F2;
+    --color-border-container: rgba(200, 200, 200, 0.4);
+    --color-border-canvas: #CCCCCC;
+    --color-border-item: rgba(200, 200, 200, 0.4);
+    --color-boxshadow-one: rgba(0, 0, 0, 0.1);
+    --color-details-one: #6495ED;
+    --color-details-two: #FF1493;
+    --color-hover-one: #4C78D0;
+    --color-hover-two: rgba(200, 200, 200, 0.4);
+    --color-bar: #eaeaea;
+    --color-track: #dde7fa;
+    --color-resize: #cbcaca;
+    --color-button: #eaeaea;
     }
-}
 
 @media (prefers-color-scheme:dark) {
     :root {
