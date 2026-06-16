@@ -67,6 +67,7 @@ if (!loadedFromStorage) {
 }
 
 projectNameText.textContent = animationData.getName();
+projectNameInput.textContent = animationData.getName();
 
 // Create the history object
 export const history = new History();
@@ -241,7 +242,7 @@ canvasContainer.addEventListener('dblclick', (event) => {
     canvas.style.outline = "none";
     selectedCanvas = false;
   }
-  })
+})
 
 
 // -----------------------
@@ -910,12 +911,15 @@ projectNameInput.addEventListener("blur", () => {
   // Apply the name to te animation data
   animationData.setName(projectNameInput.value.trim());
 
-  console.log(animationData.getName());
+  projectNameText.textContent = animationData.getName();
+  projectNameInput.textContent = animationData.getName();
 });
 
 projectNameText.addEventListener("click", () => {
   projectNameInput.style.display = "inline";
   projectNameText.style.display = "none";
+
+  projectNameInput.value = animationData.getName();
 
   projectNameInput.style.width = "0";
   projectNameInput.style.width = Math.min(projectNameInput.scrollWidth, 300) + "px";

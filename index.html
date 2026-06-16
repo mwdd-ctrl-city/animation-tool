@@ -26,8 +26,8 @@
 <body>
     <header class="topbar">
         <div class="project-name-place">
-            <span id="project-name">Untitled</span>
-            <input id="project-name-input" type="text" value="Untitled">
+            <span id="project-name"></span>
+            <input id="project-name-input" type="text">
         </div>
 
         <button popovertarget="popover-original" id="open-button" class="preview-button">Preview</button>
@@ -138,11 +138,12 @@
                             <input type="range" class="animation-control" data-property="lineHeight" min="0" max="50"
                                 value="16" step="1" />
                             <div class="number-input-wrapper">
-                                <input type="number" class="animation-control" data-property="lineHeight" value="16" step="1" />
+                                <input type="number" class="animation-control" data-property="lineHeight" value="16"
+                                    step="1" />
                                 <p class="unit">px</p>
                             </div>
                         </div>
-                            
+
                     </label>
 
                     <!-- <label>
@@ -168,15 +169,18 @@
 
                     <label>
                         Fill
-                        <input type="range" class="animation-control" data-property="color" data-property-type="color" min="0" max="255" value="0" step="1"/>
+                        <input type="range" class="animation-control" data-property="color" data-property-type="color"
+                            min="0" max="255" value="0" step="1" />
                     </label>
                     <label>
                         Background
-                        <input type="range" class="animation-control" data-property="backgroundColor" data-property-type="color" min="0" max="255" value="255" step="1"/>
+                        <input type="range" class="animation-control" data-property="backgroundColor"
+                            data-property-type="color" min="0" max="255" value="255" step="1" />
                     </label>
                     <label>
                         Outline
-                        <input type="range" class="animation-control" data-property="webkitTextStrokeColor" data-property-type="color" min="0" max="255" value="0" step="1"/>
+                        <input type="range" class="animation-control" data-property="webkitTextStrokeColor"
+                            data-property-type="color" min="0" max="255" value="0" step="1" />
 
                     </label>
                     <label>
@@ -196,11 +200,12 @@
                     <label>
                         Scale X
                         <div class="slider-input-container">
-                            <input type="range" class="animation-control" data-property="scaleX" min="0" max="5" value="1"
-                                step="0.05" />
-                            
+                            <input type="range" class="animation-control" data-property="scaleX" min="0" max="5"
+                                value="1" step="0.05" />
+
                             <div class="number-input-wrapper">
-                                <input type="number" class="animation-control" data-property="scaleX" value="1" step="0.05" />
+                                <input type="number" class="animation-control" data-property="scaleX" value="1"
+                                    step="0.05" />
                                 <p class="unit">x</p>
                             </div>
                         </div>
@@ -209,10 +214,11 @@
                     <label>
                         Scale Y
                         <div class="slider-input-container">
-                        <input type="range" class="animation-control" data-property="scaleY" min="0" max="5" value="1"
-                                step="0.05" />
+                            <input type="range" class="animation-control" data-property="scaleY" min="0" max="5"
+                                value="1" step="0.05" />
                             <div class="number-input-wrapper">
-                                <input type="number" class="animation-control" data-property="scaleY" value="1" step="0.05" />
+                                <input type="number" class="animation-control" data-property="scaleY" value="1"
+                                    step="0.05" />
                                 <p class="unit">x</p>
                             </div>
                         </div>
@@ -322,7 +328,7 @@
 
             <details open class="fieldset-container">
                 <summary>Delete</summary>
-                
+
                 <fieldset class="item">
                     <legend class="visually-hidden">Delete</legend>
 
@@ -369,7 +375,7 @@
                     </div>
                 </div>
 
-            
+
                 <div class="slider-wrapper" style="--min: 0; --max: 100; --val: 0">
                     <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
                     <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
