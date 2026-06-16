@@ -26,8 +26,8 @@
 <body>
     <header class="topbar">
         <div class="project-name-place">
-            <span id="project-name">Untitled Project</span>
-            <input id="project-name-input" type="text" value="Untitled Project">
+            <span id="project-name">Untitled</span>
+            <input id="project-name-input" type="text" value="Untitled">
         </div>
 
         <button popovertarget="popover-original" id="open-button" class="preview-button">Preview</button>
@@ -342,9 +342,9 @@
             </div>
 
             <form class="timeline">
-                <button type="button" class="play-animation">Play</button>
+                <label for="timeline-slider" class="visually-hidden">Timeline</label>
 
-                <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
+                <button type="button" class="play-animation">Play</button>
 
                 <div class="keyframe-snap">
                     <button type="button" class="kf-prev" aria-live="polite" aria-label="Go to next keyframe">
@@ -356,24 +356,24 @@
                 </div>
 
                 <div class="tl-time">
-                    <label for="start-time" class="visually-hidden">Start time</label>
+                    <!-- <label for="start-time" class="visually-hidden">Start time</label>
                     <div class="number-input-wrapper">
                         <input id="start-time" type="number" value="0.00" step="0.01" class="tl-time-start">
                         <p class="unit">s</p>
-                    </div>
+                    </div> -->
 
                     <label for="end-time" class="visually-hidden">End time</label>
                     <div class="number-input-wrapper">
-                        <input id="end-time" type="number" value="4.00" step="0.01" class="tl-time-end">
+                        <input id="end-time" type="number" value="5.00" step="0.01" class="tl-time-end">
                         <p class="unit">s</p>
                     </div>
                 </div>
 
-                <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
-
-                <div class="slider-wrapper">
+            
+                <div class="slider-wrapper" style="--min: 0; --max: 100; --val: 0">
+                    <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
                     <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
-                    <div class="playhead-time">0,00 <span class="unit">s</span></div>
+                    <div class="playhead-time .tl-time-start">0,00 <span class="unit">s</span></div>
                 </div>
 
 

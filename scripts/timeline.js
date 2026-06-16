@@ -117,19 +117,15 @@ confirmResetButton.addEventListener("click", (event) => {
   confirmResetButton.classList.remove("show-confirm");
 });
 
+
 // -----------------------
 // Player update
 // -----------------------
-
 player.setOnUpdateListener((timeline) => {
   const progress = timeline.progress();
   const current = (progress * timeline.duration()).toFixed(2);
 
   timelineSlider.value = progress * 100;
-
-  if (startTimeInput) {
-    startTimeInput.value = current;
-  }
 
   if (endTimeInput) {
     endTimeInput.value = timeline.duration().toFixed(2);
@@ -141,13 +137,14 @@ player.setOnUpdateListener((timeline) => {
     playheadTime.style.left = `${progress * 100}%`
   }
 
+  updatePlayheadPosition();
   updateRangeInputs();
 });
+
 
 // -----------------------
 // Controls (keyframes)
 // -----------------------
-
 let ease = easeSelect.value ?? "none";
 
 easeSelect.addEventListener('change', () => {
@@ -166,10 +163,10 @@ deleteTextButton.addEventListener("click", () => {
   animationData.removeElement(selectedElement)
 })
 
+
 // -----------------------
 // Timeline slider
 // -----------------------
-
 timelineSlider.addEventListener("input", (e) => {
   player.setProgress(e.target.value / 100);
 });
@@ -198,20 +195,15 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+
 // -----------------------
 // Input change timeline time
 // -----------------------
 // Input starting point when the value is changed devide with the duration and set the new progress to te playhead
-document.querySelector('.tl-time-start').addEventListener('change', (e) => {
-  const time = parseFloat(e.target.value);
-  // const progress = time / animationBuilder.timelineData.duration;
-  const progress = time / animationData.getDuration()
-  player.setProgress(progress);
-});
-
 document.querySelector('.tl-time-end').addEventListener('change', (e) => {
+  console.log("hi!")
   const time = parseFloat(e.target.value);
-  animationData.setDuration(time)
+  animationData.setDuration(time);
 
   createSnapshot(animationData);
 });
@@ -259,41 +251,69 @@ canvasContainer.addEventListener('dblclick', (event) =>{
 // -----------------------
 // Visualizer
 // -----------------------
-
 function buildVisualizer() {
   const container = document.querySelector(".timeline-container");
   container.innerHTML = "";
 
-  const elementId = animationData.getSelectedText().id ?? getFirstElementId();
-  if (!elementId) return;
+  // Size is the length of the map
+  if (animationData.getAnimation().animations.size === 0) return;
 
-  // get the properties that are defined within the id 
-  const properties = animationData.getProperties(elementId);
+  // Loopen through each element to create a track for every single element and property
+  animationData.getAnimation().elements.forEach((value, elementId) => {
 
-  // For each property you make a new track and row within the timeline
-  properties.forEach((propertyName) => {
-    const keyframes = animationData.getKeyframes(elementId, propertyName);
+    // Whitin the timeline create a dialog and put it in the container
+    const timelineSection = document.createElement('details');
+    timelineSection.classList.add("timeline-section");
+    timelineSection.open = true;
 
-    const row = document.createElement("div");
-    row.classList.add("row");
 
-    const track = document.createElement("div");
-    track.classList.add("track");
+    observer.observe(timelineSection);
 
-    const label = document.createElement("p");
-    label.classList.add("track-label");
+    // Add a summary which is the elementId or value and set it in the details 
+    const contentSummary = animationData.getElement(elementId).content;
+    const maxLengthSummary = 18;
+    const timelineSectionSummary = document.createElement('summary');
 
-    // Create text
-    const labelText = document.createElement("span");
-    labelText.textContent = propertyName;
-    labelText.style.cursor = "pointer";
+    if (contentSummary.length > maxLengthSummary) {
+      timelineSectionSummary.innerHTML = contentSummary.slice(0, maxLengthSummary) + "..."
+    } else {
+      timelineSectionSummary.innerHTML = contentSummary;
+    }
 
-    // Create delete button
-    const deleteBtn = document.createElement("span");
-    deleteBtn.innerHTML = "&times;";
-    deleteBtn.classList.add("delete-property-btn");
-    deleteBtn.title = `Delete ${propertyName}`;
+    timelineSection.appendChild(timelineSectionSummary);
 
+
+    container.appendChild(timelineSection);
+
+
+    // get the properties that are defined within the id 
+    const properties = animationData.getProperties(elementId);
+
+
+    // For each property you make a new track and row within the timeline
+    properties.forEach((propertyName) => {
+      const keyframes = animationData.getKeyframes(elementId, propertyName);
+
+      const row = document.createElement("div");
+      row.classList.add("row");
+
+      const track = document.createElement("div");
+      track.classList.add("track");
+
+      const label = document.createElement("p");
+      label.classList.add("track-label");
+
+      // Create text
+      const labelText = document.createElement("span");
+      labelText.textContent = propertyName;
+      labelText.style.cursor = "pointer";
+
+      // Create delete button
+      const deleteBtn = document.createElement("span");
+      deleteBtn.innerHTML = "&times;";
+      deleteBtn.classList.add("delete-property-btn");
+      deleteBtn.title = `Delete ${propertyName}`;
+      
     // Toggle class that shows delete button
     labelText.addEventListener("click", () => {
       deleteBtn.classList.toggle("show-delete");
@@ -354,20 +374,75 @@ function buildVisualizer() {
         }
       });
 
-      // Make the keyframe the active keyframe
-      const activeKeyframeElement = document.querySelector(`.key-${activeKeyframeId}`);
-      activeKeyframeElement?.classList.add("active-keyframe");
+//       // Call deleteProperty on click
+//       deleteBtn.addEventListener("click", (event) => {
+//         // event.stopPropagation();
+//         animationData.deleteProperty(elementId, propertyName);
+//         history.addMemento(animationData.getAnimation());
+//       });
+
+//       // Add deletebutton and label text to the <p>
+//       label.append(deleteBtn, labelText);
+
+//       row.append(label, track);
+
+//       // Create for each keyframe point a point on the row
+//       keyframes.forEach((keyframe) => {
+//         const point = document.createElement("div");
+//         point.classList.add("keyframe", `key-${keyframe.id}`);
+//         point.style.setProperty("--p", keyframe.progress);
+
+//         track.appendChild(point);
+
+//         // Create a drag for the keyframe and update the value
+//         Draggable.create(point, {
+//           // Type of way you can dragg the element on the x axis
+//           type: "x",
+//           bounds: track,
+//           onClick() {
+//             // Make the keyframe the active keyframe
+//             activeKeyframeId = keyframe.id;
+//             point.classList.add("active-keyframe");
+//             player.setProgress(keyframe.progress);
+//             buildVisualizer();
+//           },
+//           onDragEnd() {
+//             // Get the width from the track and the point element which stands for the keyframe 
+//             const trackWidth = track.offsetWidth;
+//             const pointX = this.x + keyframe.progress * trackWidth;
+
+//             // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
+//             const newProgress = Math.max(0,
+//               Math.min(1, pointX / trackWidth)
+//             );
+
+//             animationData.moveKeyframe(
+//               keyframe.id,
+//               newProgress
+//             );
+
+//             // Make the keyframe the active keyframe
+//             activeKeyframeId = keyframe.id;
+//             point.classList.add("active-keyframe");
+//             buildVisualizer();
+//           }
+//         });
+
+//         // Make the keyframe the active keyframe
+//         const activeKeyframeElement = document.querySelector(`.key-${activeKeyframeId}`);
+//         activeKeyframeElement?.classList.add("active-keyframe");
+//       });
+
+      // Add the elements to the html
+      timelineSection.appendChild(row);
     });
-
-    // Add the elements to the html
-    container.appendChild(row);
   });
-
+});
+  // Update the playheadHeight on the height of the container
   updatePlayheadHeight();
   updateScrollHint();
 
   // Retrieve the active keyframe and give it an active class
-
   if (activeKeyframeId !== null) {
     const activeKeyframeElement = document.querySelector(`.key-${activeKeyframeId}`)
     activeKeyframeElement?.classList.add("active-keyframe");
@@ -397,10 +472,10 @@ document.addEventListener("click", (event) => {
   }
 });
 
+
 // -----------------------
 // Keyframe snap buttons
 // -----------------------
-
 function nextKeyframeSnap() {
   const currentProgress = player.getProgress();
   let nextProgress = null;
@@ -494,7 +569,6 @@ window.addEventListener('keydown', (event) => {
 // -----------------------
 // Range inputs sync
 // -----------------------
-
 function updateRangeInputs() {
   // Get the active / selected element
   const elementId = animationData.getSelectedText().id;
@@ -509,7 +583,7 @@ function updateRangeInputs() {
 
     // Get current split type from the active split button, set target to first split element of that type
     if (target.splitInstance) {
-      const splitType = currentSplitType; // TODO: should get the split type from the keyframe data instead of using a global variable
+      const splitType = currentSplitType; // MARK: TODO: should get the split type from the keyframe data instead of using a global variable
       if (splitType === "chars" && target.splitInstance.chars) target = target.splitInstance.chars[0];
       else if (splitType === "words" && target.splitInstance.words) target = target.splitInstance.words[0];
       else if (splitType === "lines" && target.splitInstance.lines) target = target.splitInstance.lines[0];
@@ -531,10 +605,10 @@ function updateRangeInputs() {
   });
 }
 
+
 // -----------------------
 // Text input
 // -----------------------
-
 addTextButton.addEventListener("click", () => {
   addText("Type something here...")
 })
@@ -544,8 +618,10 @@ function addText(text) {
   const newElementId = animationData.createElement(text);
 
   const target = canvas.querySelector(`#el-${newElementId}`);
-  target.contentEditable = true;
-  target.focus();
+   if (target) {
+      target.contentEditable = true;
+      target.focus();
+    }
   createSnapshot(animationData);
   selectDefaultText(target); 
 
@@ -587,15 +663,29 @@ originalCanvas.addEventListener("click", (e) => {        // Event for clearing /
 })
 
 
+
 // -----------------------
 // Playhead height fix
 // -----------------------
+// API that tracks if an element changes size
+// https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
+const observer = new ResizeObserver(() => {
+  requestAnimationFrame(updatePlayheadHeight);
+  updateScrollHint();
+});
+// const observerHint = new ResizeObserver(updateScrollHint);
+
+tracksContainer.addEventListener("scroll", updatePlayheadHeight);
+
+buildVisualizer();
+updatePlayheadHeight();
 
 function updatePlayheadHeight() {
-  const lastRow = tracksContainer.querySelector('.row:last-of-type');
+  const rows = tracksContainer.querySelectorAll(".timeline-section[open] .row")
+  const lastRow = rows[rows.length - 1];
   let height;
 
-  if (lastRow) {
+  if (rows.length > 0 && lastRow) {
     // Get the height from the container that needs to be track for the height
     // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
     const rowBottom = lastRow.getBoundingClientRect().bottom;
@@ -603,23 +693,16 @@ function updatePlayheadHeight() {
 
     // Divide by eachother so it doesn't get the whole height. Add 20 to make sure it goes a little below the row.
     height = rowBottom - sliderTop;
+
+    const containerScrollTop = tracksContainer.scrollTop;
+    height = height + containerScrollTop;
+
     timelineSlider.style.setProperty('--height-playhead', ` ${height}px`);
   } else {
 
     timelineSlider.style.setProperty('--height-playhead', `var(--slider-runnable-track-height)`);
   };
 };
-
-// API that tracks if an element changes size
-// https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
-const observer = new ResizeObserver(updatePlayheadHeight);
-const observerHint = new ResizeObserver(updateScrollHint);
-observer.observe(tracksContainer);
-
-updatePlayheadHeight();
-buildVisualizer();
-
-
 
 
 
@@ -760,7 +843,6 @@ function createSnapshot(animationData) {
 // -----------------------
 // Keyframe delete
 // -----------------------
-
 document.addEventListener("keydown", (e) => {
   if (e.key === "Backspace") {
     deleteActiveKeyframe();
@@ -773,6 +855,47 @@ function deleteActiveKeyframe() {
   buildVisualizer();
 }
 
+
+
+// -----------------------
+// Playhead moves with slider
+// -----------------------
+function updatePlayheadPosition() {
+  const { width } = timelineSlider.getBoundingClientRect();
+  const thumbWidth = 6;
+  const ratio = timelineSlider.value / timelineSlider.max;
+  const offset = ratio * (width - thumbWidth) + thumbWidth / 2;
+  playheadTime.style.left = `${offset}px`;
+  playheadTime.style.transform = 'translateX(-50%)';
+}
+
+timelineSlider.addEventListener('input', updatePlayheadPosition);
+window.addEventListener('resize', updatePlayheadPosition);
+
+
+playheadTime.addEventListener("pointerdown", (e) => {
+  playheadTime.setPointerCapture(e.pointerId);
+  player.pause();
+  playButtonTimeline.textContent = "Play";
+  e.preventDefault();
+});
+
+// https://developer.mozilla.org/en-US/docs/Web/API/Element/hasPointerCapture
+playheadTime.addEventListener("pointermove", (e) => {
+  if (!playheadTime.hasPointerCapture(e.pointerId)) return;
+
+  // Claude: How do I move my playhead with the thumb with pointermove?
+  const { left, width } = timelineSlider.getBoundingClientRect();
+  const thumbHalf = 3;
+  const usableWidth = width - thumbHalf * 2;
+  const x = Math.max(0, Math.min(e.clientX - left - thumbHalf, usableWidth));
+  const ratio = x / usableWidth;
+
+  player.setProgress(ratio);
+});
+
+
+updatePlayheadPosition();
 
 // -----------------------
 // MARK: EDIT PROJECT NAME
