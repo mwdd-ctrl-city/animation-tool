@@ -78,8 +78,8 @@ The ZIP file contains:
 ├── 📄 filename.html                       # Open this file to preview the animation.
 ├── 📄 filename.json                       # Import this file back into the tool to edit the animation.
 ├── 📁 Embedded/                           # Folder for implementing the animation on your own website
-│   ├── 📄 ?                               # Fonts
-│   ├── 📄 ?                               # Icons
+│   ├── 📄 ?                               # ?
+│   ├── 📄 ?                               # ?
 ```
 
 ### For Development
