@@ -7,13 +7,9 @@ Welkom bij (Inter) play animationtool, deze tool is designed en ontworpen voor M
 - [Vereisten](#vereisten)
 - [Installatie](#eerste-gebruik)
 - [Gegevens opslaan en inladen](#gegevens-opslaan-en-inladen)
-<!-- - [Configuratie](#configuratie) -->
 - [Mappenstructuur](#mappenstructuur)
-<!-- - [Veelgestelde vragen & valkuilen](#veelgestelde-vragen--valkuilen)
-- [Bijdragen aan dit project](#bijdragen-aan-dit-project)
 - [Contactpersonen](#contactpersonen)
-- [Overdrachtsnotities](#overdrachtsnotities)
-- [Licentie](#licentie) -->
+- [Licentie](#licentie)
 
 ## Over dit project
 Het doel van deze tool is om makkelijker animaties te maken bij specifieke termen die uit Marjolijn Ruijg haar PD project (Inter)facing the Hybrid city komen. 
@@ -50,9 +46,13 @@ cd animation-tool
 ```
 
 ## Eerste gebruik
-### Voor zelf gebruik
+### Voor zelf gebruik van de tool
 Stap 1:
-Start met het toevoegen van de tekst bij de "T" vul je eigen woors/tekst in en druk op enter.
+Start met het toevoegen van de tekst bij de "T" vul je eigen woord/tekst in en druk op enter.
+
+Of om een emoji of ander teken in te vullen:
+1. Control + Command + Spatiebalk
+2. Druk op het pijltje reachtsonderin om naar de grafischere vormen te gaan.
 
 Stap 2:
 Selecteer de geschreven tekst en pas in het linker paneel de vormgeving van de tekst aan.
@@ -66,11 +66,19 @@ Stap 4:
 Heb je een track waar keypoints opstaan maar ben je niet tevreden? Klik er dan op en druk vervolgend op het kruisje wat aan de linkerkant van het element komt te staan.
 
 Stap 5:
-Alles klaar en tevreden? Geef bovenin het scherm een naam aan je project en sla het vervolgens op, je ontvangt een ZIP-bestand met daarin een json en een html file. Deze code kan je eventueel later weer inladen om aan verder te werken.
+Alles klaar en tevreden? Geef bovenin het scherm een naam aan je project en sla het vervolgens op, je ontvangt een ZIP-bestand.
 
+ZIP bestand bestaat uit:
+``` bash
+├── 📄 bestandnaam.html                    # Voor gebruik van de preview, dubbelklik om dit te openen.
+├── 📄 bestandnaam.json                    # Opnieuw inladen in de tool als je de animatie wilt aanpassen.
+├── 📁 Embedded/                           # Folder om de animatie te implementeren in eigen website
+│   ├── 📄 ?                               # Fonts
+│   ├── 📄 ?                               # Icons
+```
 
 ### Voor aanpassingen
-Open de file in VsCode en druk onderin op "Go Live" om de live versie te zien van de code
+Open de file in VsCode en druk onderin op "Go Live" om de live versie te zien van de code.
 
 ## Animatie inladen in eigen website
 Benodigdheden:
@@ -81,30 +89,49 @@ Stappenplan:
 1. Open de code van de eigen website
 2. Ga binnen eigen website naar public -> src -> animations
 3. Maak een nieuwe file aan met een eigen bestandsnaam.Astro
-4. Open de ZIP file
-5. Open de .html file 
+4. Open de ZIP file -> folder -> ???
+5. .... 
 6. Kopieer de code die in .html staat en voeg dit in het zojuist aangemaakt file in Astro.
 
 ## Mappenstructuur
-```
+```bash
 ├── 📁 assets/                             # Static files (images, fonts)
 │   ├── 📁 fonts/                          # Fonts
+│   ├── 📁 icon/                           # Icons
 ├── 📁 scripts/                            # JS
 │   ├── 📁 animation/                      # Animation logic
 │       └── 📄 animation.js                # Domain logic
 │       └── 📄 animation-player.js         # GSAP
-│   ├── 📁 ui/                             # UI logic
-│        └── 📄 timeline.js                # Timeline controller
-│        └── 📄 misc.js                    # Miscellaneous
+│   ├── 📁 memento/                        # History logic
+│        └── 📄 history.js                 # History logic (redo and undo)
+│   ├── 📄  main-layout.js                 # JS for overall layout functionalities
+│   ├── 📄  preview.js                     # Preview functionality
+│   ├── 📄  timeline.js                    # All the functionalities within the timeline panel
 ├── 📁 styles/                             # Styling
-│   └── 📄 ?.css                           # ?
-│   └── 📄 ?.css                           # ?
-│   └── 📄 ?.css                           # ?
+│   └── 📄 main-layout.css                 # Styling different panels
+│   └── 📄 style.css                       # Overall utilities for styling
+│   └── 📄 timeline.css                    # Styling timeline
 ├── 📄 index.html                          # HTML
 ├── 📄 .gitignore                          # Git ignore rules
 ├── 📄 LICENSE                             # Project open-source license
-└── 📄 README.md                           # Main project landing page```
-⁠```
+└── 📄 README.md                           # Main project landing page
+```
+
+## Contactpersonen
+| Rol                  | Naam            | Contact              |
+|----------------------|-----------------|----------------------|
+| Opdrachtgever        | Marjolijn Ruijg | naam@organisatie.nl  |
+| Dev team             | Mila Massaro    | 
+| Dev team             | Kerr Beeldens   | 
+| Dev team             | Senna Hoving    | 
+| Dev team             | Jeppe de Wilde  | 
+| Dev team             | Sabrina Zuurbier|
+
+
+## Licentie
+[MIT / Intern gebruik / Geen hergebruik zonder toestemming]
+
+© 2025 ....?
 
 ## Bronnen
 ### Fonts
