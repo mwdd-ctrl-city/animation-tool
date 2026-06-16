@@ -244,7 +244,6 @@ canvasContainer.addEventListener('dblclick', (event) =>{
     canvas.style.outline = "none";
     selectedCanvas = false;
   }
-  
   })
 
 

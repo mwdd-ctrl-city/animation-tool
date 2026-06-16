@@ -14,6 +14,9 @@ export default class AnimationPlayer {
      * @param {HTMLElement} canvas The container element to render animation elements into
      * @param {Animation} animation The animation instance to play back
      */
+
+    // the "constructor" is a function, which is used to prepare the object for use.
+    // The "constructor" sets initial values and runs automatically.
     constructor(canvas, animation) {
         this.#canvas = canvas;
         this.#animation = animation;
@@ -42,18 +45,28 @@ export default class AnimationPlayer {
      * @description Clear the canvas and rebuild all DOM elements from the animation
      */
     #buildElements() {
-        gsap.registerPlugin(SplitText);
+        gsap.registerPlugin(SplitText); //Add the gsap functionality SplitText
 
         this.#canvas.innerHTML = "";
 
         const elements = this.#animation.getElements();
 
+        // Checks in the array of there is an element with type canvas
+        const hasCanvasElement = elements.values().find((element) => element.type === "canvas");
+
+        // If not then create an element canvas with type canvas
+        if (!hasCanvasElement) {
+            this.#animation.createElement("canvas", "canvas");
+        }
+
+        // Checks if there is an element with a type canvas and give the canvas an id
         elements.forEach((element, id) => {
             if (element.type === "canvas") {
                 this.#canvas.id = `el-${id}`;
                 return;
             };
 
+            // create an h2 element and put it in el
             const el = document.createElement("h2"); // TODO: element type should probably come from element data
             el.id = `el-${id}`;
             el.innerText = element.content;
