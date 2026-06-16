@@ -473,7 +473,7 @@ function nextKeyframeSnap() {
   const currentProgress = player.getProgress();
   let nextProgress = null;
 
-  // Loop whitin the element key and the values for each keyframe 
+  // Loop whitin the element key(in this case the id's of the elements) and the values for each keyframe 
   animationData.getElements().keys().forEach(element => {
     const animationMap = animationData.getAnimations(element);
     if (!animationMap) return;

@@ -85,6 +85,7 @@ export default class AnimationPlayer {
         });
     }
 
+    // Define the setup for the timeline
     #setupDraggable(el, id) {
         const gsapTimeline = this.#timeline;
         const animationData = this.#animation;
@@ -117,6 +118,7 @@ export default class AnimationPlayer {
             }
 
             if (el.splitInstance) {
+                // Revert al the all the animatible properties to their original state/value
                 el.splitInstance.revert();
             }
 
@@ -152,6 +154,7 @@ export default class AnimationPlayer {
             //     .replace(/<br>/g, "")   // Replace <br> with nothing
             //     .replace(/&nbsp;/g, " ") // Replace &nbsp with space
 
+            // if the content/textfield is emty then remove the element
             if ((el.textContent.trim()) === "") {
                 this.#animation.removeElement(id);
             } else {
@@ -175,7 +178,10 @@ export default class AnimationPlayer {
         const duration = this.#animation.getDuration();
         const targetIds = this.#animation.getElements().keys();
 
+        // Checks if there is anything in the timeline, checking it with length 
         if(this.#timeline.getChildren().length === 0){
+            // Makes a default tween for the duration, but doesn't do anything
+            // Add this to get a certain length for the timeline whitout any animations.
             this.#timeline.add(gsap.delayedCall(duration,()=>{}))
         }
 
