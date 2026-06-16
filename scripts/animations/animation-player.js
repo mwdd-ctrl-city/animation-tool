@@ -57,6 +57,7 @@ export default class AnimationPlayer {
             const el = document.createElement("h2"); // TODO: element type should probably come from element data
             el.id = `el-${id}`;
             el.innerText = element.content;
+            el.dataset.text = element.content; 
             this.#canvas.appendChild(el);
             this.#setupDraggable(el, id);
             this.#setupEditable(el, id);
@@ -77,6 +78,9 @@ export default class AnimationPlayer {
         const animationData = this.#animation;
 
         Draggable.create(el, {
+            onDrag: function () {
+                console.log("sup")
+            },
             onDragEnd: function () {
                 const dragInstance = Draggable.get(el);
                 let progress = gsapTimeline.progress(); //Get the progress of the current timeline

@@ -7,6 +7,17 @@ h2 {
     top: 50%;
     transform: translate(-50%, -50%);
     white-space: preserve nowrap;
+    color: rgba(232, 232, 234, 0.22);
+
+    &::after {
+        content: attr(data-text);
+        position: absolute; 
+        top: 0; 
+        left: 0; 
+        pointer-events: none;
+        color: #e8e8ea;
+        clip-path: var(--clip, inset(0));
+    }
 }
 
 /* ------------ */
@@ -221,7 +232,7 @@ h2 {
         transform-origin: 0 0;
         position: absolute;
 
-        overflow: clip;
+        /* overflow: clip; */
     }
 }
 

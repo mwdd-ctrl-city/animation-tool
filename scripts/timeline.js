@@ -498,7 +498,6 @@ function updateRangeInputs() {
 
     // To animate the controls, you need gsap to get the value in between the keyframes
     control.value = rangeValue;
-    console.log(rangeValue)
   });
 }
 
@@ -553,10 +552,28 @@ originalCanvas.addEventListener("click", (e) => {        // Event for clearing /
   const selectedText = animationData.getSelectedText(); 
   if (!selectedText || !selectedText.element || !selectedText.id) return;
 
+  visualOffset(); 
+  console.log(player.onDragListener); 
+
   if(e.target == originalCanvas) {
     animationData.clearSelectedText(); 
   }; 
 })
+
+function visualOffset() {
+  const elementId = animationData.getSelectedText().id; 
+  const element = document.querySelector(`#el-${elementId}`);
+
+  const boundsCanvas = canvas.getBoundingClientRect(); 
+  const boundsElement = element.getBoundingClientRect(); 
+
+  const top = Math.max(0, boundsCanvas.top - boundsElement.top);
+  const right = Math.max(0, boundsElement.right - boundsCanvas.right);
+  const bottom = Math.max(0, boundsElement.bottom - boundsCanvas.bottom);
+  const left = Math.max(0, boundsCanvas.left - boundsElement.left);
+
+  element.style.setProperty('--clip', `inset(${top}px ${right}px ${bottom}px ${left}px)`);
+}
 
 
 // -----------------------
