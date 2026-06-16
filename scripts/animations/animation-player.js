@@ -67,7 +67,7 @@ export default class AnimationPlayer {
             };
 
             // create an h2 element and put it in el
-            const el = document.createElement("h2"); // TODO: element type should probably come from element data
+            const el = document.createElement("h2");
             el.id = `el-${id}`;
             el.innerText = element.content;
             this.#canvas.appendChild(el);
@@ -182,7 +182,9 @@ export default class AnimationPlayer {
         // Apply the animations for each target
         targetIds.forEach((targetId) => {
             const properties = this.#animation.getProperties(targetId);
-            const domElement = document.querySelector(`#el-${targetId}`);
+            // MARK: EDIT
+            // const domElement = document.querySelector(`#el-${targetId}`);
+            const domElement = this.#canvas.querySelector(`#el-${targetId}`);
 
             if (!domElement) return;
 
@@ -191,10 +193,15 @@ export default class AnimationPlayer {
                 const keyframes = this.#animation.getKeyframes(targetId, propertyName);
 
                 // Set the first keyframe
-                gsap.set(`#el-${targetId}`, {
+                // MARK: EDIT
+                // gsap.set(`#el-${targetId}`, {
+                //     [propertyName]: keyframes[0].value,
+                //     ease: keyframes[0].ease ?? "none",
+                // });
+                gsap.set(domElement, {
                     [propertyName]: keyframes[0].value,
                     ease: keyframes[0].ease ?? "none",
-                });
+                })
 
                 // Create a tween between each pair of consecutive keyframes
                 for (let i = 1; i < keyframes.length; i++) {
@@ -204,7 +211,9 @@ export default class AnimationPlayer {
                     // Time difference between keyframes
                     let timeDifferenceSeconds = (current.progress - last.progress) * duration;
 
-                    let animationTarget = `#el-${targetId}`;
+                    // MARK: EDIT
+                    // let animationTarget = `#el-${targetId}`;
+                    let animationTarget = domElement;
                     let staggerConfig = null;
 
                     // Fallback values if the keyframe doesn't specify them
