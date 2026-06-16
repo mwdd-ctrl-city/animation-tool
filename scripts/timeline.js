@@ -28,11 +28,12 @@ const easeSelect = document.querySelector('#animation-select-ease');
 
 const scrollHint = document.querySelector('.scroll-hint');
 
+const projectNameText = document.getElementById("project-name");
+const projectNameInput = document.getElementById("project-name-input");
 
+const saveButton = document.querySelector(".save-button");
 
 let activeKeyframeId = null;
-let activeKeyframeElement = null;
-
 let currentSplitType = "none";
 
 // -----------------------
@@ -53,11 +54,24 @@ async function loadAnimation(filePath) {
 // Init
 // -----------------------
 
-export const animationData = await loadAnimation("./scripts/animation.json");
-// export const animationData = new AnimationData();
-const history = new History();
-history.addMemento(animationData.getAnimation());
+// Create a default animation
+export const animationData = new AnimationData("Hello World", 5);
 
+const animationDataLocalStorage = localStorage.getItem("animationData");
+const loadedFromStorage = animationDataLocalStorage && animationData.fromJSON(animationDataLocalStorage);
+
+if (!loadedFromStorage) {
+  const defaultElement = animationData.createElement("Hello World!");
+  animationData.setKeyframe(defaultElement, "fontSize", 0, 0, "bounce.out");
+  animationData.setKeyframe(defaultElement, "fontSize", 0.05, 32, "bounce.out");
+}
+
+projectNameText.textContent = animationData.getName();
+
+// Create the history object
+export const history = new History();
+
+// Create the player object
 export const player = new AnimationPlayer(canvas, animationData);
 
 animationData.addEventListener("change", () => {
@@ -95,7 +109,10 @@ resetButton.addEventListener("click", (event) => {
 
 confirmResetButton.addEventListener("click", (event) => {
   animationData.resetCanvas();
-  history.addMemento(animationData.getAnimation());
+  const defaultElement = animationData.createElement("Hello World!");
+  animationData.setKeyframe(defaultElement, "fontSize", 0, 0, "bounce.out");
+  animationData.setKeyframe(defaultElement, "fontSize", 0.05, 32, "bounce.out");
+  createSnapshot(animationData);
 
   confirmResetButton.classList.remove("show-confirm");
 });
@@ -146,10 +163,14 @@ let activeValue = null;
 deleteTextButton.addEventListener("click", () => {
   const selectedElement = animationData.getSelectedText().id;
   if (!selectedElement) return;
-
   animationData.removeElement(selectedElement)
 })
 
+
+ control.addEventListener("change", (event) => {
+    createSnapshot(animationData);
+  });
+});
 // -----------------------
 // Timeline slider
 // -----------------------
@@ -197,7 +218,7 @@ document.querySelector('.tl-time-end').addEventListener('change', (e) => {
   const time = parseFloat(e.target.value);
   animationData.setDuration(time)
 
-  history.addMemento(animationData.getAnimation())
+  createSnapshot(animationData);
 });
 
 
@@ -287,7 +308,7 @@ function buildVisualizer() {
     deleteBtn.addEventListener("click", (event) => {
       // event.stopPropagation();
       animationData.deleteProperty(elementId, propertyName);
-      history.addMemento(animationData.getAnimation());
+      createSnapshot(animationData);
     });
 
     // Add deletebutton and label text to the <p>
@@ -531,10 +552,9 @@ function addText(text) {
   const target = canvas.querySelector(`#el-${newElementId}`);
   target.contentEditable = true;
   target.focus();
-
+  createSnapshot(animationData);
   selectDefaultText(target); 
 
-  history.addMemento(animationData.getAnimation());
 }
 
 function selectDefaultText(newElement) {
@@ -652,7 +672,7 @@ animationControls.forEach((control) => {
   });
 
   control.addEventListener("change", () => {
-    history.addMemento(animationData.getAnimation());
+    createSnapshot(animationData);
   });
 })
 
@@ -737,18 +757,322 @@ export function updateScrollHint() {
   }
 }
 
+function createSnapshot(animationData) {
+  localStorage.setItem("animationData", animationData.toJSON());
+  history.addMemento(animationData.getAnimation());
+}
+
 
 // -----------------------
 // Keyframe delete
 // -----------------------
 
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Delete") {
+  if (e.key === "Backspace") {
     deleteActiveKeyframe();
   }
 });
 
 function deleteActiveKeyframe() {
   animationData.deleteKeyframe(activeKeyframeId);
+  createSnapshot(animationData);
   buildVisualizer();
 }
+
+
+// -----------------------
+// MARK: EDIT PROJECT NAME
+// -----------------------
+projectNameInput.addEventListener("input", () => {
+  projectNameInput.style.width = "0";
+  projectNameInput.style.width = Math.min(projectNameInput.scrollWidth, 300) + "px";
+});
+
+projectNameInput.addEventListener("blur", () => {
+  projectNameText.textContent = projectNameInput.value.trim();
+
+  projectNameText.style.display = "inline";
+  projectNameInput.style.display = "none";
+
+  // Apply the name to te animation data
+  animationData.setName(projectNameInput.value.trim());
+
+  console.log(animationData.getName());
+});
+
+projectNameText.addEventListener("click", () => {
+  projectNameInput.style.display = "inline";
+  projectNameText.style.display = "none";
+
+  projectNameInput.style.width = "0";
+  projectNameInput.style.width = Math.min(projectNameInput.scrollWidth, 300) + "px";
+
+  projectNameInput.focus();
+});
+
+projectNameInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") projectNameInput.blur();
+});
+
+// -----------------------
+// Save animation
+// -----------------------
+
+saveButton.addEventListener("click", () => {
+  downloadAnimation();
+});
+
+function downloadAnimation() {
+  const projectName = animationData.getName() || "animation";
+  const zip = new JSZip();
+
+  zip.file("animation.json", animationData.toJSON());
+  zip.file("index.html", buildStandaloneHTML(projectName, animationData.toJSON()));
+
+  zip.generateAsync({ type: "blob" }).then(function (blob) {
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${projectName}.zip`;
+
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+}
+
+// -----------------------
+// Standalone HTML
+// -----------------------
+function buildStandaloneHTML(projectName, animationJSON) {
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/SplitText.min.js"></script>
+
+  <title>${projectName}</title>
+
+  <style>
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+        margin: 0;
+    }
+
+    body {
+        font-family: "Inter", sans-serif;
+        background-color: #2d2d2f;
+        color: #E2E2E2;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+    }
+
+    .content-canvas {
+        width: 35em;
+        aspect-ratio: 1/1;
+
+        background-color: #1A1A1C;
+        border: .75px solid #3A3A3A;
+        position: relative;
+        overflow: clip;
+    }
+
+    .canvas {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+
+    h2 {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        white-space: preserve nowrap;
+        margin: 0;
+    }
+
+    .split-char,
+    .split-word,
+    .split-line {
+        display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="content-canvas">
+    <div class="canvas"></div>
+  </div>
+
+  <!-- Animation data, embedded so it works without a server (file:// has no fetch access) -->
+  <script type="application/json" id="animation-data">${animationJSON}</script>
+
+  <script>
+    gsap.registerPlugin(SplitText);
+
+    function loadAnimation() {
+      const raw = document.getElementById("animation-data").textContent;
+      return JSON.parse(raw);
+    }
+
+    function buildElements(canvas, elements) {
+      const elementMap = new Map();
+
+      for (const [id, text] of Object.entries(elements)) {
+        const el = document.createElement("h2");
+        el.classList.add(\`el-\${id}\`);
+        el.textContent = text;
+        canvas.appendChild(el);
+
+        const split = new SplitText(el, {
+          type: "chars, words, lines",
+          charsClass: "split-char",
+          wordsClass: "split-word",
+          linesClass: "split-line"
+        });
+        el.splitInstance = split;
+
+        elementMap.set(id, el);
+      }
+
+      return elementMap;
+    }
+
+    function buildTimeline(data, elementMap) {
+      const duration = data.duration;
+
+      const timeline = gsap.timeline({
+        paused: true,
+        repeat: -1,
+        repeatRefresh: true
+      });
+
+      timeline.add(gsap.delayedCall(duration, () => {}));
+
+      for (const [targetId, properties] of Object.entries(data.animations)) {
+        const domElement = elementMap.get(targetId);
+        if (!domElement) continue;
+
+        for (const [propertyName, keyframes] of Object.entries(properties)) {
+          if (!keyframes.length) continue;
+
+          // Set (and re-set on each loop, via repeatRefresh) the first keyframe value
+          timeline.set(
+            \`.el-\${targetId}\`,
+            {
+              [propertyName]: keyframes[0].value,
+              ease: keyframes[0].ease ?? "none",
+            },
+            0
+          );
+
+          for (let i = 1; i < keyframes.length; i++) {
+            const last = keyframes[i - 1];
+            const current = keyframes[i];
+
+            let timeDifferenceSeconds = (current.progress - last.progress) * duration;
+
+            let animationTarget = \`.el-\${targetId}\`;
+            let staggerConfig = null;
+
+            const kfSplitType = current.splitType || "none";
+
+            if (kfSplitType !== "none") {
+              animationTarget = domElement.splitInstance[kfSplitType];
+
+              staggerConfig = {
+                amount: timeDifferenceSeconds * 0.5,
+              };
+
+              timeDifferenceSeconds = timeDifferenceSeconds * 0.5;
+            }
+
+            timeline.to(
+              animationTarget,
+              {
+                [propertyName]: current.value,
+                duration: timeDifferenceSeconds,
+                ease: current.ease ?? "none",
+                stagger: staggerConfig,
+              },
+              last.progress * duration
+            );
+          }
+        }
+      }
+
+      return timeline;
+    }
+
+    (function init() {
+      const data = loadAnimation();
+      const canvas = document.querySelector(".canvas");
+
+      const elementMap = buildElements(canvas, data.elements);
+      const timeline = buildTimeline(data, elementMap);
+
+      timeline.play();
+    })();
+  </script>
+</body>
+</html>`;
+}
+
+
+const loadButton = document.querySelector(".load-button");
+const loadInput = document.querySelector("#load-input");
+
+loadButton.addEventListener("click", () => {
+  loadInput.click();
+});
+
+loadInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = (event) => {
+    const json = event.target.result;
+    const success = animationData.fromJSON(json);
+
+    if (success) {
+      history.clear();
+      createSnapshot(animationData);
+
+      // Reset UI state tied to the previous animation
+      activeKeyframeId = null;
+      activeElementId = null;
+      activePropertyName = null;
+      activeValue = null;
+
+      // Update project name display
+      projectNameText.textContent = animationData.getName();
+
+      // Sync timeline end time input with the loaded duration
+      endTimeInput.value = animationData.getDuration().toFixed(2);
+
+      buildVisualizer();
+      updateRangeInputs();
+      showSelectedText();
+    } else {
+      alert("Could not load animation: invalid file.");
+    }
+  };
+
+  reader.readAsText(file);
+
+  // Reset the input so the same file can be selected again later
+  loadInput.value = "";
+});

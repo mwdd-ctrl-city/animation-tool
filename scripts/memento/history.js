@@ -51,4 +51,12 @@ export default class History {
         }
         return null;
     }
+
+    /**
+     * Clear all history
+     */
+    clear() {
+        this.mementos = [];
+        this.currentIndex = -1;
+    }
 }
