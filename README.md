@@ -1,149 +1,160 @@
-# (Inter)play - Animationtool
+# (Inter)play - Animation Tool
 
-Welkom bij (Inter) play animationtool, deze tool is designed en ontworpen voor Marjolijn Ruijg, zodat zij binnen haar PD, die het mogelijk maakt om typografische interactieve animaties te genereren voor verschillende begrippen uit de glossary, waarbij alleen gebruik gemaakt wordt van typografie of grafische elementen
+Welcome to the (Inter)play Animation Tool. This tool was designed and developed for Marjolijn Ruijg, enabling her within her Professional Development (PD) project to generate typographic interactive animations for various concepts from the glossary, using only typography or graphic elements.
 
-## Inhoudsopgave
-- [Over dit project](#over-dit-project)
-- [Vereisten](#vereisten)
-- [Installatie](#eerste-gebruik)
-- [Gegevens opslaan en inladen](#gegevens-opslaan-en-inladen)
-- [Mappenstructuur](#mappenstructuur)
-- [Contactpersonen](#contactpersonen)
-- [Licentie](#licentie)
+## Table of Contents
+- [About this Project](#about-this-project)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [First-Time Use](#first-time-use)
+- [Embedding an Animation into Your Website](#embedding-an-animation-into-your-website)
+- [File Structure](#file-structure)
+- [Contact Persons](#contact-persons)
+- [License](#license)
 
-## Over dit project
-Het doel van deze tool is om makkelijker animaties te maken bij specifieke termen die uit Marjolijn Ruijg haar PD project (Inter)facing the Hybrid city komen. 
+## About this Project
+The goal of this tool is to make it easier to create animations for specific terms from Marjolijn Ruijg's PD project, *(Inter)facing the Hybrid City*.
 
-Dit project is ontworpen en gebouwd mei - juni 2026. Door studenten van de opleiding CMD op de hogeschool van Amsterdam. Het project is na juni afgerond, maar mogelijk nog in de toekomst verder ontwikkelen.
+This project was designed and developed between May and June 2026 by students from the Communication and Multimedia Design (CMD) program at the Amsterdam University of Applied Sciences. The project was completed after June, but may be further developed in the future.
 
-Ontwerper/developers:
+Designers/Developers:
 - Jeppe de Wilde
 - Mila Massaro
 - Kerr Beeldens
 - Senna Hoving
 - Sabrina Zuurbier
 
-## Vereisten
-Er zijn geen vereiste softwares nodig om gebruik te kunnen maken voor de installatie.
+## Requirements
+No additional software is required to install or use this tool.
 
-## Installatie
-### Voor zelf gebruik
-Open de volgende link in je browser:
-[https://mwdd-ctrl-city.github.io/animation-tool/](Link naar de tool)
+## Installation
 
+### For Personal Use
+Open the following link in your browser:
 
-### Voor aanpassingen
-Open VisualStudioCode en open binnen de code de terminal.
+[https://mwdd-ctrl-city.github.io/animation-tool/](Link to the tool)
+
+### For Development and Modifications
+Open Visual Studio Code and launch the terminal within the project.
 
 ```bash
-# 1. Repository klonen
-# Clone de repository door de volgende code in de command line te plakken
+# 1. Clone the Repository
+# Clone the repository by pasting the following command into the terminal
 git clone https://github.com/mwdd-ctrl-city/animation-tool.git
 
 # 2. Change Directory
-# Verander de map waarin je de repository wilt hebben.
+# Navigate to the project folder
 cd animation-tool
 ```
 
-## Eerste gebruik
-### Voor zelf gebruik van de tool
-Stap 1:
-Start met het toevoegen van de tekst bij de "T" vul je eigen woord/tekst in en druk op enter.
+## First-Time Use
 
-Of om een emoji of ander teken in te vullen:
-1. Control + Command + Spatiebalk
-2. Druk op het pijltje reachtsonderin om naar de grafischere vormen te gaan.
+### Using the Tool
 
-Stap 2:
-Selecteer de geschreven tekst en pas in het linker paneel de vormgeving van de tekst aan.
+#### Step 1
+Start by adding text in the "T" field. Enter your own word or text and press Enter.
 
-Stap 3:
-Terwijl je de vormgeving aanpast komen er in het onderste paneel ruitjes op een blauwe track te staan. Dit zijn keyframes. Om een animatie te maken moet je er minimaal 2 hebben staan op dezelfde blauwe track. 
+Or, to add an emoji or another symbol:
 
-Versleep de punten door ze vast te houden en van links naar rechts te slepen. Zo kan je de tijd voor de animatie sneller maken.
+1. Control + Command + Spacebar
+2. Click the arrow in the bottom-right corner to browse more graphical symbols.
 
-Stap 4:
-Heb je een track waar keypoints opstaan maar ben je niet tevreden? Klik er dan op en druk vervolgend op het kruisje wat aan de linkerkant van het element komt te staan.
+#### Step 2
+Select the text you entered and adjust its styling using the left-hand panel.
 
-Stap 5:
-Alles klaar en tevreden? Geef bovenin het scherm een naam aan je project en sla het vervolgens op, je ontvangt een ZIP-bestand.
+#### Step 3
+As you adjust the styling, small squares will appear on a blue track in the bottom panel. These are keyframes. To create an animation, you need at least two keyframes on the same blue track.
 
-ZIP bestand bestaat uit:
-``` bash
-├── 📄 bestandnaam.html                    # Voor gebruik van de preview, dubbelklik om dit te openen.
-├── 📄 bestandnaam.json                    # Opnieuw inladen in de tool als je de animatie wilt aanpassen.
-├── 📁 Embedded/                           # Folder om de animatie te implementeren in eigen website
+Drag the keyframes left or right to adjust the timing of the animation.
+
+#### Step 4
+Do you have a track with keyframes that you're not satisfied with? Click on the keyframe and then click the cross icon that appears on the left side of the element to remove it.
+
+#### Step 5
+Finished and satisfied with your animation? Give your project a name at the top of the screen and save it. You will receive a ZIP file.
+
+The ZIP file contains:
+
+```bash
+├── 📄 filename.html                       # Open this file to preview the animation.
+├── 📄 filename.json                       # Import this file back into the tool to edit the animation.
+├── 📁 Embedded/                           # Folder for implementing the animation on your own website
 │   ├── 📄 ?                               # Fonts
 │   ├── 📄 ?                               # Icons
 ```
 
-### Voor aanpassingen
-Open de file in VsCode en druk onderin op "Go Live" om de live versie te zien van de code.
+### For Development
 
-## Animatie inladen in eigen website
-Benodigdheden:
-- ZIP file gekregen uit de animation-tool
-- De website via Astro
+Open the project in Visual Studio Code and click **"Go Live"** in the bottom-right corner to launch the local development version.
 
-Stappenplan:
-1. Open de code van de eigen website
-2. Ga binnen eigen website naar public -> src -> animations
-3. Maak een nieuwe file aan met een eigen bestandsnaam.Astro
-4. Open de ZIP file -> folder -> ???
-5. .... 
-6. Kopieer de code die in .html staat en voeg dit in het zojuist aangemaakt file in Astro.
+## Embedding an Animation into Your Website
 
-## Mappenstructuur
+Requirements:
+- A ZIP file exported from the Animation Tool
+- A website built with Astro
+
+Steps:
+
+1. Open the source code of your website.
+2. Navigate to `public -> src -> animations`.
+3. Create a new file with your preferred filename, for example: `animation-name.astro`.
+4. Open the ZIP file → folder → ???
+5. ....
+6. Copy the code from the `.html` file and paste it into the newly created Astro file.
+
+## File Structure
+
 ```bash
 ├── 📁 assets/                             # Static files (images, fonts)
 │   ├── 📁 fonts/                          # Fonts
 │   ├── 📁 icon/                           # Icons
-├── 📁 scripts/                            # JS
+├── 📁 scripts/                            # JavaScript
 │   ├── 📁 animation/                      # Animation logic
 │       └── 📄 animation.js                # Domain logic
-│       └── 📄 animation-player.js         # GSAP
+│       └── 📄 animation-player.js         # GSAP integration
 │   ├── 📁 memento/                        # History logic
-│        └── 📄 history.js                 # History logic (redo and undo)
-│   ├── 📄  main-layout.js                 # JS for overall layout functionalities
-│   ├── 📄  preview.js                     # Preview functionality
-│   ├── 📄  timeline.js                    # All the functionalities within the timeline panel
+│        └── 📄 history.js                 # Undo and redo functionality
+│   ├── 📄 main-layout.js                  # General layout functionality
+│   ├── 📄 preview.js                      # Preview functionality
+│   ├── 📄 timeline.js                     # Timeline panel functionality
 ├── 📁 styles/                             # Styling
-│   └── 📄 main-layout.css                 # Styling different panels
-│   └── 📄 style.css                       # Overall utilities for styling
-│   └── 📄 timeline.css                    # Styling timeline
-├── 📄 index.html                          # HTML
+│   └── 📄 main-layout.css                 # Panel styling
+│   └── 📄 style.css                       # General styling utilities
+│   └── 📄 timeline.css                    # Timeline styling
+├── 📄 index.html                          # Main HTML file
 ├── 📄 .gitignore                          # Git ignore rules
-├── 📄 LICENSE                             # Project open-source license
-└── 📄 README.md                           # Main project landing page
+├── 📄 LICENSE                             # Open-source license
+└── 📄 README.md                           # Main project documentation
 ```
 
-## Contactpersonen
-| Rol                  | Naam            | Contact              |
-|----------------------|-----------------|----------------------|
-| Opdrachtgever        | Marjolijn Ruijg | naam@organisatie.nl  |
-| Dev team             | Mila Massaro    | 
-| Dev team             | Kerr Beeldens   | 
-| Dev team             | Senna Hoving    | 
-| Dev team             | Jeppe de Wilde  | 
-| Dev team             | Sabrina Zuurbier|
+## Contact Persons
 
+| Role | Name | Contact |
+|------|------|---------|
+| Client | Marjolijn Ruijg | name@organisation.nl |
+| Development Team | Mila Massaro | |
+| Development Team | Kerr Beeldens | |
+| Development Team | Senna Hoving | |
+| Development Team | Jeppe de Wilde | |
+| Development Team | Sabrina Zuurbier | |
 
-## Licentie
-[MIT / Intern gebruik / Geen hergebruik zonder toestemming]
+## License
 
-© 2025 ....?
+MIT License
 
-## Bronnen
+© 2026 Animation Tool Team
+
+## Sources
+
 ### Fonts
-- https://fonts.google.com/specimen/Inter?preview.script=Latn 
+- https://fonts.google.com/specimen/Inter?preview.script=Latn
 - https://fonts.google.com/specimen/Courier+Prime?preview.script=Latn
 
-
 ### GSAP
-- https://gsap.com/docs/v3/GSAP/Timeline/ 
-- https://gsap.com/docs/v3/Installation/?tab=cdn&module=esm&require=false 
+- https://gsap.com/docs/v3/GSAP/Timeline/
+- https://gsap.com/docs/v3/Installation/?tab=cdn&module=esm&require=false
 
-### Javascript
+### JavaScript
 - https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
-- https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
-- https://developer.mozilla.org/en-US/docs/Web/API/Node/cloneNode 
+- https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver
+- https://developer.mozilla.org/en-US/docs/Web/API/Node/cloneNode
