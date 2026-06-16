@@ -277,7 +277,7 @@ function buildVisualizer() {
     if (contentSummary.length > maxLengthSummary) {
       timelineSectionSummary.innerHTML = contentSummary.slice(0, maxLengthSummary) + "..."
     } else {
-      timelineSectionSummary.innerHTML = content;
+      timelineSectionSummary.innerHTML = contentSummary;
     }
 
     timelineSection.appendChild(timelineSectionSummary);
@@ -437,6 +437,7 @@ function buildVisualizer() {
       timelineSection.appendChild(row);
     });
   });
+});
   // Update the playheadHeight on the height of the container
   updatePlayheadHeight();
   updateScrollHint();
@@ -879,7 +880,7 @@ playheadTime.addEventListener("pointerdown", (e) => {
   e.preventDefault();
 });
 
-https://developer.mozilla.org/en-US/docs/Web/API/Element/hasPointerCapture
+// https://developer.mozilla.org/en-US/docs/Web/API/Element/hasPointerCapture
 playheadTime.addEventListener("pointermove", (e) => {
   if (!playheadTime.hasPointerCapture(e.pointerId)) return;
 
