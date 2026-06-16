@@ -3,8 +3,6 @@ import { updateScrollHint } from "./timeline.js";
 // ---------------
 // MARK: CONSTANTS
 // ---------------
-const projectNameText = document.getElementById("project-name");
-const projectNameInput = document.getElementById("project-name-input");
 
 const contentContainer = document.querySelector('.content-panel');
 const contentCanvas = document.querySelector('.content-canvas');
@@ -31,38 +29,6 @@ let contentScale = 1;
 let isMoving = false;
 let startMoveX;
 let startMoveY;
-
-
-// -----------------------
-// MARK: EDIT PROJECT NAME
-// -----------------------
-projectNameInput.addEventListener("input", () => {
-    projectNameInput.style.width = "0";
-    projectNameInput.style.width = Math.min(projectNameInput.scrollWidth, 300) + "px";
-});
-
-projectNameInput.addEventListener("blur", () => {
-    projectNameText.textContent = projectNameInput.value;
-
-    projectNameText.style.display = "inline";
-    projectNameInput.style.display = "none";
-});
-
-projectNameText.addEventListener("click", () => {
-    projectNameInput.style.display = "inline";
-    projectNameText.style.display = "none";
-
-    projectNameInput.style.width = "0";
-    projectNameInput.style.width = Math.min(projectNameInput.scrollWidth, 300) + "px";
-
-    projectNameInput.focus();
-});
-
-projectNameInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") projectNameInput.blur();
-});
-
-
 
 // ----------------------------------
 // MARK: TIMELINE DRAGGABLE CONTAINER
@@ -240,7 +206,7 @@ function updateTheme() {
     const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
     colorRanges.forEach(range => {
-      range.defaultValue = isDark ? 255 : 0;
+        range.defaultValue = isDark ? 255 : 0;
     });
 
     document.querySelectorAll('.animation-control[data-property="backgroundColor"]').forEach(range => {
