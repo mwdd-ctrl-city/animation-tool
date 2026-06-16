@@ -166,11 +166,6 @@ deleteTextButton.addEventListener("click", () => {
   animationData.removeElement(selectedElement)
 })
 
-
- control.addEventListener("change", (event) => {
-    createSnapshot(animationData);
-  });
-});
 // -----------------------
 // Timeline slider
 // -----------------------
@@ -533,7 +528,6 @@ function updateRangeInputs() {
 
     // To animate the controls, you need gsap to get the value in between the keyframes
     control.value = rangeValue;
-    console.log(rangeValue)
   });
 }
 
