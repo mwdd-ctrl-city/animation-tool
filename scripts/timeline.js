@@ -33,6 +33,14 @@ const projectNameInput = document.getElementById("project-name-input");
 
 const saveButton = document.querySelector(".save-button");
 
+const btnSplitNone = document.getElementById("btn-split-none");
+const btnSplitChars = document.getElementById("btn-split-chars");
+const btnSplitWords = document.getElementById("btn-split-words");
+const btnSplitLines = document.getElementById("btn-split-lines");
+
+const loadButton = document.querySelector(".load-button");
+const loadInput = document.querySelector("#load-input");
+
 let activeKeyframeId = null;
 let currentSplitType = "none";
 
@@ -43,17 +51,11 @@ let activeValue = null;
 
 let selectedCanvas = false;
 
-const btnSplitNone = document.getElementById("btn-split-none");
-const btnSplitChars = document.getElementById("btn-split-chars");
-const btnSplitWords = document.getElementById("btn-split-words");
-const btnSplitLines = document.getElementById("btn-split-lines");
-
-const loadButton = document.querySelector(".load-button");
-const loadInput = document.querySelector("#load-input");
-
 // -----------------------
 // MARK: Load animation
 // -----------------------
+// The variable "filePath" is used to tell the browser where the animation file can be found.
+// Function is used (in the background) to download the JSON.
 async function loadAnimation(filePath) {
   const response = await fetch(filePath);
   const json = await response.text();
@@ -103,8 +105,10 @@ function getFirstElementId() {
 // MARK: Undo/Redo/Reset
 // -----------------------
 undoButton.addEventListener("click", () => {
+  // "state": used to "save" the current situation of the animation
   const state = history.undo();
 
+  // If state is not empty, load the animationData of state
   if (state !== null) {
     animationData.load(state);
   }
@@ -118,6 +122,8 @@ redoButton.addEventListener("click", () => {
   }
 });
 
+// function to save a snapshot of the current status of the animation
+// Is saved in: (1) localStorage/browser memory and (2) short term memory.
 function createSnapshot(animationData) {
   localStorage.setItem("animationData", animationData.toJSON());
   history.addMemento(animationData.getAnimation());
@@ -138,6 +144,7 @@ confirmResetButton.addEventListener("click", (event) => {
 // -----------------------
 // MARK: Player update
 // -----------------------
+// setOnUpdateListener: from library, used to check on real time updates
 player.setOnUpdateListener((timeline) => {
   const progress = timeline.progress();
   const current = (progress * timeline.duration()).toFixed(2);
@@ -191,6 +198,7 @@ animationControls.forEach((control) => {
     let value;
     let colorValue;
 
+    // colorValue is for r, g and b the same, because we only want to use grey-tints.
     if (event.target.dataset.propertyType === "color") {
       elementId = animationData.getSelectedText().id;
       colorValue = parseInt(sliderValue);
@@ -208,8 +216,6 @@ animationControls.forEach((control) => {
     if (animationData.getElement(elementId).type === "canvas" && event.target.dataset.property !== "backgroundColor") {
       return;
     }
-
-
 
     activeKeyframeId = animationData.setKeyframe(
       elementId,
@@ -267,7 +273,7 @@ document.querySelector('.tl-time-end').addEventListener('change', (e) => {
 // -----------------------
 // MARK: Select canvas
 // -----------------------
-// Claude: Waarom werkt dit niet?
+// Claude: Why doesn't it work?
 canvasContainer.addEventListener('dblclick', (event) => {
   if (selectedCanvas === false) {
     if (event.target != canvasContainer) return;  // If double clicked on selected text, dont select canvas
@@ -318,7 +324,7 @@ function buildVisualizer() {
     timelineSection.classList.add("timeline-section");
     timelineSection.open = true;
 
-
+    // JavaScript function that lets the observer-object ("observer") observe/check if there is anything happening in the timelineSection
     observer.observe(timelineSection);
 
     // Add a summary which is the elementId or value and set it in the details 
@@ -326,6 +332,7 @@ function buildVisualizer() {
     const maxLengthSummary = 18;
     const timelineSectionSummary = document.createElement('summary');
 
+    // Gives the summary a max-length, when it is bigger, the rest of the characters will be replaced with three dots.
     if (contentSummary.length > maxLengthSummary) {
       timelineSectionSummary.innerHTML = contentSummary.slice(0, maxLengthSummary) + "..."
     } else {
@@ -414,6 +421,7 @@ function buildVisualizer() {
               Math.min(1, pointX / trackWidth)
             );
 
+            // Moves keyframe within animation to a new place in time (newProgress).
             animationData.moveKeyframe(
               keyframe.id,
               newProgress
@@ -497,6 +505,8 @@ function nextKeyframeSnap() {
     })
   })
 
+  // Checks if nextProgress is empty. If it is not empty (not null), move to new time (nextProgress).
+  // if there is a nextProgress found, set progress to 100% (end of animation).
   if (nextProgress !== null) {
     player.setProgress(nextProgress)
   } else {
@@ -508,14 +518,22 @@ function prevKeyframeSnap() {
   const currentProgress = player.getProgress();
   let prevProgress = null;
 
+  // Checks all elements and animations
+  // Gathers all animations with accompanying animations.
   animationData.getElements().keys().forEach(element => {
     const animationMap = animationData.getAnimations(element);
     if (!animationMap) return;
 
+    // Checks every independent keyframe of all those animations.
     animationMap.values().forEach(keyframes => {
       keyframes.forEach(keyframe => {
+        // Checks if keyframe is before the currentProgress (playhead).
+        // -0.0001 is a buffer for rounding errors of the computer.
         if (keyframe.progress < currentProgress - 0.0001) {
+          // Another "buffer" to be very precise.
+          // Checks if the check before really is the most accurate keyframe or if there is one even closer to the playhead/progress.
           if (prevProgress === null || keyframe.progress > prevProgress) {
+            // "Overwrites" the prevProgress to the newest keyframe
             prevProgress = keyframe.progress;
 
             // Make the keyframe the active keyframe
@@ -671,19 +689,24 @@ originalCanvas.addEventListener("click", (e) => {        // Event for clearing /
 // MARK: Playhead height fix
 // -----------------------
 // API that tracks if an element changes size
+// "observer" (const) is a observer-object.
 // https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver 
 const observer = new ResizeObserver(() => {
+  // JavaScript function to sync the change of playhead height with the browser's refresh rate.
   requestAnimationFrame(updatePlayheadHeight);
   updateScrollHint();
 });
 
+// Triggers playhead height updates instantly whenever the tracks container is being scrolled.
+// Without this the playhead would float when you scroll.
 tracksContainer.addEventListener("scroll", updatePlayheadHeight);
 
 buildVisualizer();
 updatePlayheadHeight();
 
 function updatePlayheadHeight() {
-  const rows = tracksContainer.querySelectorAll(".timeline-section[open] .row")
+  const rows = tracksContainer.querySelectorAll(".timeline-section[open] .row");
+  // Gets the last row in the array because JavaScript lists use zero-based indexing (length minus one).
   const lastRow = rows[rows.length - 1];
   let height;
 
@@ -693,9 +716,9 @@ function updatePlayheadHeight() {
     const rowBottom = lastRow.getBoundingClientRect().bottom;
     const sliderTop = timelineSlider.getBoundingClientRect().top;
 
-    // Divide by eachother so it doesn't get the whole height. Add 20 to make sure it goes a little below the row.
     height = rowBottom - sliderTop;
 
+    // scrollTop stores how many pixels the container's content has been scrolled vertically upwards.
     const containerScrollTop = tracksContainer.scrollTop;
     height = height + containerScrollTop;
 
@@ -710,6 +733,7 @@ function updatePlayheadHeight() {
 // -----------------------
 // MARK: Playhead moves with slider
 // -----------------------
+// Function generated by Claude
 function updatePlayheadPosition() {
   const { width } = timelineSlider.getBoundingClientRect();
   const thumbWidth = 6;

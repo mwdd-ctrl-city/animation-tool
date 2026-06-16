@@ -259,6 +259,7 @@ h2 {
     height: 100svh;
     overflow-y: auto;
 
+    user-select: none;
     container-type: inline-size;
 
     font-weight: 400;
