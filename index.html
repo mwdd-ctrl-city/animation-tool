@@ -30,11 +30,35 @@
             <input id="project-name-input" type="text" value="Untitled">
         </div>
 
-        <button popovertarget="popover-original" id="open-button" class="preview-button">Preview</button>
-        <button class="save-button">Save</button>
+        <button popovertarget="popover-original" id="open-button" class="preview-button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 12C1 12 4.5 5 12 5C19.5 5 23 12 23 12C23 12 19.5 19 12 19C4.5 19 1 12 1 12Z"
+                    stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                <circle cx="12" cy="12" r="3.8" stroke="currentColor" stroke-width="2" />
+            </svg>
+            Preview
+        </button>
 
         <input type="file" id="load-input" accept="application/json" hidden>
-        <button class="load-button">Load</button>
+        <button class="load-button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 16V4M12 4L8 8M12 4L16 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                <path d="M3 17V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V17" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" />
+            </svg>
+            Import
+        </button>
+
+        <button class="save-button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 4V16M12 16L8 12M12 16L16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                <path d="M3 17V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V17" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" />
+            </svg>
+            Export
+        </button>
     </header>
 
 
@@ -69,7 +93,7 @@
                     <button type="button" class="control-button reset" aria-label="Reset" title="Reset">
                         <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path
-                                d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m-3 5v6m-4-6v6M5 6l1.5 14a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2L19 6"
+                                d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M5 6l1.5 14a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2L19 6M10 10.5v5M14 10.5v5"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round" />
                         </svg>
@@ -102,6 +126,19 @@
             <div class="resize-handle handle-left"></div>
 
             <details open class="fieldset-container">
+                <summary>Delete</summary>
+
+                <fieldset class="item">
+                    <legend class="visually-hidden">Delete</legend>
+
+                    <div class="delete-text">
+                        <p>Delete element</p>
+                        <button>Delete</button>
+                    </div>
+                </fieldset>
+            </details>
+
+            <details open class="fieldset-container">
                 <summary>Typography</summary>
 
                 <fieldset class="item item-typography">
@@ -112,7 +149,7 @@
                         <div class="slider-input-container">
                             <input type="range" class="animation-control" data-property="fontSize" min="0" max="200"
                                 value="16" step="1" />
-                            <div class="number-input-wrapper">
+                            <div class="number-input-wrapper px">
                                 <input type="number" class="animation-control" data-property="fontSize" value="16"
                                     step="1" />
                                 <p class="unit">px</p>
@@ -137,12 +174,13 @@
                         <div class="slider-input-container">
                             <input type="range" class="animation-control" data-property="lineHeight" min="0" max="50"
                                 value="16" step="1" />
-                            <div class="number-input-wrapper">
-                                <input type="number" class="animation-control" data-property="lineHeight" value="16" step="1" />
+                            <div class="number-input-wrapper px">
+                                <input type="number" class="animation-control" data-property="lineHeight" value="16"
+                                    step="1" />
                                 <p class="unit">px</p>
                             </div>
                         </div>
-                            
+
                     </label>
 
                     <!-- <label>
@@ -161,33 +199,6 @@
             </details>
 
             <details open class="fieldset-container">
-                <summary>Colors</summary>
-
-                <fieldset class="item item-typography">
-                    <legend class="visually-hidden">Colors</legend>
-
-                    <label>
-                        Fill
-                        <input type="range" class="animation-control" data-property="color" data-property-type="color" min="0" max="255" value="0" step="1"/>
-                    </label>
-                    <label>
-                        Background
-                        <input type="range" class="animation-control" data-property="backgroundColor" data-property-type="color" min="0" max="255" value="255" step="1"/>
-                    </label>
-                    <label>
-                        Outline
-                        <input type="range" class="animation-control" data-property="webkitTextStrokeColor" data-property-type="color" min="0" max="255" value="0" step="1"/>
-
-                    </label>
-                    <label>
-                        Outline width
-                        <input type="range" class="animation-control" data-property="webkitTextStrokeWidth" min="0"
-                            max="5" value="0" step="1">
-                    </label>
-                </fieldset>
-            </details>
-
-            <details open class="fieldset-container">
                 <summary>Transform</summary>
 
                 <fieldset class="item item-typography">
@@ -196,11 +207,12 @@
                     <label>
                         Scale X
                         <div class="slider-input-container">
-                            <input type="range" class="animation-control" data-property="scaleX" min="0" max="5" value="1"
-                                step="0.05" />
-                            
+                            <input type="range" class="animation-control" data-property="scaleX" min="0" max="5"
+                                value="1" step="0.05" />
+
                             <div class="number-input-wrapper">
-                                <input type="number" class="animation-control" data-property="scaleX" value="1" step="0.05" />
+                                <input type="number" class="animation-control" data-property="scaleX" value="1"
+                                    step="0.05" />
                                 <p class="unit">x</p>
                             </div>
                         </div>
@@ -209,10 +221,11 @@
                     <label>
                         Scale Y
                         <div class="slider-input-container">
-                        <input type="range" class="animation-control" data-property="scaleY" min="0" max="5" value="1"
-                                step="0.05" />
+                            <input type="range" class="animation-control" data-property="scaleY" min="0" max="5"
+                                value="1" step="0.05" />
                             <div class="number-input-wrapper">
-                                <input type="number" class="animation-control" data-property="scaleY" value="1" step="0.05" />
+                                <input type="number" class="animation-control" data-property="scaleY" value="1"
+                                    step="0.05" />
                                 <p class="unit">x</p>
                             </div>
                         </div>
@@ -270,11 +283,42 @@
                 </fieldset>
             </details>
 
-            <details open class="fieldset-container">
-                <summary>Settings</summary>
 
-                <fieldset class="item item-settings">
-                    <legend class="visually-hidden">Settings</legend>
+            <details open class="fieldset-container">
+                <summary>Colors</summary>
+
+                <fieldset class="item item-typography">
+                    <legend class="visually-hidden">Colors</legend>
+
+                    <label>
+                        Fill
+                        <input type="range" class="animation-control" data-property="color" data-property-type="color"
+                            min="0" max="255" value="0" step="1" />
+                    </label>
+                    <label>
+                        Background
+                        <input type="range" class="animation-control" data-property="backgroundColor"
+                            data-property-type="color" min="0" max="255" value="255" step="1" />
+                    </label>
+                    <label>
+                        Outline
+                        <input type="range" class="animation-control" data-property="webkitTextStrokeColor"
+                            data-property-type="color" min="0" max="255" value="0" step="1" />
+
+                    </label>
+                    <label>
+                        Outline width
+                        <input type="range" class="animation-control" data-property="webkitTextStrokeWidth" min="0"
+                            max="5" value="0" step="1">
+                    </label>
+                </fieldset>
+            </details>
+
+            <details open class="fieldset-container">
+                <summary>Animation style</summary>
+
+                <fieldset class="item item-typography">
+                    <legend class="visually-hidden">Animation style</legend>
 
                     <div class="split-text">
                         <label>Split type</label>
@@ -297,38 +341,20 @@
                             </label>
                         </div>
                     </div>
-            </details>
-
-            <details open class="fieldset-container">
-                <summary>Animation functions</summary>
-
-                <fieldset class="item item-typography">
-                    <legend class="visually-hidden">Animation functions</legend>
 
                     <div class="animation-ease">
-                        <label>Easing</label>
-                        <select id="animation-select-ease">
-                            <option value="none">Linear</option>
-                            <option value="power1.in">Ease-in</option>
-                            <option value="power1.out">Ease-out</option>
-                            <option value="bounce.in">Bounce-in</option>
-                            <option value="bounce.out">Bounce-out</option>
-                            <option value=" back.in(1.7)">Back-in</option>
-                            <option value="back.out(1.7)">Back-out</option>
-                        </select>
-                    </div>
-                </fieldset>
-            </details>
-
-            <details open class="fieldset-container">
-                <summary>Delete</summary>
-                
-                <fieldset class="item">
-                    <legend class="visually-hidden">Delete</legend>
-
-                    <div class="delete-text">
-                        <label>Delete</label>
-                        <button>Delete</button>
+                        <label>
+                            Easing function
+                            <select id="animation-select-ease">
+                                <option value="none">Linear</option>
+                                <option value="power1.in">Ease-in</option>
+                                <option value="power1.out">Ease-out</option>
+                                <option value="bounce.in">Bounce-in</option>
+                                <option value="bounce.out">Bounce-out</option>
+                                <option value=" back.in(1.7)">Back-in</option>
+                                <option value="back.out(1.7)">Back-out</option>
+                            </select>
+                        </label>
                     </div>
                 </fieldset>
             </details>
@@ -369,7 +395,7 @@
                     </div>
                 </div>
 
-            
+
                 <div class="slider-wrapper" style="--min: 0; --max: 100; --val: 0">
                     <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
                     <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />

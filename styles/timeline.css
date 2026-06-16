@@ -216,12 +216,12 @@
 
 .playhead-time {
     position: absolute;
-    top: -22px;
+    top: -26px;
 
     background-color: var(--color-details-two);
-    color: var(--color-text-four);
+    color: var(--color-text-one);
     border-radius: 5px;
-    height: 20px;
+    height: 1.5rem;
     width: fit-content;
 
     display: flex;
@@ -241,6 +241,6 @@
 .playhead-time .unit {
     right: 0.4rem;
     font-size: 0.75rem;
-    color: var(--color-text-four);
+    color: var(--color-text-one);
     pointer-events: none;
 }
