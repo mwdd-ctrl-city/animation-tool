@@ -49,9 +49,14 @@ export default class AnimationPlayer {
         const elements = this.#animation.getElements();
 
         elements.forEach((element, id) => {
+            if (element.type === "canvas") {
+                this.#canvas.id = `el-${id}`;
+                return;
+            };
+
             const el = document.createElement("h2"); // TODO: element type should probably come from element data
-            el.classList.add(`el-${id}`);
-            el.textContent = element;
+            el.id = `el-${id}`;
+            el.innerText = element.content;
             this.#canvas.appendChild(el);
             this.#setupDraggable(el, id);
             this.#setupEditable(el, id);
@@ -63,7 +68,7 @@ export default class AnimationPlayer {
                 wordsClass: "split-word",
                 linesClass: "split-line"
             });
-            el.splitInstance = split; 
+            el.splitInstance = split;
         });
     }
 
@@ -78,13 +83,15 @@ export default class AnimationPlayer {
 
                 animationData.setKeyframe(id, "x", progress, this.x, "none");    //Create x keyframe
                 animationData.setKeyframe(id, "y", progress, this.y, "none");    //Create y keyframe
+
+                animationData.setSelectedText(el, id);        // Also select text when dragging element
             },
             onClick: () => {
                 if (this.#animation.selectedText.id == id) {  // If text is already selected dont go thru
-                    return; 
+                    return;
                 } else {
                     this.#animation.setSelectedText(el, id);
-                } 
+                }
             }
         })
     }
@@ -96,29 +103,51 @@ export default class AnimationPlayer {
                 dragInstance.disable();  // Turn off gsap draggable behavior
             }
 
+            if (el.splitInstance) {
+                el.splitInstance.revert();
+            }
+
             el.contentEditable = true;
             el.focus();
         })
 
+        el.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                document.execCommand("insertLineBreak");
+            }
+        });
+
+        // Function to make sure only plain html will paste
+        el.addEventListener("paste", (e) => {
+            e.preventDefault();
+
+            // Only get pure html while kopiieeren een
+            const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+
+            // Paste from the position of the cursor
+            document.execCommand("insertText", false, text);
+        });
+
         el.addEventListener("blur", () => {
+            const formattedText = el.innerText;
             el.contentEditable = false;
 
+            // const formattedText = el.textContent   // innerHTML gives: first<div><br></div><div><br></div><div>second</div>
+            //     .replace(/<div>/g, "\n")  // Replace <div> with \n -> enter - /g makes global, so not just stop at / replace  first div
+            //     .replace(/<\/div>/g, "")  // Replace </div> with nothing
+            //     .replace(/<br>/g, "")   // Replace <br> with nothing
+            //     .replace(/&nbsp;/g, " ") // Replace &nbsp with space
 
-            const formattedText = el.textContent   // innerHTML gives: first<div><br></div><div><br></div><div>second</div>
-                .replace(/<div>/g, "\n")  // Replace <div> with \n -> enter - /g makes global, so not just stop at / replace  first div
-                .replace(/<\/div>/g, "")  // Replace </div> with nothing
-                .replace(/<br>/g, "")   // Replace <br> with nothing
-                .replace(/&nbsp;/g, " ") // Replace &nbsp with space
-
-            if((el.textContent.trim()) === "") {
+            if ((el.textContent.trim()) === "") {
                 this.#animation.removeElement(id);
             } else {
-                this.#animation.renameElement(id, formattedText); 
+                this.#animation.renameElement(id, formattedText);
             }
 
-            this.#animation.clearSelectedText(); 
+            this.#animation.clearSelectedText();
 
-            const dragInstance = Draggable.get(el); // Retrun draggable object that was previously created 
+            const dragInstance = Draggable.get(el); // Return draggable object that was previously created 
             if (dragInstance) {
                 dragInstance.enable();  // Turn on gsap draggable behavior
             }
@@ -140,14 +169,16 @@ export default class AnimationPlayer {
         // Apply the animations for each target
         targetIds.forEach((targetId) => {
             const properties = this.#animation.getProperties(targetId);
-            const domElement = this.#canvas.querySelector(`.el-${targetId}`);
+            const domElement = document.querySelector(`#el-${targetId}`);
+
+            if (!domElement) return;
 
             // Loop through all properties
             properties.forEach((propertyName) => {
                 const keyframes = this.#animation.getKeyframes(targetId, propertyName);
 
                 // Set the first keyframe
-                gsap.set(`.el-${targetId}`, {
+                gsap.set(`#el-${targetId}`, {
                     [propertyName]: keyframes[0].value,
                     ease: keyframes[0].ease ?? "none",
                 });
@@ -160,7 +191,7 @@ export default class AnimationPlayer {
                     // Time difference between keyframes
                     let timeDifferenceSeconds = (current.progress - last.progress) * duration;
 
-                    let animationTarget = `.el-${targetId}`;
+                    let animationTarget = `#el-${targetId}`;
                     let staggerConfig = null;
 
                     // Fallback values if the keyframe doesn't specify them

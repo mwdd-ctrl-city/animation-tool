@@ -84,7 +84,6 @@
         <section id="original-canvas" class="content-panel">
             <div class="content-canvas">
                 <!-- The output of the animation/timeline -->
-                <div class="canvas"></div>
             </div>
         </section>
 
@@ -134,9 +133,16 @@
                     </label>
 
                     <label>
-                        Interlinie
-                        <input type="range" class="animation-control" data-property="lineHeight" min="0" max="50"
-                            value="16" step="1" />
+                        Line height
+                        <div class="slider-input-container">
+                            <input type="range" class="animation-control" data-property="lineHeight" min="0" max="50"
+                                value="16" step="1" />
+                            <div class="number-input-wrapper">
+                                <input type="number" class="animation-control" data-property="lineHeight" value="16" step="1" />
+                                <p class="unit">px</p>
+                            </div>
+                        </div>
+                            
                     </label>
 
                     <!-- <label>
@@ -145,7 +151,6 @@
                             value="0" step="0.5" />
                     </label> -->
 
-                    <!-- NEW -->
                     <!-- <label>
                         Word spacing
                         <input type="range" class="animation-control" data-property="wordSpacing" min="-10" max="50"
@@ -163,13 +168,15 @@
 
                     <label>
                         Fill
-                        <input type="range" class="animation-control-color" data-property="color" min="0" max="255"
-                            value="0" step="1" />
+                        <input type="range" class="animation-control" data-property="color" data-property-type="color" min="0" max="255" value="0" step="1"/>
+                    </label>
+                    <label>
+                        Background
+                        <input type="range" class="animation-control" data-property="backgroundColor" data-property-type="color" min="0" max="255" value="255" step="1"/>
                     </label>
                     <label>
                         Outline
-                        <input type="range" class="animation-control-color" data-property="webkitTextStrokeColor"
-                            min="0" max="255" value="0" step="1" />
+                        <input type="range" class="animation-control" data-property="webkitTextStrokeColor" data-property-type="color" min="0" max="255" value="0" step="1"/>
 
                     </label>
                     <label>
@@ -188,14 +195,27 @@
 
                     <label>
                         Scale X
-                        <input type="range" class="animation-control" data-property="scaleX" min="0" max="5" value="1"
-                            step="0.05" />
+                        <div class="slider-input-container">
+                            <input type="range" class="animation-control" data-property="scaleX" min="0" max="5" value="1"
+                                step="0.05" />
+                            
+                            <div class="number-input-wrapper">
+                                <input type="number" class="animation-control" data-property="scaleX" value="1" step="0.05" />
+                                <p class="unit">x</p>
+                            </div>
+                        </div>
                     </label>
 
                     <label>
                         Scale Y
+                        <div class="slider-input-container">
                         <input type="range" class="animation-control" data-property="scaleY" min="0" max="5" value="1"
-                            step="0.05" />
+                                step="0.05" />
+                            <div class="number-input-wrapper">
+                                <input type="number" class="animation-control" data-property="scaleY" value="1" step="0.05" />
+                                <p class="unit">x</p>
+                            </div>
+                        </div>
                     </label>
 
                     <label>
@@ -260,19 +280,19 @@
                         <label>Split type</label>
                         <div class="split-text-buttons layout-radios">
                             <label>
-                                <input id="btn-split-none" type="radio" checked>
+                                <input id="btn-split-none" name="split-type" type="radio" checked>
                                 None
                             </label>
                             <label>
-                                <input id="btn-split-chars" type="radio">
+                                <input id="btn-split-chars" name="split-type" type="radio">
                                 Characters
                             </label>
                             <label>
-                                <input id="btn-split-words" type="radio">
+                                <input id="btn-split-words" name="split-type" type="radio">
                                 Words
                             </label>
                             <label>
-                                <input id="btn-split-lines" type="radio">
+                                <input id="btn-split-lines" name="split-type" type="radio">
                                 Lines
                             </label>
                         </div>
@@ -300,6 +320,18 @@
                 </fieldset>
             </details>
 
+            <details open class="fieldset-container">
+                <summary>Delete</summary>
+                
+                <fieldset class="item">
+                    <legend class="visually-hidden">Delete</legend>
+
+                    <div class="delete-text">
+                        <label>Delete</label>
+                        <button>Delete</button>
+                    </div>
+                </fieldset>
+            </details>
         </section>
 
 
@@ -338,7 +370,12 @@
                 </div>
 
                 <label for="timeline-slider" class="visually-hidden">Timeline slider</label>
-                <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
+
+                <div class="slider-wrapper">
+                    <input type="range" id="timeline-slider" min="0" max="100" value="0" step="any" />
+                    <div class="playhead-time">0,00 <span class="unit">s</span></div>
+                </div>
+
 
                 <div class="timeline-container">
                     <div class="track">

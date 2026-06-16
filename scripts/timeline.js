@@ -3,11 +3,13 @@ import AnimationPlayer from "./animations/animation-player.js";
 import History from "./memento/history.js";
 
 const timelineSlider = document.querySelector("#timeline-slider");
+const playheadTime = document.querySelector(".playhead-time");
 const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
-const animationControlColor = document.querySelectorAll(".animation-control-color");
+const deleteTextButton = document.querySelector(".delete-text button");
 const tracksContainer = document.querySelector(".timeline-container");
 const canvas = document.querySelector(".content-canvas");
+const canvasContainer = document.querySelector("#original-canvas");
 
 const addTextButton = document.querySelector(".add-text-button");
 
@@ -78,8 +80,10 @@ animationData.addEventListener("change", () => {
   showSelectedText();
 })
 
+
+// MARK: TIJDELIJKE FUNCTIE -> VERANDEREN!
 function getFirstElementId() {
-  // Gets the first element in the json and gives the propertie in this case the ID, not the value
+  // Gets the first element in the json and gives the property in this case the ID, not the value
   return animationData.getElements().keys().next().value ?? null;
 }
 
@@ -131,6 +135,12 @@ player.setOnUpdateListener((timeline) => {
     endTimeInput.value = timeline.duration().toFixed(2);
   }
 
+  if (playheadTime) {
+    playheadTime.innerHTML = `${current} <span class="unit">s</span>`;
+
+    playheadTime.style.left = `${progress * 100}%`
+  }
+
   updateRangeInputs();
 });
 
@@ -149,38 +159,18 @@ let activeElementId = null;
 let activePropertyName = null;
 let activeValue = null;
 
-animationControls.forEach((control) => {
-  control.addEventListener("input", (event) => {
-    const elementId = animationData.getSelectedText().id ?? getFirstElementId();  // If getSelectedText == null / no text selected -> get first element
-    if (!elementId) return;
 
-    player.pause();
-    playButtonTimeline.textContent = player.isPaused() ? "play" : "pause";
+deleteTextButton.addEventListener("click", () => {
+  const selectedElement = animationData.getSelectedText().id;
+  if (!selectedElement) return;
+  animationData.removeElement(selectedElement)
+})
 
-    const propertyName = event.target.dataset.property;
-    const value = parseFloat(event.target.value);
 
-    activeElementId = elementId;
-    activePropertyName = event.target.dataset.property;
-    activeValue = parseFloat(event.target.value);
-
-    activeKeyframeId = animationData.setKeyframe(
-      activeElementId,
-      activePropertyName,
-      player.getProgress(),
-      activeValue,
-      ease ?? "none",
-      currentSplitType,
-    );
-
-    buildVisualizer();
-  });
-
-  control.addEventListener("change", (event) => {
+ control.addEventListener("change", (event) => {
     createSnapshot(animationData);
   });
 });
-
 // -----------------------
 // Timeline slider
 // -----------------------
@@ -231,6 +221,46 @@ document.querySelector('.tl-time-end').addEventListener('change', (e) => {
   createSnapshot(animationData);
 });
 
+
+// -----------------------
+// Select canvas
+// -----------------------
+let selectedCanvas = false;
+
+// Claude: Waarom werkt dit niet?
+canvasContainer.addEventListener('dblclick', (event) =>{
+  if(selectedCanvas === false) {
+    if (event.target != canvasContainer) return;  // If double clicked on selected text, dont select canvas
+
+    let canvasId = null
+
+    animationData.getElements().forEach((el, id) => {
+      if (event.target != canvasContainer) return;
+      // Search for the type canvas whitin the elements
+      if (el.type === "canvas") {
+        canvasId = id
+      }
+      
+      // If it does'nt exist then return null
+      if (!canvasId) return;
+
+        // When it's clicked then the activeElement becomes the canvas id to animate the background
+        activeElementId = canvasId
+        
+        canvas.style.outline = "3px solid #6495ED";
+        // Gives the selected id from the canvas 
+        animationData.setSelectedText(canvas, canvasId)
+      });
+
+      selectedCanvas = true;
+  } else {
+    canvas.style.outline = "none";
+    selectedCanvas = false;
+  }
+  
+  })
+
+
 // -----------------------
 // Visualizer
 // -----------------------
@@ -239,7 +269,6 @@ function buildVisualizer() {
   const container = document.querySelector(".timeline-container");
   container.innerHTML = "";
 
-  // With the function you got the ID of the element
   const elementId = animationData.getSelectedText().id ?? getFirstElementId();
   if (!elementId) return;
 
@@ -312,6 +341,7 @@ function buildVisualizer() {
           const trackWidth = track.offsetWidth;
           const pointX = this.x + keyframe.progress * trackWidth;
 
+          // Chatgpt to make the calculation: How to make the calculation for the new progress
           // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
           const newProgress = Math.max(0,
             Math.min(1, pointX / trackWidth)
@@ -337,7 +367,7 @@ function buildVisualizer() {
     // Add the elements to the html
     container.appendChild(row);
   });
-  // Update the playheadHeight on the height of the container
+
   updatePlayheadHeight();
   updateScrollHint();
 
@@ -479,7 +509,7 @@ function updateRangeInputs() {
   animationControls.forEach((control) => {
     const propertyName = control.dataset.property;
 
-    let target = canvas.querySelector(`.el-${elementId}`);
+    let target = canvas.querySelector(`#el-${elementId}`);
     if (!target) return;
 
     // Get current split type from the active split button, set target to first split element of that type
@@ -490,8 +520,20 @@ function updateRangeInputs() {
       else if (splitType === "lines" && target.splitInstance.lines) target = target.splitInstance.lines[0];
     }
 
+    const propertyType = control.dataset.propertyType
+
+    let rangeValue;
+
+    if (propertyType === "color") {
+      // Generated by chatGPT, RegEx to get x from rgba(x, x, x) and rgb(x, x, x)
+      rangeValue = /\d+/.exec(gsap.getProperty(target, propertyName))?.[0];
+    } else {
+      rangeValue = gsap.getProperty(target, propertyName);
+    }
+
     // To animate the controls, you need gsap to get the value in between the keyframes
-    control.value = gsap.getProperty(target, propertyName);
+    control.value = rangeValue;
+    console.log(rangeValue)
   });
 }
 
@@ -507,28 +549,49 @@ function addText(text) {
   if (!text.trim()) return;
   const newElementId = animationData.createElement(text);
 
-  const target = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  const target = canvas.querySelector(`#el-${newElementId}`);
   target.contentEditable = true;
   target.focus();
-
   createSnapshot(animationData);
+  selectDefaultText(target); 
+
+}
+
+function selectDefaultText(newElement) {
+  const range = document.createRange();    // make an empty marker for some text
+  range.selectNodeContents(newElement);    // mark all the text inside newElement
+
+  const selection = window.getSelection();    // Reach for the page's selection — the one highlighter shared by the whole document
+  selection.removeAllRanges();  // Erase whatever that highlighter was already highlighting
+  selection.addRange(range);    // acctually highlight the text inside newElement
 }
 
 function showSelectedText() {
-  const target = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  const target = canvas.querySelector(`#el-${animationData.getSelectedText().id}`);
   if (!target) return;
 
   target.style.outline = "3px solid #6495ED";
 }
 
 canvas.addEventListener("click", (e) => {
-  const selected = canvas.querySelector(`.el-${animationData.getSelectedText().id}`);
+  const selected = canvas.querySelector(`#el-${animationData.getSelectedText().id}`);
   if (!selected) return;
 
   if (selected.contains(e.target)) return;    // If clicked on the selected element, return, DONT clear selectedText
 
   animationData.clearSelectedText();
 });
+
+const originalCanvas = document.querySelector("#original-canvas");
+originalCanvas.addEventListener("click", (e) => {        // Event for clearing / deselecting selectedText 
+  const selectedText = animationData.getSelectedText(); 
+  if (!selectedText || !selectedText.element || !selectedText.id) return;
+
+  if(e.target == originalCanvas) {
+    animationData.clearSelectedText(); 
+  }; 
+})
+
 
 // -----------------------
 // Playhead height fix
@@ -562,25 +625,50 @@ observer.observe(tracksContainer);
 updatePlayheadHeight();
 buildVisualizer();
 
-animationControlColor.forEach((control) => {
+
+
+
+
+animationControls.forEach((control) => {
   control.addEventListener("input", (event) => {
-    const elementId = getFirstElementId();
+
+    const sliderValue = event.target.value;
+    const activePropertyName = event.target.dataset.property;
+
+    let elementId;
+    let value;
+    let colorValue;
+
+    if (event.target.dataset.propertyType === "color"){
+        elementId = animationData.getSelectedText().id;
+        colorValue = parseInt(sliderValue);
+        value = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+    } else {
+        elementId = animationData.getSelectedText().id ?? getFirstElementId();
+        value = parseFloat(sliderValue);
+    }
+
     if (!elementId) return;
 
     player.pause();
     playButtonTimeline.textContent = player.isPaused() ? "play" : "pause";
 
-    activeElementId = elementId;
-    activePropertyName = event.target.dataset.property;
-    activeValue = getControlValue(event.target);
+    if (animationData.getElement(elementId).type === "canvas" && event.target.dataset.property !== "backgroundColor") {
+      return;
+    }
+
+
 
     activeKeyframeId = animationData.setKeyframe(
-      activeElementId,
+      elementId,
       activePropertyName,
       player.getProgress(),
-      activeValue,
-      ease ?? "none"
+      value,
+      ease ?? "none",
+      currentSplitType
     );
+
+
   });
 
   control.addEventListener("change", () => {
@@ -591,35 +679,43 @@ animationControlColor.forEach((control) => {
 
 
 
-function getControlValue(control) {
-  const sliderValue = control.value;
+// function getControlValue(control) {
+//   const sliderValue = control.value;
 
-  if (control.dataset.property === "color" || control.dataset.property === "webkitTextStrokeColor") {
-    const colorValue = parseInt(sliderValue);
-    return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
-  }
+//   if (control.dataset.property === "color" || control.dataset.property === "webkitTextStrokeColor" || control.dataset.property === "backgroundColor") {
+//     const colorValue = parseInt(sliderValue);
+//     return `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+//   }
 
-  return parseFloat(sliderValue);
-}
+//   return parseFloat(sliderValue);
+// }
 
-// https://gsap.com/docs/v3/GSAP/gsap.getProperty()/
-// https://gsap.com/docs/v3/GSAP/UtilityMethods/splitColor()
-function updateColorInputs() {
-  const elementId = getFirstElementId();
-  if (!elementId) return;
+// // https://gsap.com/docs/v3/GSAP/gsap.getProperty()/
+// // https://gsap.com/docs/v3/GSAP/UtilityMethods/splitColor()
+// function updateColorInputs() {
+//   const elementId = getFirstElementId();
+//   if (!elementId) return;
 
-  const target = canvas.querySelector(`.el-${elementId}`);
-  if (!target) return;
+//   const targetId = canvas.querySelector(`.el-${elementId}`);
+//   if (!targetId) return;
 
-  document.querySelectorAll('.animation-control[data-property="color"]').forEach((colorControl) => {
-    const currentColor = gsap.getProperty(target, "color");
-    const colorArray = gsap.utils.splitColor(currentColor);
-    // Because we only need grey tints, the r/g/b are all the same number, so we can just use the first (r). 
-    colorControl.value = colorArray[0];
-  });
-}
+//   document.querySelectorAll('.animation-control[data-property="color"]').forEach((colorControl) => {
+//     const currentColor = gsap.getProperty(targetId, "color");
+//     const colorArray = gsap.utils.splitColor(currentColor);
+//     // Because we only need grey tints, the r/g/b are all the same number, so we can just use the first (r). 
+//     colorControl.value = colorArray[0];
+//   });
 
-updateColorInputs();
+//   document.querySelectorAll('.animation-control-color[data-property="backgroundColor"]').forEach((bgControl) => {
+//     const currentColor = gsap.getProperty(canvas, "backgroundColor");
+//     const colorArray = gsap.utils.splitColor(currentColor);
+//     bgControl.value = colorArray[0];
+//   });
+// };
+
+// updateColorInputs();
+
+
 
 // Split text controls
 const btnSplitNone = document.getElementById("btn-split-none");
@@ -631,18 +727,7 @@ const btnSplitLines = document.getElementById("btn-split-lines");
 function applySplit(type) {
   currentSplitType = type;
 
-  // Remove active class from all buttons
-  document.querySelectorAll('.split-text-buttons button').forEach(btn => {
-    btn.classList.remove('active');
-  });
-
-  // Add active class to the clicked button and set the split type as a data attribute on the canvas
-  const activeButton = document.getElementById(`btn-split-${type}`);
-  if (activeButton) {
-    activeButton.classList.add('active');
-  }
-
-  const canvas = document.querySelector(".canvas");
+  const canvas = document.querySelector(".content-canvas");
   if (canvas) {
     canvas.setAttribute("data-split-type", type);
   }
