@@ -1,4 +1,3 @@
-<img width="1596" height="878" alt="cheatsheet-animation-tool" src="https://github.com/user-attachments/assets/dd1c92e0-a6ee-49dc-8ab3-a3ae8f06b3cf" />
 # (Inter)play - Animation Tool
 
 Welcome to the (Inter)play Animation Tool. This tool was designed and developed for Marjolijn Ruijg, enabling her within her Professional Development (PD) project to generate typographic interactive animations for various concepts from the glossary, using only typography or graphic elements.
