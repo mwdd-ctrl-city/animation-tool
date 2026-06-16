@@ -15,7 +15,7 @@ Welcome to the (Inter)play Animation Tool. This tool was designed and developed 
 ## About this Project
 The goal of this tool is to make it easier to create animations for specific terms from Marjolijn Ruijg's PD project, *(Inter)facing the Hybrid City*.
 
-This project was designed and developed between May and June 2026 by students from the Communication and Multimedia Design (CMD) program at the Amsterdam University of Applied Sciences. The project was completed after June, but may be further developed in the future.
+This project was designed and developed between May and June 2026 by students from the Communication and Multimedia Design (CMD) program at the Amsterdam University of Applied Sciences. The project was completed in June, but may be further developed in the future.
 
 Designers/Developers:
 - Jeppe de Wilde
@@ -26,6 +26,17 @@ Designers/Developers:
 
 ## Requirements
 No additional software is required to install or use this tool.
+
+## Browser Compatibility?
+In welke browser werkt de tool het beste?
+
+## Features?
+Wat is er mogelijk met de tool, animation properties, save/load, blablabla
+
+## Known Bugs/Limitations?
+Kort lijstje met dingen die (nog) niet optimaal werken.
+
+als er iets veranderd in de code wat relevant is voor het opslaan van de animatie dan moet dat met de hand ook aangepast worden in de buildStandaloneHTML function in timeline.js
 
 ## Installation
 
@@ -51,15 +62,15 @@ cd animation-tool
 ### Using the Tool
 
 #### Step 1
-Start by adding text in the "T" field. Enter your own word or text and press Enter.
+Start by clicking the "T" to add a text field to the canvas. In the text field, type your own word or text.
 
 Or, to add an emoji or another symbol:
 
-1. Control + Command + Spacebar
+1. Control + Command + Spacebar (Mac) or Windows-key + . or ; (Windows)
 2. Click the arrow in the bottom-right corner to browse more graphical symbols.
 
 #### Step 2
-Select the text you entered and adjust its styling using the left-hand panel.
+Select the text you entered by clicking on it and adjust its styling using the right-hand panel. The selected text has a blue outline.
 
 #### Step 3
 As you adjust the styling, small squares will appear on a blue track in the bottom panel. These are keyframes. To create an animation, you need at least two keyframes on the same blue track.
@@ -67,7 +78,7 @@ As you adjust the styling, small squares will appear on a blue track in the bott
 Drag the keyframes left or right to adjust the timing of the animation.
 
 #### Step 4
-Do you have a track with keyframes that you're not satisfied with? Click on the keyframe and then click the cross icon that appears on the left side of the element to remove it.
+Do you have a track with keyframes that you're not satisfied with? Click on the name of the keyframe and then click the cross icon that appears on the left side of the element to remove it.
 
 #### Step 5
 Finished and satisfied with your animation? Give your project a name at the top of the screen and save it. You will receive a ZIP file.
@@ -84,7 +95,7 @@ The ZIP file contains:
 
 ### For Development
 
-Open the project in Visual Studio Code and click **"Go Live"** in the bottom-right corner to launch the local development version.
+Open the project in Visual Studio Code and click **"Go Live"** in the bottom-right corner to launch the local development version. In order to see the live preview, the user had to install the Live Server extension (by Ritwick Dey).
 
 ## Embedding an Animation into Your Website
 
