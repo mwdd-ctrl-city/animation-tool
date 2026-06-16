@@ -186,3 +186,8 @@ aLs je iets aanpast moet je het ook aanpassen in de standalonbuild
 
 ### CSS
 - https://www.a11yproject.com/posts/how-to-hide-content/ 
+
+### AI <em>(also mentioned in the code itself when used.)</em>
+- https://chatgpt.com/
+- https://claude.ai/new
+- https://gemini.google.com/app?hl=nl
