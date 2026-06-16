@@ -92,12 +92,15 @@ animationData.addEventListener("change", () => {
   buildVisualizer();
   updateRangeInputs();
   showSelectedText();
+  setupDraggable(); 
 })
 
 function getFirstElementId() {
   // Gets the first element in the json and gives the property in this case the ID, not the value
   return animationData.getElements().keys().next().value ?? null;
 }
+
+setupDraggable();
 
 // -----------------------
 // MARK: Undo/Redo/Reset
@@ -655,6 +658,54 @@ originalCanvas.addEventListener("click", (e) => {        // Event for clearing /
   };
 })
 
+// -----------------------
+// MARK: Draggable
+// -----------------------
+function setupDraggable(el, id) {
+  const elements = animationData.getElements(); 
+  elements.forEach((element, key) => {
+    const elementObject = canvas.querySelector(`#el-${key}`);
+    if(!elementObject) return; 
+
+    visualOffset(elementObject);
+
+    Draggable.create(elementObject, {
+      onDrag: function () {
+        visualOffset(elementObject); 
+      },
+      onDragEnd: function () {
+        const dragInstance = Draggable.get(elementObject);
+        let progress = player.getProgress(); //Get the progress of the current timeline
+
+        animationData.setKeyframe(key, "x", progress, this.x, "none");    //Create x keyframe
+        animationData.setKeyframe(key, "y", progress, this.y, "none");    //Create y keyframe
+
+        animationData.setSelectedText(elementObject, key);        // Also select text when dragging element
+      },
+      onClick: () => {
+        if (animationData.selectedText.id == key) {  // If text is already selected dont go thru
+            return;
+        } else {
+            animationData.setSelectedText(elementObject, key);
+        }
+      }
+    })
+  })
+}
+
+function visualOffset(element) {
+  let boundsCanvas = canvas.getBoundingClientRect(); 
+  const boundsElement = element.getBoundingClientRect(); 
+
+  const scale = boundsCanvas.width / canvas.offsetWidth || 1;
+
+  const top = Math.max(0, boundsCanvas.top - boundsElement.top) / scale; 
+  const right = Math.max(0, boundsElement.right - boundsCanvas.right) / scale; 
+  const bottom = Math.max(0, boundsElement.bottom - boundsCanvas.bottom) / scale; 
+  const left = Math.max(0, boundsCanvas.left - boundsElement.left) / scale; 
+
+  element.style.setProperty('--clip', `inset(${top}px ${right}px ${bottom}px ${left}px)`);
+}
 
 // -----------------------
 // MARK: Playhead height fix

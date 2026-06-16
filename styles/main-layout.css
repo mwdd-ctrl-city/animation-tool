@@ -7,6 +7,17 @@ h2 {
     top: 50%;
     transform: translate(-50%, -50%);
     white-space: preserve nowrap;
+    -webkit-text-fill-color: color-mix(in srgb, currentColor 22%, transparent);
+
+    &::after {
+        content: attr(data-text);
+        position: absolute; 
+        top: 0; 
+        left: 0; 
+        pointer-events: none;
+        -webkit-text-fill-color: currentColor;
+        clip-path: var(--clip, inset(0));
+    }
 }
 
 /* ------------ */
@@ -238,8 +249,6 @@ h2 {
         border: .75px solid var(--color-border-canvas);
         transform-origin: 0 0;
         position: absolute;
-
-        overflow: clip;
     }
 }
 
