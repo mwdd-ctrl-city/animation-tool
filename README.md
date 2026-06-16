@@ -31,8 +31,7 @@ No additional software is required to install or use this tool.
 
 ### For Personal Use
 Open the following link in your browser:
-
-[https://mwdd-ctrl-city.github.io/animation-tool/](Link to the tool)
+[Open the Animation Tool](https://mwdd-ctrl-city.github.io/animation-tool/)
 
 ### For Development and Modifications
 Open Visual Studio Code and launch the terminal within the project.
@@ -129,20 +128,19 @@ Steps:
 
 ## Contact Persons
 
-| Role | Name | Contact |
-|------|------|---------|
-| Client | Marjolijn Ruijg | name@organisation.nl |
-| Development Team | Mila Massaro | |
-| Development Team | Kerr Beeldens | |
-| Development Team | Senna Hoving | |
-| Development Team | Jeppe de Wilde | |
-| Development Team | Sabrina Zuurbier | |
+| Role             | Name            | Contact              |
+|------------------|-----------------|----------------------|
+| Client           | Marjolijn Ruijg | name@organisation.nl |
+| Development Team | Mila Massaro    | 
+| Development Team | Kerr Beeldens   | 
+| Development Team | Senna Hoving    | 
+| Development Team | Jeppe de Wilde  | 
+| Development Team | Sabrina Zuurbier| 
 
 ## License
+[MIT / Internal use / No reuse without permission]
 
-MIT License
-
-© 2026 Animation Tool Team
+© 2026 mwdd-ctrl-city
 
 ## Sources
 
