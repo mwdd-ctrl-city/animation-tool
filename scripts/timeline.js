@@ -6,10 +6,10 @@ const timelineSlider = document.querySelector("#timeline-slider");
 const playheadTime = document.querySelector(".playhead-time");
 const playButtonTimeline = document.querySelector(".play-animation");
 const animationControls = document.querySelectorAll(".animation-control");
-const animationControlColor = document.querySelectorAll(".animation-control-color");
 const deleteTextButton = document.querySelector(".delete-text button");
 const tracksContainer = document.querySelector(".timeline-container");
 const canvas = document.querySelector(".content-canvas");
+const canvasContainer = document.querySelector("#original-canvas");
 
 const addTextButton = document.querySelector(".add-text-button");
 
@@ -28,10 +28,12 @@ const easeSelect = document.querySelector('#animation-select-ease');
 
 const scrollHint = document.querySelector('.scroll-hint');
 
+const projectNameText = document.getElementById("project-name");
+const projectNameInput = document.getElementById("project-name-input");
+
+const saveButton = document.querySelector(".save-button");
 
 let activeKeyframeId = null;
-let activeKeyframeElement = null;
-
 let currentSplitType = "none";
 
 // -----------------------
@@ -52,11 +54,24 @@ async function loadAnimation(filePath) {
 // Init
 // -----------------------
 
-// export const animationData = await loadAnimation("./scripts/animation.json");
-export const animationData = new AnimationData();
-const history = new History();
-history.addMemento(animationData.getAnimation());
+// Create a default animation
+export const animationData = new AnimationData("Hello World", 5);
 
+const animationDataLocalStorage = localStorage.getItem("animationData");
+const loadedFromStorage = animationDataLocalStorage && animationData.fromJSON(animationDataLocalStorage);
+
+if (!loadedFromStorage) {
+  const defaultElement = animationData.createElement("Hello World!");
+  animationData.setKeyframe(defaultElement, "fontSize", 0, 0, "bounce.out");
+  animationData.setKeyframe(defaultElement, "fontSize", 0.05, 32, "bounce.out");
+}
+
+projectNameText.textContent = animationData.getName();
+
+// Create the history object
+export const history = new History();
+
+// Create the player object
 export const player = new AnimationPlayer(canvas, animationData);
 
 animationData.addEventListener("change", () => {
@@ -94,7 +109,10 @@ resetButton.addEventListener("click", (event) => {
 
 confirmResetButton.addEventListener("click", (event) => {
   animationData.resetCanvas();
-  history.addMemento(animationData.getAnimation());
+  const defaultElement = animationData.createElement("Hello World!");
+  animationData.setKeyframe(defaultElement, "fontSize", 0, 0, "bounce.out");
+  animationData.setKeyframe(defaultElement, "fontSize", 0.05, 32, "bounce.out");
+  createSnapshot(animationData);
 
   confirmResetButton.classList.remove("show-confirm");
 });
@@ -142,7 +160,6 @@ let activeValue = null;
 deleteTextButton.addEventListener("click", () => {
   const selectedElement = animationData.getSelectedText().id;
   if (!selectedElement) return;
-
   animationData.removeElement(selectedElement)
 })
 
@@ -188,8 +205,47 @@ document.querySelector('.tl-time-end').addEventListener('change', (e) => {
   const time = parseFloat(e.target.value);
   animationData.setDuration(time);
 
-  history.addMemento(animationData.getAnimation())
+  createSnapshot(animationData);
 });
+
+
+// -----------------------
+// Select canvas
+// -----------------------
+let selectedCanvas = false;
+
+// Claude: Waarom werkt dit niet?
+canvasContainer.addEventListener('dblclick', (event) =>{
+  if(selectedCanvas === false) {
+    if (event.target != canvasContainer) return;  // If double clicked on selected text, dont select canvas
+
+    let canvasId = null
+
+    animationData.getElements().forEach((el, id) => {
+      if (event.target != canvasContainer) return;
+      // Search for the type canvas whitin the elements
+      if (el.type === "canvas") {
+        canvasId = id
+      }
+      
+      // If it does'nt exist then return null
+      if (!canvasId) return;
+
+        // When it's clicked then the activeElement becomes the canvas id to animate the background
+        activeElementId = canvasId
+        
+        canvas.style.outline = "3px solid #6495ED";
+        // Gives the selected id from the canvas 
+        animationData.setSelectedText(canvas, canvasId)
+      });
+
+      selectedCanvas = true;
+  } else {
+    canvas.style.outline = "none";
+    selectedCanvas = false;
+  }
+  
+  })
 
 
 // -----------------------
@@ -257,70 +313,125 @@ function buildVisualizer() {
       deleteBtn.innerHTML = "&times;";
       deleteBtn.classList.add("delete-property-btn");
       deleteBtn.title = `Delete ${propertyName}`;
+      
+    // Toggle class that shows delete button
+    labelText.addEventListener("click", () => {
+      deleteBtn.classList.toggle("show-delete");
+    });
 
-      // Toggle class that shows delete button
-      labelText.addEventListener("click", () => {
-        deleteBtn.classList.toggle("show-delete");
+    // Call deleteProperty on click
+    deleteBtn.addEventListener("click", (event) => {
+      // event.stopPropagation();
+      animationData.deleteProperty(elementId, propertyName);
+      createSnapshot(animationData);
+    });
+
+    // Add deletebutton and label text to the <p>
+    label.append(deleteBtn, labelText);
+
+    row.append(label, track);
+
+    // Create for each keyframe point a point on the row
+    keyframes.forEach((keyframe) => {
+      const point = document.createElement("div");
+      point.classList.add("keyframe", `key-${keyframe.id}`);
+      point.style.setProperty("--p", keyframe.progress);
+
+      track.appendChild(point);
+
+      // Create a drag for the keyframe and update the value
+      Draggable.create(point, {
+        // Type of way you can dragg the element on the x axis
+        type: "x",
+        bounds: track,
+        onClick() {
+          // Make the keyframe the active keyframe
+          activeKeyframeId = keyframe.id;
+          point.classList.add("active-keyframe");
+          player.setProgress(keyframe.progress);
+          buildVisualizer();
+        },
+        onDragEnd() {
+          // Get the width from the track and the point element which stands for the keyframe 
+          const trackWidth = track.offsetWidth;
+          const pointX = this.x + keyframe.progress * trackWidth;
+
+          // Chatgpt to make the calculation: How to make the calculation for the new progress
+          // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
+          const newProgress = Math.max(0,
+            Math.min(1, pointX / trackWidth)
+          );
+
+          animationData.moveKeyframe(
+            keyframe.id,
+            newProgress
+          );
+
+          // Make the keyframe the active keyframe
+          activeKeyframeId = keyframe.id;
+          point.classList.add("active-keyframe");
+          buildVisualizer();
+        }
       });
 
-      // Call deleteProperty on click
-      deleteBtn.addEventListener("click", (event) => {
-        // event.stopPropagation();
-        animationData.deleteProperty(elementId, propertyName);
-        history.addMemento(animationData.getAnimation());
-      });
+//       // Call deleteProperty on click
+//       deleteBtn.addEventListener("click", (event) => {
+//         // event.stopPropagation();
+//         animationData.deleteProperty(elementId, propertyName);
+//         history.addMemento(animationData.getAnimation());
+//       });
 
-      // Add deletebutton and label text to the <p>
-      label.append(deleteBtn, labelText);
+//       // Add deletebutton and label text to the <p>
+//       label.append(deleteBtn, labelText);
 
-      row.append(label, track);
+//       row.append(label, track);
 
-      // Create for each keyframe point a point on the row
-      keyframes.forEach((keyframe) => {
-        const point = document.createElement("div");
-        point.classList.add("keyframe", `key-${keyframe.id}`);
-        point.style.setProperty("--p", keyframe.progress);
+//       // Create for each keyframe point a point on the row
+//       keyframes.forEach((keyframe) => {
+//         const point = document.createElement("div");
+//         point.classList.add("keyframe", `key-${keyframe.id}`);
+//         point.style.setProperty("--p", keyframe.progress);
 
-        track.appendChild(point);
+//         track.appendChild(point);
 
-        // Create a drag for the keyframe and update the value
-        Draggable.create(point, {
-          // Type of way you can dragg the element on the x axis
-          type: "x",
-          bounds: track,
-          onClick() {
-            // Make the keyframe the active keyframe
-            activeKeyframeId = keyframe.id;
-            point.classList.add("active-keyframe");
-            player.setProgress(keyframe.progress);
-            buildVisualizer();
-          },
-          onDragEnd() {
-            // Get the width from the track and the point element which stands for the keyframe 
-            const trackWidth = track.offsetWidth;
-            const pointX = this.x + keyframe.progress * trackWidth;
+//         // Create a drag for the keyframe and update the value
+//         Draggable.create(point, {
+//           // Type of way you can dragg the element on the x axis
+//           type: "x",
+//           bounds: track,
+//           onClick() {
+//             // Make the keyframe the active keyframe
+//             activeKeyframeId = keyframe.id;
+//             point.classList.add("active-keyframe");
+//             player.setProgress(keyframe.progress);
+//             buildVisualizer();
+//           },
+//           onDragEnd() {
+//             // Get the width from the track and the point element which stands for the keyframe 
+//             const trackWidth = track.offsetWidth;
+//             const pointX = this.x + keyframe.progress * trackWidth;
 
-            // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
-            const newProgress = Math.max(0,
-              Math.min(1, pointX / trackWidth)
-            );
+//             // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
+//             const newProgress = Math.max(0,
+//               Math.min(1, pointX / trackWidth)
+//             );
 
-            animationData.moveKeyframe(
-              keyframe.id,
-              newProgress
-            );
+//             animationData.moveKeyframe(
+//               keyframe.id,
+//               newProgress
+//             );
 
-            // Make the keyframe the active keyframe
-            activeKeyframeId = keyframe.id;
-            point.classList.add("active-keyframe");
-            buildVisualizer();
-          }
-        });
+//             // Make the keyframe the active keyframe
+//             activeKeyframeId = keyframe.id;
+//             point.classList.add("active-keyframe");
+//             buildVisualizer();
+//           }
+//         });
 
-        // Make the keyframe the active keyframe
-        const activeKeyframeElement = document.querySelector(`.key-${activeKeyframeId}`);
-        activeKeyframeElement?.classList.add("active-keyframe");
-      });
+//         // Make the keyframe the active keyframe
+//         const activeKeyframeElement = document.querySelector(`.key-${activeKeyframeId}`);
+//         activeKeyframeElement?.classList.add("active-keyframe");
+//       });
 
       // Add the elements to the html
       timelineSection.appendChild(row);
@@ -477,8 +588,19 @@ function updateRangeInputs() {
       else if (splitType === "lines" && target.splitInstance.lines) target = target.splitInstance.lines[0];
     }
 
+    const propertyType = control.dataset.propertyType
+
+    let rangeValue;
+
+    if (propertyType === "color") {
+      // Generated by chatGPT, RegEx to get x from rgba(x, x, x) and rgb(x, x, x)
+      rangeValue = /\d+/.exec(gsap.getProperty(target, propertyName))?.[0];
+    } else {
+      rangeValue = gsap.getProperty(target, propertyName);
+    }
+
     // To animate the controls, you need gsap to get the value in between the keyframes
-    control.value = gsap.getProperty(target, propertyName);
+    control.value = rangeValue;
   });
 }
 
@@ -494,15 +616,23 @@ function addText(text) {
   if (!text.trim()) return;
   const newElementId = animationData.createElement(text);
 
-  const target = canvas.querySelector(`#el-${animationData.getSelectedText().id}`);
+  const target = canvas.querySelector(`#el-${newElementId}`);
+   if (target) {
+      target.contentEditable = true;
+      target.focus();
+    }
+  createSnapshot(animationData);
+  selectDefaultText(target); 
 
-  if (target) {
-    target.contentEditable = true;
-    target.focus();
-  }
+}
 
+function selectDefaultText(newElement) {
+  const range = document.createRange();    // make an empty marker for some text
+  range.selectNodeContents(newElement);    // mark all the text inside newElement
 
-  history.addMemento(animationData.getAnimation());
+  const selection = window.getSelection();    // Reach for the page's selection — the one highlighter shared by the whole document
+  selection.removeAllRanges();  // Erase whatever that highlighter was already highlighting
+  selection.addRange(range);    // acctually highlight the text inside newElement
 }
 
 function showSelectedText() {
@@ -522,13 +652,15 @@ canvas.addEventListener("click", (e) => {
 });
 
 const originalCanvas = document.querySelector("#original-canvas");
-originalCanvas.addEventListener("click", (event) => {
-  if (canvas.contains(event.target)) {
-    return;
-  }
+originalCanvas.addEventListener("click", (e) => {        // Event for clearing / deselecting selectedText 
+  const selectedText = animationData.getSelectedText(); 
+  if (!selectedText || !selectedText.element || !selectedText.id) return;
 
-  animationData.clearSelectedText();
-});
+  if(e.target == originalCanvas) {
+    animationData.clearSelectedText(); 
+  }; 
+})
+
 
 
 // -----------------------
@@ -583,17 +715,14 @@ animationControls.forEach((control) => {
     let value;
     let colorValue;
 
-    switch (event.target.dataset.propertyType) {
-      case "color":
+    if (event.target.dataset.propertyType === "color"){
         elementId = animationData.getSelectedText().id;
         colorValue = parseInt(sliderValue);
         value = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
-        break;
-      default:
+    } else {
         elementId = animationData.getSelectedText().id ?? getFirstElementId();
         value = parseFloat(sliderValue);
-        break;
-    };
+    }
 
     if (!elementId) return;
 
@@ -604,17 +733,22 @@ animationControls.forEach((control) => {
       return;
     }
 
+
+
     activeKeyframeId = animationData.setKeyframe(
       elementId,
       activePropertyName,
       player.getProgress(),
       value,
-      ease ?? "none"
+      ease ?? "none",
+      currentSplitType
     );
+
+
   });
 
   control.addEventListener("change", () => {
-    history.addMemento(animationData.getAnimation());
+    createSnapshot(animationData);
   });
 })
 
@@ -699,18 +833,24 @@ export function updateScrollHint() {
   }
 }
 
+function createSnapshot(animationData) {
+  localStorage.setItem("animationData", animationData.toJSON());
+  history.addMemento(animationData.getAnimation());
+}
+
 
 // -----------------------
 // Keyframe delete
 // -----------------------
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Delete") {
+  if (e.key === "Backspace") {
     deleteActiveKeyframe();
   }
 });
 
 function deleteActiveKeyframe() {
   animationData.deleteKeyframe(activeKeyframeId);
+  createSnapshot(animationData);
   buildVisualizer();
 }
 
@@ -756,3 +896,299 @@ playheadTime.addEventListener("pointermove", (e) => {
 
 updatePlayheadPosition();
 
+// -----------------------
+// MARK: EDIT PROJECT NAME
+// -----------------------
+projectNameInput.addEventListener("input", () => {
+  projectNameInput.style.width = "0";
+  projectNameInput.style.width = Math.min(projectNameInput.scrollWidth, 300) + "px";
+});
+
+projectNameInput.addEventListener("blur", () => {
+  projectNameText.textContent = projectNameInput.value.trim();
+
+  projectNameText.style.display = "inline";
+  projectNameInput.style.display = "none";
+
+  // Apply the name to te animation data
+  animationData.setName(projectNameInput.value.trim());
+
+  console.log(animationData.getName());
+});
+
+projectNameText.addEventListener("click", () => {
+  projectNameInput.style.display = "inline";
+  projectNameText.style.display = "none";
+
+  projectNameInput.style.width = "0";
+  projectNameInput.style.width = Math.min(projectNameInput.scrollWidth, 300) + "px";
+
+  projectNameInput.focus();
+});
+
+projectNameInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") projectNameInput.blur();
+});
+
+// -----------------------
+// Save animation
+// -----------------------
+
+saveButton.addEventListener("click", () => {
+  downloadAnimation();
+});
+
+function downloadAnimation() {
+  const projectName = animationData.getName() || "animation";
+  const zip = new JSZip();
+
+  zip.file("animation.json", animationData.toJSON());
+  zip.file("index.html", buildStandaloneHTML(projectName, animationData.toJSON()));
+
+  zip.generateAsync({ type: "blob" }).then(function (blob) {
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${projectName}.zip`;
+
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+}
+
+// -----------------------
+// Standalone HTML
+// -----------------------
+function buildStandaloneHTML(projectName, animationJSON) {
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/SplitText.min.js"></script>
+
+  <title>${projectName}</title>
+
+  <style>
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+        margin: 0;
+    }
+
+    body {
+        font-family: "Inter", sans-serif;
+        background-color: #2d2d2f;
+        color: #E2E2E2;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+    }
+
+    .content-canvas {
+        width: 35em;
+        aspect-ratio: 1/1;
+
+        background-color: #1A1A1C;
+        border: .75px solid #3A3A3A;
+        position: relative;
+        overflow: clip;
+    }
+
+    .canvas {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+
+    h2 {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        white-space: preserve nowrap;
+        margin: 0;
+    }
+
+    .split-char,
+    .split-word,
+    .split-line {
+        display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="content-canvas">
+    <div class="canvas"></div>
+  </div>
+
+  <!-- Animation data, embedded so it works without a server (file:// has no fetch access) -->
+  <script type="application/json" id="animation-data">${animationJSON}</script>
+
+  <script>
+    gsap.registerPlugin(SplitText);
+
+    function loadAnimation() {
+      const raw = document.getElementById("animation-data").textContent;
+      return JSON.parse(raw);
+    }
+
+    function buildElements(canvas, elements) {
+      const elementMap = new Map();
+
+      for (const [id, text] of Object.entries(elements)) {
+        const el = document.createElement("h2");
+        el.classList.add(\`el-\${id}\`);
+        el.textContent = text;
+        canvas.appendChild(el);
+
+        const split = new SplitText(el, {
+          type: "chars, words, lines",
+          charsClass: "split-char",
+          wordsClass: "split-word",
+          linesClass: "split-line"
+        });
+        el.splitInstance = split;
+
+        elementMap.set(id, el);
+      }
+
+      return elementMap;
+    }
+
+    function buildTimeline(data, elementMap) {
+      const duration = data.duration;
+
+      const timeline = gsap.timeline({
+        paused: true,
+        repeat: -1,
+        repeatRefresh: true
+      });
+
+      timeline.add(gsap.delayedCall(duration, () => {}));
+
+      for (const [targetId, properties] of Object.entries(data.animations)) {
+        const domElement = elementMap.get(targetId);
+        if (!domElement) continue;
+
+        for (const [propertyName, keyframes] of Object.entries(properties)) {
+          if (!keyframes.length) continue;
+
+          // Set (and re-set on each loop, via repeatRefresh) the first keyframe value
+          timeline.set(
+            \`.el-\${targetId}\`,
+            {
+              [propertyName]: keyframes[0].value,
+              ease: keyframes[0].ease ?? "none",
+            },
+            0
+          );
+
+          for (let i = 1; i < keyframes.length; i++) {
+            const last = keyframes[i - 1];
+            const current = keyframes[i];
+
+            let timeDifferenceSeconds = (current.progress - last.progress) * duration;
+
+            let animationTarget = \`.el-\${targetId}\`;
+            let staggerConfig = null;
+
+            const kfSplitType = current.splitType || "none";
+
+            if (kfSplitType !== "none") {
+              animationTarget = domElement.splitInstance[kfSplitType];
+
+              staggerConfig = {
+                amount: timeDifferenceSeconds * 0.5,
+              };
+
+              timeDifferenceSeconds = timeDifferenceSeconds * 0.5;
+            }
+
+            timeline.to(
+              animationTarget,
+              {
+                [propertyName]: current.value,
+                duration: timeDifferenceSeconds,
+                ease: current.ease ?? "none",
+                stagger: staggerConfig,
+              },
+              last.progress * duration
+            );
+          }
+        }
+      }
+
+      return timeline;
+    }
+
+    (function init() {
+      const data = loadAnimation();
+      const canvas = document.querySelector(".canvas");
+
+      const elementMap = buildElements(canvas, data.elements);
+      const timeline = buildTimeline(data, elementMap);
+
+      timeline.play();
+    })();
+  </script>
+</body>
+</html>`;
+}
+
+
+const loadButton = document.querySelector(".load-button");
+const loadInput = document.querySelector("#load-input");
+
+loadButton.addEventListener("click", () => {
+  loadInput.click();
+});
+
+loadInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = (event) => {
+    const json = event.target.result;
+    const success = animationData.fromJSON(json);
+
+    if (success) {
+      history.clear();
+      createSnapshot(animationData);
+
+      // Reset UI state tied to the previous animation
+      activeKeyframeId = null;
+      activeElementId = null;
+      activePropertyName = null;
+      activeValue = null;
+
+      // Update project name display
+      projectNameText.textContent = animationData.getName();
+
+      // Sync timeline end time input with the loaded duration
+      endTimeInput.value = animationData.getDuration().toFixed(2);
+
+      buildVisualizer();
+      updateRangeInputs();
+      showSelectedText();
+    } else {
+      alert("Could not load animation: invalid file.");
+    }
+  };
+
+  reader.readAsText(file);
+
+  // Reset the input so the same file can be selected again later
+  loadInput.value = "";
+});

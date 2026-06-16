@@ -81,12 +81,14 @@ h2 {
         margin-right: .85em;
     }
 
-    & .save-button {
+    & .save-button,
+    .load-button {
         border: none;
         height: 100%;
         padding: 0 2em;
         background-color: var(--color-details-one);
         color: var(--color-text-one);
+        margin-left: 1em;
 
         &:hover {
             background-color: var(--color-hover-one);

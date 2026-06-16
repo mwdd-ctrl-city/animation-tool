@@ -56,7 +56,7 @@ export default class AnimationPlayer {
 
             const el = document.createElement("h2"); // TODO: element type should probably come from element data
             el.id = `el-${id}`;
-            el.textContent = element.content;
+            el.innerText = element.content;
             this.#canvas.appendChild(el);
             this.#setupDraggable(el, id);
             this.#setupEditable(el, id);
@@ -83,6 +83,8 @@ export default class AnimationPlayer {
 
                 animationData.setKeyframe(id, "x", progress, this.x, "none");    //Create x keyframe
                 animationData.setKeyframe(id, "y", progress, this.y, "none");    //Create y keyframe
+
+                animationData.setSelectedText(el, id);        // Also select text when dragging element
             },
             onClick: () => {
                 if (this.#animation.selectedText.id == id) {  // If text is already selected dont go thru
@@ -101,19 +103,41 @@ export default class AnimationPlayer {
                 dragInstance.disable();  // Turn off gsap draggable behavior
             }
 
+            if (el.splitInstance) {
+                el.splitInstance.revert();
+            }
+
             el.contentEditable = true;
             el.focus();
         })
 
+        el.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                document.execCommand("insertLineBreak");
+            }
+        });
+
+        // Function to make sure only plain html will paste
+        el.addEventListener("paste", (e) => {
+            e.preventDefault();
+
+            // Only get pure html while kopiieeren een
+            const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+
+            // Paste from the position of the cursor
+            document.execCommand("insertText", false, text);
+        });
+
         el.addEventListener("blur", () => {
+            const formattedText = el.innerText;
             el.contentEditable = false;
 
-
-            const formattedText = el.textContent   // innerHTML gives: first<div><br></div><div><br></div><div>second</div>
-                .replace(/<div>/g, "\n")  // Replace <div> with \n -> enter - /g makes global, so not just stop at / replace  first div
-                .replace(/<\/div>/g, "")  // Replace </div> with nothing
-                .replace(/<br>/g, "")   // Replace <br> with nothing
-                .replace(/&nbsp;/g, " ") // Replace &nbsp with space
+            // const formattedText = el.textContent   // innerHTML gives: first<div><br></div><div><br></div><div>second</div>
+            //     .replace(/<div>/g, "\n")  // Replace <div> with \n -> enter - /g makes global, so not just stop at / replace  first div
+            //     .replace(/<\/div>/g, "")  // Replace </div> with nothing
+            //     .replace(/<br>/g, "")   // Replace <br> with nothing
+            //     .replace(/&nbsp;/g, " ") // Replace &nbsp with space
 
             if ((el.textContent.trim()) === "") {
                 this.#animation.removeElement(id);

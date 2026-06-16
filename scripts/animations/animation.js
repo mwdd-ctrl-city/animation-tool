@@ -290,11 +290,16 @@ export default class AnimationData extends EventTarget {
      * @returns {boolean} true if the keyframe was found, otherwise false
      */
     deleteKeyframe(keyFrameId) {
-        for (const [targetId, animationMap] of this.#animations.entries()) {
-            for (const [propertyName, keyframes] of animationMap.entries()) {
+        let found = false;
+
+        this.#animations.forEach((animationMap, targetId) => {
+            if (found) return;
+
+            animationMap.forEach((keyframes, propertyName) => {
+                if (found) return;
 
                 const index = keyframes.findIndex(kf => kf.id === keyFrameId);
-                if (index === -1) continue;
+                if (index === -1) return;
 
                 // Remove the keyframe
                 keyframes.splice(index, 1);
@@ -310,11 +315,11 @@ export default class AnimationData extends EventTarget {
                 }
 
                 this.dispatchEvent(new Event("change"));
-                return true;
-            }
-        }
+                found = true;
+            });
+        });
 
-        return false;
+        return found;
     }
 
     /**
@@ -353,7 +358,7 @@ export default class AnimationData extends EventTarget {
         // Clear maps
         this.#elements.clear();
         this.#animations.clear();
-        
+
         // Clear selected text
         this.clearSelectedText();
 
@@ -409,22 +414,27 @@ export default class AnimationData extends EventTarget {
     }
 
     /**
- * @description Find a keyframe by its unique ID
- * @param {string} keyframeId The id of the keyframe to look for 
- * @returns {{ object} | null} the data of that keyframe if found, else null
- */
+    * @description Find a keyframe by its unique ID
+    * @param {string} keyframeId The id of the keyframe to look for 
+    * @returns {{ object} | null} the data of that keyframe if found, else null
+    */
     getKeyframe(keyframeId) {
-        for (const animationMap of this.#animations.values()) {
-            for (const keyframes of animationMap.values()) {
+        let result = null;
+
+        this.#animations.forEach((animationMap) => {
+            if (result) return;
+
+            animationMap.forEach((keyframes) => {
+                if (result) return;
+
                 const keyframe = keyframes.find(kf => kf.id === keyframeId);
-
                 if (keyframe) {
-                    return { keyframe, keyframes };
+                    result = { keyframe, keyframes };
                 }
-            }
-        }
+            });
+        });
 
-        return null;
+        return result;
     }
 
     /**
@@ -576,5 +586,7 @@ export default class AnimationData extends EventTarget {
         } catch {
             return false;
         }
+
+        this.dispatchEvent(new Event("change"));
     }
 }
