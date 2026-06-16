@@ -5,7 +5,7 @@
     user-select: none;
     display: grid;
     grid-template-columns: 10em 1fr;
-    grid-template-rows: 30px 30px 40px var(--gap-timeline) 1fr;
+    grid-template-rows: 30px 30px 20px var(--gap-timeline) 1fr;
     grid-template-areas:
         "kf             x"
         "pl-button      tl-time"
@@ -41,6 +41,7 @@
     /* Disable the default styling timeline bar */
     .slider-wrapper {
         grid-area: range;
+        align-self: end;
         position: relative;
         width: 100%;
 
@@ -80,10 +81,10 @@
 
     & .keyframe-snap {
         grid-area: kf;
+        align-self: center;
+        margin-bottom: .25em;
 
         display: flex;
-
-        margin-bottom: .75em;
         gap: .25em;
 
         & button {
@@ -123,10 +124,13 @@
 }
 
 .tl-time {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    align-self: end;
     grid-area: tl-time;
+    margin-bottom: 2px;
+
+    display: flex;
+    justify-content: end;
+    align-items: center;
 
     input {
         width: clamp(5ch, 7.25ch, 15ch);
@@ -203,7 +207,6 @@
 .slider-wrapper {
     position: relative;
     width: 100%;
-    margin-top: 20px;
 }
 
 .slider-wrapper input[type="range"] {
@@ -213,36 +216,31 @@
 
 .playhead-time {
     position: absolute;
-    top: -24px;
-    left: 0;
-    transform: translateX(-50%);
-    width: 3.8rem;
+    top: -22px;
 
-    /* background-color: var(--color-bg-canvas); */
     background-color: var(--color-details-two);
-    color: var(--color-text-two);
-    border: 1px solid var(--color-border-canvas);
+    color: var(--color-text-four);
     border-radius: 5px;
     height: 20px;
+    width: fit-content;
 
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0 0.4rem;
-    gap: 0.2rem;
+    gap: 0.1rem;
 
     font-family: inherit;
     font-size: 0.85rem;
     white-space: nowrap;
 
-    box-shadow: 0 1px 3px var(--color-boxshadow-one, rgba(0, 0, 0, 0.1));
-
-    pointer-events: none;
+    pointer-events: auto;
+    user-select: none;
 }
 
 .playhead-time .unit {
     right: 0.4rem;
     font-size: 0.75rem;
-    color: var(--color-text-three);
+    color: var(--color-text-four);
     pointer-events: none;
 }

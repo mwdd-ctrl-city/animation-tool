@@ -99,19 +99,15 @@ confirmResetButton.addEventListener("click", (event) => {
   confirmResetButton.classList.remove("show-confirm");
 });
 
+
 // -----------------------
 // Player update
 // -----------------------
-
 player.setOnUpdateListener((timeline) => {
   const progress = timeline.progress();
   const current = (progress * timeline.duration()).toFixed(2);
 
   timelineSlider.value = progress * 100;
-
-  if (startTimeInput) {
-    startTimeInput.value = current;
-  }
 
   if (endTimeInput) {
     endTimeInput.value = timeline.duration().toFixed(2);
@@ -123,13 +119,14 @@ player.setOnUpdateListener((timeline) => {
     playheadTime.style.left = `${progress * 100}%`
   }
 
+  updatePlayheadPosition();
   updateRangeInputs();
 });
+
 
 // -----------------------
 // Controls (keyframes)
 // -----------------------
-
 let ease = easeSelect.value ?? "none";
 
 easeSelect.addEventListener('change', () => {
@@ -149,10 +146,10 @@ deleteTextButton.addEventListener("click", () => {
   animationData.removeElement(selectedElement)
 })
 
+
 // -----------------------
 // Timeline slider
 // -----------------------
-
 timelineSlider.addEventListener("input", (e) => {
   player.setProgress(e.target.value / 100);
 });
@@ -181,28 +178,23 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+
 // -----------------------
 // Input change timeline time
 // -----------------------
 // Input starting point when the value is changed devide with the duration and set the new progress to te playhead
-document.querySelector('.tl-time-start').addEventListener('change', (e) => {
-  const time = parseFloat(e.target.value);
-  // const progress = time / animationBuilder.timelineData.duration;
-  const progress = time / animationData.getDuration()
-  player.setProgress(progress);
-});
-
 document.querySelector('.tl-time-end').addEventListener('change', (e) => {
+  console.log("hi!")
   const time = parseFloat(e.target.value);
-  animationData.setDuration(time)
+  animationData.setDuration(time);
 
   history.addMemento(animationData.getAnimation())
 });
 
+
 // -----------------------
 // Visualizer
 // -----------------------
-
 function buildVisualizer() {
   const container = document.querySelector(".timeline-container");
   container.innerHTML = "";
@@ -218,17 +210,20 @@ function buildVisualizer() {
     timelineSection.classList.add("timeline-section");
     timelineSection.open = true;
 
-    // MARK: WEGHALEN!
-    // timelineSection.addEventListener("toggle", () => {
-    //     updatePlayheadHeight();
-    //     updateScrollHint();
-    // });
 
     observer.observe(timelineSection);
 
     // Add a summary which is the elementId or value and set it in the details 
+    const contentSummary = animationData.getElement(elementId).content;
+    const maxLengthSummary = 18;
     const timelineSectionSummary = document.createElement('summary');
-    timelineSectionSummary.innerHTML = animationData.getElement(elementId).content;
+
+    if (contentSummary.length > maxLengthSummary) {
+      timelineSectionSummary.innerHTML = contentSummary.slice(0, maxLengthSummary) + "..."
+    } else {
+      timelineSectionSummary.innerHTML = content;
+    }
+
     timelineSection.appendChild(timelineSectionSummary);
 
 
@@ -256,9 +251,6 @@ function buildVisualizer() {
       const labelText = document.createElement("span");
       labelText.textContent = propertyName;
       labelText.style.cursor = "pointer";
-
-      console.log(elementId)
-      console.log(propertyName)
 
       // Create delete button
       const deleteBtn = document.createElement("span");
@@ -479,7 +471,7 @@ function updateRangeInputs() {
 
     // Get current split type from the active split button, set target to first split element of that type
     if (target.splitInstance) {
-      const splitType = currentSplitType; // TODO: should get the split type from the keyframe data instead of using a global variable
+      const splitType = currentSplitType; // MARK: TODO: should get the split type from the keyframe data instead of using a global variable
       if (splitType === "chars" && target.splitInstance.chars) target = target.splitInstance.chars[0];
       else if (splitType === "words" && target.splitInstance.words) target = target.splitInstance.words[0];
       else if (splitType === "lines" && target.splitInstance.lines) target = target.splitInstance.lines[0];
@@ -503,8 +495,12 @@ function addText(text) {
   const newElementId = animationData.createElement(text);
 
   const target = canvas.querySelector(`#el-${animationData.getSelectedText().id}`);
-  target.contentEditable = true;
-  target.focus();
+
+  if (target) {
+    target.contentEditable = true;
+    target.focus();
+  }
+
 
   history.addMemento(animationData.getAnimation());
 }
@@ -707,7 +703,6 @@ export function updateScrollHint() {
 // -----------------------
 // Keyframe delete
 // -----------------------
-
 document.addEventListener("keydown", (e) => {
   if (e.key === "Delete") {
     deleteActiveKeyframe();
@@ -718,3 +713,46 @@ function deleteActiveKeyframe() {
   animationData.deleteKeyframe(activeKeyframeId);
   buildVisualizer();
 }
+
+
+
+// -----------------------
+// Playhead moves with slider
+// -----------------------
+function updatePlayheadPosition() {
+  const { width } = timelineSlider.getBoundingClientRect();
+  const thumbWidth = 6;
+  const ratio = timelineSlider.value / timelineSlider.max;
+  const offset = ratio * (width - thumbWidth) + thumbWidth / 2;
+  playheadTime.style.left = `${offset}px`;
+  playheadTime.style.transform = 'translateX(-50%)';
+}
+
+timelineSlider.addEventListener('input', updatePlayheadPosition);
+window.addEventListener('resize', updatePlayheadPosition);
+
+
+playheadTime.addEventListener("pointerdown", (e) => {
+  playheadTime.setPointerCapture(e.pointerId);
+  player.pause();
+  playButtonTimeline.textContent = "Play";
+  e.preventDefault();
+});
+
+https://developer.mozilla.org/en-US/docs/Web/API/Element/hasPointerCapture
+playheadTime.addEventListener("pointermove", (e) => {
+  if (!playheadTime.hasPointerCapture(e.pointerId)) return;
+
+  // Claude: How do I move my playhead with the thumb with pointermove?
+  const { left, width } = timelineSlider.getBoundingClientRect();
+  const thumbHalf = 3;
+  const usableWidth = width - thumbHalf * 2;
+  const x = Math.max(0, Math.min(e.clientX - left - thumbHalf, usableWidth));
+  const ratio = x / usableWidth;
+
+  player.setProgress(ratio);
+});
+
+
+updatePlayheadPosition();
+
