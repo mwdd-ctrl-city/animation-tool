@@ -137,7 +137,8 @@ Steps:
 
 ## Recommendations
 Some of the recommendations we had that could possibly improve the project:
-- 
+-
+aLs je iets aanpast moet je het ook aanpassen in de standalonbuild
 
 
 ## Contact Persons
