@@ -179,6 +179,7 @@ aLs je iets aanpast moet je het ook aanpassen in de standalonbuild
 - https://dev.to/avinash_tare/how-to-detect-if-a-user-is-in-dark-mode-in-js-5hhp
 - https://www.freecodecamp.org/news/javascript-settimeout-js-timer-to-delay-n-seconds/
 - https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
+- https://medium.com/@artemkhrenov/the-memento-pattern-in-javascript-state-preservation-made-simple-9ef1e7705651
 
 ### Library
 - https://github.com/nodeca/pako/blob/main/LICENSE
