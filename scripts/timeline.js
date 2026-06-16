@@ -561,7 +561,7 @@ originalCanvas.addEventListener("click", (e) => {        // Event for clearing /
 })
 
 function visualOffset(element) {
-  const boundsCanvas = canvas.getBoundingClientRect(); 
+  let boundsCanvas = canvas.getBoundingClientRect(); 
   const boundsElement = element.getBoundingClientRect(); 
 
   const top = Math.max(0, boundsCanvas.top - boundsElement.top);
@@ -682,8 +682,6 @@ animationControls.forEach((control) => {
       ease ?? "none",
       currentSplitType
     );
-
-
   });
 
   control.addEventListener("change", () => {

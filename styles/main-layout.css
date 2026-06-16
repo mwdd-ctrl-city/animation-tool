@@ -7,7 +7,7 @@ h2 {
     top: 50%;
     transform: translate(-50%, -50%);
     white-space: preserve nowrap;
-    color: rgba(232, 232, 234, 0.22);
+    -webkit-text-fill-color: color-mix(in srgb, currentColor 22%, transparent);
 
     &::after {
         content: attr(data-text);
@@ -15,7 +15,7 @@ h2 {
         top: 0; 
         left: 0; 
         pointer-events: none;
-        color: #e8e8ea;
+        -webkit-text-fill-color: currentColor;
         clip-path: var(--clip, inset(0));
     }
 }
