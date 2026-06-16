@@ -109,9 +109,6 @@ resetButton.addEventListener("click", (event) => {
 
 confirmResetButton.addEventListener("click", (event) => {
   animationData.resetCanvas();
-  const defaultElement = animationData.createElement("Hello World!");
-  animationData.setKeyframe(defaultElement, "fontSize", 0, 0, "bounce.out");
-  animationData.setKeyframe(defaultElement, "fontSize", 0.05, 32, "bounce.out");
   createSnapshot(animationData);
 
   confirmResetButton.classList.remove("show-confirm");
@@ -215,8 +212,8 @@ document.querySelector('.tl-time-end').addEventListener('change', (e) => {
 let selectedCanvas = false;
 
 // Claude: Waarom werkt dit niet?
-canvasContainer.addEventListener('dblclick', (event) =>{
-  if(selectedCanvas === false) {
+canvasContainer.addEventListener('dblclick', (event) => {
+  if (selectedCanvas === false) {
     if (event.target != canvasContainer) return;  // If double clicked on selected text, dont select canvas
 
     let canvasId = null
@@ -227,19 +224,19 @@ canvasContainer.addEventListener('dblclick', (event) =>{
       if (el.type === "canvas") {
         canvasId = id
       }
-      
+
       // If it does'nt exist then return null
       if (!canvasId) return;
 
-        // When it's clicked then the activeElement becomes the canvas id to animate the background
-        activeElementId = canvasId
-        
-        canvas.style.outline = "3px solid #6495ED";
-        // Gives the selected id from the canvas 
-        animationData.setSelectedText(canvas, canvasId)
-      });
+      // When it's clicked then the activeElement becomes the canvas id to animate the background
+      activeElementId = canvasId
 
-      selectedCanvas = true;
+      canvas.style.outline = "3px solid #6495ED";
+      // Gives the selected id from the canvas 
+      animationData.setSelectedText(canvas, canvasId)
+    });
+
+    selectedCanvas = true;
   } else {
     canvas.style.outline = "none";
     selectedCanvas = false;
@@ -312,131 +309,131 @@ function buildVisualizer() {
       deleteBtn.innerHTML = "&times;";
       deleteBtn.classList.add("delete-property-btn");
       deleteBtn.title = `Delete ${propertyName}`;
-      
-    // Toggle class that shows delete button
-    labelText.addEventListener("click", () => {
-      deleteBtn.classList.toggle("show-delete");
-    });
 
-    // Call deleteProperty on click
-    deleteBtn.addEventListener("click", (event) => {
-      // event.stopPropagation();
-      animationData.deleteProperty(elementId, propertyName);
-      createSnapshot(animationData);
-    });
-
-    // Add deletebutton and label text to the <p>
-    label.append(deleteBtn, labelText);
-
-    row.append(label, track);
-
-    // Create for each keyframe point a point on the row
-    keyframes.forEach((keyframe) => {
-      const point = document.createElement("div");
-      point.classList.add("keyframe", `key-${keyframe.id}`);
-      point.style.setProperty("--p", keyframe.progress);
-
-      track.appendChild(point);
-
-      // Create a drag for the keyframe and update the value
-      Draggable.create(point, {
-        // Type of way you can dragg the element on the x axis
-        type: "x",
-        bounds: track,
-        onClick() {
-          // Make the keyframe the active keyframe
-          activeKeyframeId = keyframe.id;
-          point.classList.add("active-keyframe");
-          player.setProgress(keyframe.progress);
-          buildVisualizer();
-        },
-        onDragEnd() {
-          // Get the width from the track and the point element which stands for the keyframe 
-          const trackWidth = track.offsetWidth;
-          const pointX = this.x + keyframe.progress * trackWidth;
-
-          // Chatgpt to make the calculation: How to make the calculation for the new progress
-          // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
-          const newProgress = Math.max(0,
-            Math.min(1, pointX / trackWidth)
-          );
-
-          animationData.moveKeyframe(
-            keyframe.id,
-            newProgress
-          );
-
-          // Make the keyframe the active keyframe
-          activeKeyframeId = keyframe.id;
-          point.classList.add("active-keyframe");
-          buildVisualizer();
-        }
+      // Toggle class that shows delete button
+      labelText.addEventListener("click", () => {
+        deleteBtn.classList.toggle("show-delete");
       });
 
-//       // Call deleteProperty on click
-//       deleteBtn.addEventListener("click", (event) => {
-//         // event.stopPropagation();
-//         animationData.deleteProperty(elementId, propertyName);
-//         history.addMemento(animationData.getAnimation());
-//       });
+      // Call deleteProperty on click
+      deleteBtn.addEventListener("click", (event) => {
+        // event.stopPropagation();
+        animationData.deleteProperty(elementId, propertyName);
+        createSnapshot(animationData);
+      });
 
-//       // Add deletebutton and label text to the <p>
-//       label.append(deleteBtn, labelText);
+      // Add deletebutton and label text to the <p>
+      label.append(deleteBtn, labelText);
 
-//       row.append(label, track);
+      row.append(label, track);
 
-//       // Create for each keyframe point a point on the row
-//       keyframes.forEach((keyframe) => {
-//         const point = document.createElement("div");
-//         point.classList.add("keyframe", `key-${keyframe.id}`);
-//         point.style.setProperty("--p", keyframe.progress);
+      // Create for each keyframe point a point on the row
+      keyframes.forEach((keyframe) => {
+        const point = document.createElement("div");
+        point.classList.add("keyframe", `key-${keyframe.id}`);
+        point.style.setProperty("--p", keyframe.progress);
 
-//         track.appendChild(point);
+        track.appendChild(point);
 
-//         // Create a drag for the keyframe and update the value
-//         Draggable.create(point, {
-//           // Type of way you can dragg the element on the x axis
-//           type: "x",
-//           bounds: track,
-//           onClick() {
-//             // Make the keyframe the active keyframe
-//             activeKeyframeId = keyframe.id;
-//             point.classList.add("active-keyframe");
-//             player.setProgress(keyframe.progress);
-//             buildVisualizer();
-//           },
-//           onDragEnd() {
-//             // Get the width from the track and the point element which stands for the keyframe 
-//             const trackWidth = track.offsetWidth;
-//             const pointX = this.x + keyframe.progress * trackWidth;
+        // Create a drag for the keyframe and update the value
+        Draggable.create(point, {
+          // Type of way you can dragg the element on the x axis
+          type: "x",
+          bounds: track,
+          onClick() {
+            // Make the keyframe the active keyframe
+            activeKeyframeId = keyframe.id;
+            point.classList.add("active-keyframe");
+            player.setProgress(keyframe.progress);
+            buildVisualizer();
+          },
+          onDragEnd() {
+            // Get the width from the track and the point element which stands for the keyframe 
+            const trackWidth = track.offsetWidth;
+            const pointX = this.x + keyframe.progress * trackWidth;
 
-//             // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
-//             const newProgress = Math.max(0,
-//               Math.min(1, pointX / trackWidth)
-//             );
+            // Chatgpt to make the calculation: How to make the calculation for the new progress
+            // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
+            const newProgress = Math.max(0,
+              Math.min(1, pointX / trackWidth)
+            );
 
-//             animationData.moveKeyframe(
-//               keyframe.id,
-//               newProgress
-//             );
+            animationData.moveKeyframe(
+              keyframe.id,
+              newProgress
+            );
 
-//             // Make the keyframe the active keyframe
-//             activeKeyframeId = keyframe.id;
-//             point.classList.add("active-keyframe");
-//             buildVisualizer();
-//           }
-//         });
+            // Make the keyframe the active keyframe
+            activeKeyframeId = keyframe.id;
+            point.classList.add("active-keyframe");
+            buildVisualizer();
+          }
+        });
 
-//         // Make the keyframe the active keyframe
-//         const activeKeyframeElement = document.querySelector(`.key-${activeKeyframeId}`);
-//         activeKeyframeElement?.classList.add("active-keyframe");
-//       });
+        //       // Call deleteProperty on click
+        //       deleteBtn.addEventListener("click", (event) => {
+        //         // event.stopPropagation();
+        //         animationData.deleteProperty(elementId, propertyName);
+        //         history.addMemento(animationData.getAnimation());
+        //       });
 
-      // Add the elements to the html
-      timelineSection.appendChild(row);
+        //       // Add deletebutton and label text to the <p>
+        //       label.append(deleteBtn, labelText);
+
+        //       row.append(label, track);
+
+        //       // Create for each keyframe point a point on the row
+        //       keyframes.forEach((keyframe) => {
+        //         const point = document.createElement("div");
+        //         point.classList.add("keyframe", `key-${keyframe.id}`);
+        //         point.style.setProperty("--p", keyframe.progress);
+
+        //         track.appendChild(point);
+
+        //         // Create a drag for the keyframe and update the value
+        //         Draggable.create(point, {
+        //           // Type of way you can dragg the element on the x axis
+        //           type: "x",
+        //           bounds: track,
+        //           onClick() {
+        //             // Make the keyframe the active keyframe
+        //             activeKeyframeId = keyframe.id;
+        //             point.classList.add("active-keyframe");
+        //             player.setProgress(keyframe.progress);
+        //             buildVisualizer();
+        //           },
+        //           onDragEnd() {
+        //             // Get the width from the track and the point element which stands for the keyframe 
+        //             const trackWidth = track.offsetWidth;
+        //             const pointX = this.x + keyframe.progress * trackWidth;
+
+        //             // calculate the Newprogress by defiding the currentpointX with the trackwidth, the value can't be above 1, and the value can't be below 0
+        //             const newProgress = Math.max(0,
+        //               Math.min(1, pointX / trackWidth)
+        //             );
+
+        //             animationData.moveKeyframe(
+        //               keyframe.id,
+        //               newProgress
+        //             );
+
+        //             // Make the keyframe the active keyframe
+        //             activeKeyframeId = keyframe.id;
+        //             point.classList.add("active-keyframe");
+        //             buildVisualizer();
+        //           }
+        //         });
+
+        //         // Make the keyframe the active keyframe
+        //         const activeKeyframeElement = document.querySelector(`.key-${activeKeyframeId}`);
+        //         activeKeyframeElement?.classList.add("active-keyframe");
+        //       });
+
+        // Add the elements to the html
+        timelineSection.appendChild(row);
+      });
     });
   });
-});
   // Update the playheadHeight on the height of the container
   updatePlayheadHeight();
   updateScrollHint();
@@ -617,12 +614,12 @@ function addText(text) {
   const newElementId = animationData.createElement(text);
 
   const target = canvas.querySelector(`#el-${newElementId}`);
-   if (target) {
-      target.contentEditable = true;
-      target.focus();
-    }
+  if (target) {
+    target.contentEditable = true;
+    target.focus();
+  }
   createSnapshot(animationData);
-  selectDefaultText(target); 
+  selectDefaultText(target);
 
 }
 
@@ -653,12 +650,12 @@ canvas.addEventListener("click", (e) => {
 
 const originalCanvas = document.querySelector("#original-canvas");
 originalCanvas.addEventListener("click", (e) => {        // Event for clearing / deselecting selectedText 
-  const selectedText = animationData.getSelectedText(); 
+  const selectedText = animationData.getSelectedText();
   if (!selectedText || !selectedText.element || !selectedText.id) return;
 
-  if(e.target == originalCanvas) {
-    animationData.clearSelectedText(); 
-  }; 
+  if (e.target == originalCanvas) {
+    animationData.clearSelectedText();
+  };
 })
 
 
@@ -715,13 +712,13 @@ animationControls.forEach((control) => {
     let value;
     let colorValue;
 
-    if (event.target.dataset.propertyType === "color"){
-        elementId = animationData.getSelectedText().id;
-        colorValue = parseInt(sliderValue);
-        value = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+    if (event.target.dataset.propertyType === "color") {
+      elementId = animationData.getSelectedText().id;
+      colorValue = parseInt(sliderValue);
+      value = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
     } else {
-        elementId = animationData.getSelectedText().id ?? getFirstElementId();
-        value = parseFloat(sliderValue);
+      elementId = animationData.getSelectedText().id ?? getFirstElementId();
+      value = parseFloat(sliderValue);
     }
 
     if (!elementId) return;
@@ -1104,7 +1101,7 @@ function buildStandaloneHTML(projectName, animationJSON, savedTheme = 'light') {
       for (const [id, text] of Object.entries(elements)) {
         const el = document.createElement("h2");
         el.classList.add(\`el-\${id}\`);
-        el.textContent = text;
+        el.textContent = text.content;
         canvas.appendChild(el);
 
         const split = new SplitText(el, {
