@@ -620,7 +620,6 @@ function addText(text) {
   }
   createSnapshot(animationData);
   selectDefaultText(target);
-
 }
 
 function selectDefaultText(newElement) {

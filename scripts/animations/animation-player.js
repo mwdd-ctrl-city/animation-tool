@@ -96,6 +96,7 @@ export default class AnimationPlayer {
                 el.splitInstance.revert();
             }
 
+            el.dataset.text = ""; 
             el.contentEditable = true;
             el.focus();
         })
@@ -134,6 +135,7 @@ export default class AnimationPlayer {
                 this.#animation.renameElement(id, formattedText);
             }
 
+            el.dataset.text = formattedText; 
             this.#animation.clearSelectedText();
 
             const dragInstance = Draggable.get(el); // Return draggable object that was previously created 
