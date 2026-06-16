@@ -1099,6 +1099,13 @@ function buildStandaloneHTML(projectName, animationJSON, savedTheme = 'light') {
       const elementMap = new Map();
 
       for (const [id, text] of Object.entries(elements)) {
+        if (text.type === "canvas") {
+          const contentCanvas = document.querySelector(".content-canvas");
+          contentCanvas.classList.add(\`el-\${id}\`);
+          elementMap.set(id, contentCanvas);
+          continue; 
+        }
+        
         const el = document.createElement("h2");
         el.classList.add(\`el-\${id}\`);
         el.textContent = text.content;
