@@ -943,8 +943,11 @@ function downloadAnimation() {
   const projectName = animationData.getName() || "animation";
   const zip = new JSZip();
 
+  const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const currentTheme = isDarkMode ? "dark" : "light";
+
   zip.file("animation.json", animationData.toJSON());
-  zip.file("index.html", buildStandaloneHTML(projectName, animationData.toJSON()));
+  zip.file("index.html", buildStandaloneHTML(projectName, animationData.toJSON(), currentTheme));
 
   zip.generateAsync({ type: "blob" }).then(function (blob) {
     const url = URL.createObjectURL(blob);
@@ -964,7 +967,54 @@ function downloadAnimation() {
 // -----------------------
 // Standalone HTML
 // -----------------------
-function buildStandaloneHTML(projectName, animationJSON) {
+function buildStandaloneHTML(projectName, animationJSON, savedTheme = 'light') {
+
+  const lightColors = `
+        --color-bg-canvas: #F2F1F3;
+        --color-bg-container: #FFFFFF;
+        --color-bg-topbar: #2B2B2B;
+        --color-text-one: #F2F2F2;
+        --color-text-two: #2B2B2B;
+        --color-text-three: #888;
+        --color-border-button: #F2F2F2;
+        --color-border-container: rgba(200, 200, 200, 0.4);
+        --color-border-canvas: #CCCCCC;
+        --color-border-item: rgba(200, 200, 200, 0.4);
+        --color-boxshadow-one: rgba(0, 0, 0, 0.1);
+        --color-details-one: #6495ED;
+        --color-details-two: #FF1493;
+        --color-hover-one: #4C78D0;
+        --color-hover-two: rgba(200, 200, 200, 0.4);
+        --color-bar: #eaeaea;
+        --color-track: #dde7fa;
+        --color-resize: #cbcaca;
+        --color-button: #eaeaea;
+  `;
+
+  const darkColors = `
+        --color-bg-canvas: #2d2d2f;
+        --color-bg-container: #1A1A1C;
+        --color-bg-topbar: #1A1A1C;
+        --color-text-one: #F0F0F0;
+        --color-text-two: #E2E2E2;
+        --color-text-three: #a9a9a9;
+        --color-border-button: #494949;
+        --color-border-container: rgba(255, 255, 255, 0.08);
+        --color-border-canvas: #3A3A3A;
+        --color-border-item: rgba(255, 255, 255, 0.08);
+        --color-boxshadow-one: rgba(0, 0, 0, 0.35);
+        --color-details-one: #6495ED;
+        --color-details-two: #b50c66;
+        --color-hover-one: #4C78D0;
+        --color-hover-two: rgba(255, 255, 255, 0.08);
+        --color-bar: #2E2E30;
+        --color-track: #2e3e5e;
+        --color-resize: #3D3D3F;
+        --color-button: #2E2E30;
+  `;
+
+  const activeColors = savedTheme === 'dark' ? darkColors : lightColors;
+
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -984,10 +1034,16 @@ function buildStandaloneHTML(projectName, animationJSON) {
         margin: 0;
     }
 
+    :root {
+        color-scheme: ${savedTheme};
+        
+        ${activeColors}
+    }
+
     body {
         font-family: "Inter", sans-serif;
-        background-color: #2d2d2f;
-        color: #E2E2E2;
+        background-color: var(--color-bg-canvas);
+        color: var(--color-text-two);
 
         display: flex;
         align-items: center;
@@ -999,8 +1055,8 @@ function buildStandaloneHTML(projectName, animationJSON) {
         width: 35em;
         aspect-ratio: 1/1;
 
-        background-color: #1A1A1C;
-        border: .75px solid #3A3A3A;
+        background-color: var(--color-bg-container);
+        border: .75px solid var(--color-border-canvas);
         position: relative;
         overflow: clip;
     }
