@@ -139,6 +139,51 @@
             </details>
 
             <details open class="fieldset-container">
+                <summary>Animation style</summary>
+
+                <fieldset class="item item-typography">
+                    <legend class="visually-hidden">Animation style</legend>
+
+                    <div class="split-text">
+                        <label>Split type</label>
+                        <div class="split-text-buttons layout-radios">
+                            <label>
+                                <input id="btn-split-none" name="split-type" type="radio" checked>
+                                None
+                            </label>
+                            <label>
+                                <input id="btn-split-chars" name="split-type" type="radio">
+                                Characters
+                            </label>
+                            <label>
+                                <input id="btn-split-words" name="split-type" type="radio">
+                                Words
+                            </label>
+                            <label>
+                                <input id="btn-split-lines" name="split-type" type="radio">
+                                Lines
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="animation-ease">
+                        <label>
+                            Easing function
+                            <select id="animation-select-ease">
+                                <option value="none">Linear</option>
+                                <option value="power1.in">Ease-in</option>
+                                <option value="power1.out">Ease-out</option>
+                                <option value="bounce.in">Bounce-in</option>
+                                <option value="bounce.out">Bounce-out</option>
+                                <option value=" back.in(1.7)">Back-in</option>
+                                <option value="back.out(1.7)">Back-out</option>
+                            </select>
+                        </label>
+                    </div>
+                </fieldset>
+            </details>
+
+            <details open class="fieldset-container">
                 <summary>Typography</summary>
 
                 <fieldset class="item item-typography">
@@ -311,51 +356,6 @@
                         <input type="range" class="animation-control" data-property="webkitTextStrokeWidth" min="0"
                             max="5" value="0" step="1">
                     </label>
-                </fieldset>
-            </details>
-
-            <details open class="fieldset-container">
-                <summary>Animation style</summary>
-
-                <fieldset class="item item-typography">
-                    <legend class="visually-hidden">Animation style</legend>
-
-                    <div class="split-text">
-                        <label>Split type</label>
-                        <div class="split-text-buttons layout-radios">
-                            <label>
-                                <input id="btn-split-none" name="split-type" type="radio" checked>
-                                None
-                            </label>
-                            <label>
-                                <input id="btn-split-chars" name="split-type" type="radio">
-                                Characters
-                            </label>
-                            <label>
-                                <input id="btn-split-words" name="split-type" type="radio">
-                                Words
-                            </label>
-                            <label>
-                                <input id="btn-split-lines" name="split-type" type="radio">
-                                Lines
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="animation-ease">
-                        <label>
-                            Easing function
-                            <select id="animation-select-ease">
-                                <option value="none">Linear</option>
-                                <option value="power1.in">Ease-in</option>
-                                <option value="power1.out">Ease-out</option>
-                                <option value="bounce.in">Bounce-in</option>
-                                <option value="bounce.out">Bounce-out</option>
-                                <option value=" back.in(1.7)">Back-in</option>
-                                <option value="back.out(1.7)">Back-out</option>
-                            </select>
-                        </label>
-                    </div>
                 </fieldset>
             </details>
         </section>

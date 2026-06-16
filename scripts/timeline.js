@@ -62,7 +62,7 @@ const loadedFromStorage = animationDataLocalStorage && animationData.fromJSON(an
 
 if (!loadedFromStorage) {
   const defaultElement = animationData.createElement("Hello World!");
-  animationData.setKeyframe(defaultElement, "fontSize", 0, 0, "bounce.out");
+  animationData.setKeyframe(defaultElement, "fontSize", 0, 16, "bounce.out");
   animationData.setKeyframe(defaultElement, "fontSize", 0.05, 32, "bounce.out");
 }
 
