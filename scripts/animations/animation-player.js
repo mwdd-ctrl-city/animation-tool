@@ -182,7 +182,10 @@ export default class AnimationPlayer {
         // Apply the animations for each target
         targetIds.forEach((targetId) => {
             const properties = this.#animation.getProperties(targetId);
-            const domElement = document.querySelector(`#el-${targetId}`);
+            
+            // MARK: EDIT
+            // const domElement = document.querySelector(`#el-${targetId}`);
+            const domElement = this.#canvas.querySelector(`#el-${targetId}`);
 
             if (!domElement) return;
 
@@ -191,7 +194,12 @@ export default class AnimationPlayer {
                 const keyframes = this.#animation.getKeyframes(targetId, propertyName);
 
                 // Set the first keyframe
-                gsap.set(`#el-${targetId}`, {
+                // MARK: EDIT
+                // gsap.set(`#el-${targetId}`, {
+                //     [propertyName]: keyframes[0].value,
+                //     ease: keyframes[0].ease ?? "none",
+                // });
+                gsap.set(domElement, {
                     [propertyName]: keyframes[0].value,
                     ease: keyframes[0].ease ?? "none",
                 });
@@ -204,7 +212,9 @@ export default class AnimationPlayer {
                     // Time difference between keyframes
                     let timeDifferenceSeconds = (current.progress - last.progress) * duration;
 
-                    let animationTarget = `#el-${targetId}`;
+                    // MARK: EDIT
+                    // let animationTarget = `#el-${targetId}`;
+                    let animationTarget = domElement;
                     let staggerConfig = null;
 
                     // Fallback values if the keyframe doesn't specify them
