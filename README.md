@@ -39,7 +39,7 @@ But it's also working in the browsers:
 - Safari 
 
 ## Features?
-In the tool there are different funcitonalities: 
+In the tool there are different functionalities: 
 <img width="1596" height="878" alt="cheatsheet-animation-tool" src="https://github.com/user-attachments/assets/eae4bcc5-bae7-499f-be07-b8b1b227626c" />
 
 
@@ -166,8 +166,23 @@ aLs je iets aanpast moet je het ook aanpassen in de standalonbuild
 ### GSAP
 - https://gsap.com/docs/v3/GSAP/Timeline/
 - https://gsap.com/docs/v3/Installation/?tab=cdn&module=esm&require=false
+- https://gsap.com/docs/v3/GSAP/gsap.set()/
 
 ### JavaScript
 - https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
 - https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver
 - https://developer.mozilla.org/en-US/docs/Web/API/Node/cloneNode
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
+- https://developer.mozilla.org/en-US/docs/Web/API/Element/setPointerCapture
+- https://developer.mozilla.org/en-US/docs/Web/API/Element/hasPointerCapture
+- https://developer.mozilla.org/en-US/docs/Web/API/Element/wheel_event
+- https://dev.to/avinash_tare/how-to-detect-if-a-user-is-in-dark-mode-in-js-5hhp
+- https://www.freecodecamp.org/news/javascript-settimeout-js-timer-to-delay-n-seconds/
+
+### Library
+- https://github.com/nodeca/pako/blob/main/LICENSE
+- https://raw.github.com/Stuk/jszip/main/LICENSE.markdown
+- <http://stuartk.com/jszip>
+
+### CSS
+- https://www.a11yproject.com/posts/how-to-hide-content/ 
