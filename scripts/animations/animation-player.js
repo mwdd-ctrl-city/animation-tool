@@ -175,17 +175,21 @@ export default class AnimationPlayer {
         const duration = this.#animation.getDuration();
         const targetIds = this.#animation.getElements().keys();
 
-        if(this.#timeline.getChildren().length === 0){
-            this.#timeline.add(gsap.delayedCall(duration,()=>{}))
+        if (this.#timeline.getChildren().length === 0) {
+            this.#timeline.add(gsap.delayedCall(duration, () => { }))
         }
 
         // Apply the animations for each target
         targetIds.forEach((targetId) => {
             const properties = this.#animation.getProperties(targetId);
-            
+
             // MARK: EDIT
             // const domElement = document.querySelector(`#el-${targetId}`);
-            const domElement = this.#canvas.querySelector(`#el-${targetId}`);
+            // const domElement = this.#canvas.querySelector(`#el-${targetId}`);
+            const domElement = 
+                this.#canvas.id === `el-${targetId}`
+                    ? this.#canvas
+                    : this.#canvas.querySelector(`#el-${targetId}`);
 
             if (!domElement) return;
 
@@ -195,14 +199,14 @@ export default class AnimationPlayer {
 
                 // Set the first keyframe
                 // MARK: EDIT
-                // gsap.set(`#el-${targetId}`, {
-                //     [propertyName]: keyframes[0].value,
-                //     ease: keyframes[0].ease ?? "none",
-                // });
-                gsap.set(domElement, {
+                gsap.set(`#el-${targetId}`, {
                     [propertyName]: keyframes[0].value,
                     ease: keyframes[0].ease ?? "none",
                 });
+                // gsap.set(domElement, {
+                //     [propertyName]: keyframes[0].value,
+                //     ease: keyframes[0].ease ?? "none",
+                // });
 
                 // Create a tween between each pair of consecutive keyframes
                 for (let i = 1; i < keyframes.length; i++) {
@@ -213,8 +217,8 @@ export default class AnimationPlayer {
                     let timeDifferenceSeconds = (current.progress - last.progress) * duration;
 
                     // MARK: EDIT
-                    // let animationTarget = `#el-${targetId}`;
-                    let animationTarget = domElement;
+                    let animationTarget = `#el-${targetId}`;
+                    // let animationTarget = domElement;
                     let staggerConfig = null;
 
                     // Fallback values if the keyframe doesn't specify them
