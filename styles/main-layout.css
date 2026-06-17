@@ -1,11 +1,9 @@
-/* MARK: OPLOSSEN!
-/* !!!!! VOOR NU EVEN !!!!! */
-/* ************************ */
 h2 {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    inset: 0;
+    margin: auto;
+    width: fit-content;
+    height: fit-content;
     white-space: preserve nowrap;
 }
 
@@ -217,6 +215,7 @@ h2 {
     }
 }
 
+
 /* -------------------- */
 /* MARK: Content canvas 
 /* -------------------- */
@@ -258,6 +257,7 @@ h2 {
     height: 100svh;
     overflow-y: auto;
 
+    user-select: none;
     container-type: inline-size;
 
     font-weight: 400;
@@ -437,7 +437,9 @@ fieldset {
     }
 }
 
-/* MARK: details */
+/* -------------------- */
+/* MARK: Details
+/* -------------------- */
 .fieldset-container {
     background-color: var(--color-bg-container);
     padding-top: .25em;
@@ -477,6 +479,7 @@ fieldset {
     }
 }
 
+/* https://www.youtube.com/watch?v=Vzj3jSUbMtI */
 details::details-content {
     block-size: 0;
     transition: block-size 1s, content-visibility 1s;
@@ -514,7 +517,6 @@ details[open]::details-content {
         font-weight: 600;
     }
 }
-
 
 
 /* -------------- */
@@ -593,13 +595,11 @@ details[open]::details-content {
     }
 
     .timeline-section::details-content {
-        /* background-color: aquamarine; */
         overflow: clip;
         transition: block-size .3s ease, content-visibility .3s ease;
         transition-behavior: allow-discrete;
     }
 
-    /* MARK: Jeppe */
     .timeline-section {
         & summary {
             gap: 10px;
@@ -687,7 +687,6 @@ input[type="number"] {
     padding: .25rem 1.3rem .25rem .4rem;
 }
 
-
 .number-input-wrapper .unit {
     position: absolute;
     right: 0.4rem;
@@ -708,7 +707,9 @@ fieldset input.animation-control-color {
     background: linear-gradient(90deg, rgba(0, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 97%, rgba(255, 255, 255, 1) 100%);
 }
 
-/* Preview layout */
+/* ----------------- */
+/* MARK: Preview 
+/* ----------------- */
 #popover-original:popover-open {
     width: 100%;
     height: 100%;
@@ -717,6 +718,7 @@ fieldset input.animation-control-color {
     grid-template-rows: 20fr 2fr;
     place-items: center;
     background-color: var(--color-bg-canvas);
+    border: none;
 
     #popover-content {
         width: 100%;
@@ -753,7 +755,9 @@ fieldset input.animation-control-color {
     }
 }
 
-/* Delete property */
+/* ----------------- */
+/* MARK: Delete property
+/* ----------------- */
 .delete-property-btn {
     display: inline-block;
     max-width: 0;

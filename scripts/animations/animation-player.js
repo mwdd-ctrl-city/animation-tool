@@ -74,6 +74,7 @@ export default class AnimationPlayer {
             this.#setupDraggable(el, id);
             this.#setupEditable(el, id);
 
+            // https://youtu.be/L1afzNAhI40?si=M-FbxvaYEhYHRBgb
             // split the element in lines, words and characters using GSAP's SplitText plugin, and store the split instance on the element for later reference in animations
             const split = new SplitText(el, {
                 type: "chars, words, lines",
@@ -122,6 +123,8 @@ export default class AnimationPlayer {
 
             el.contentEditable = true;
             el.focus();
+
+            this.isEditing = true;
         })
 
         el.addEventListener("keydown", (e) => {
@@ -145,6 +148,7 @@ export default class AnimationPlayer {
         el.addEventListener("blur", () => {
             const formattedText = el.innerText;
             el.contentEditable = false;
+            this.isEditing = false;
 
             // const formattedText = el.textContent   // innerHTML gives: first<div><br></div><div><br></div><div>second</div>
             //     .replace(/<div>/g, "\n")  // Replace <div> with \n -> enter - /g makes global, so not just stop at / replace  first div
@@ -175,14 +179,20 @@ export default class AnimationPlayer {
         const duration = this.#animation.getDuration();
         const targetIds = this.#animation.getElements().keys();
 
-        if(this.#timeline.getChildren().length === 0){
-            this.#timeline.add(gsap.delayedCall(duration,()=>{}))
+        if (this.#timeline.getChildren().length === 0) {
+            this.#timeline.add(gsap.delayedCall(duration, () => { }))
         }
 
         // Apply the animations for each target
         targetIds.forEach((targetId) => {
             const properties = this.#animation.getProperties(targetId);
-            const domElement = document.querySelector(`#el-${targetId}`);
+
+            // Check whether the canvas is the target element. If so, use the canvas itself;
+            // otherwise, find the target element within the canvas by its ID.
+            const domElement =
+                this.#canvas.id === `el-${targetId}`
+                    ? this.#canvas
+                    : this.#canvas.querySelector(`#el-${targetId}`);
 
             if (!domElement) return;
 
