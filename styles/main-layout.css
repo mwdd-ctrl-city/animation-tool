@@ -3,9 +3,10 @@
 /* ************************ */
 h2 {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    inset: 0;
+    margin: auto;
+    width: fit-content;
+    height: fit-content;
     white-space: preserve nowrap;
 }
 
@@ -258,6 +259,7 @@ h2 {
     height: 100svh;
     overflow-y: auto;
 
+    user-select: none;
     container-type: inline-size;
 
     font-weight: 400;
@@ -717,6 +719,7 @@ fieldset input.animation-control-color {
     grid-template-rows: 20fr 2fr;
     place-items: center;
     background-color: var(--color-bg-canvas);
+    border: none;
 
     #popover-content {
         width: 100%;

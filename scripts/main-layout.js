@@ -1,9 +1,8 @@
 import { updateScrollHint } from "./timeline.js";
 
 // ---------------
-// MARK: CONSTANTS
+// MARK: Constants
 // ---------------
-
 const contentContainer = document.querySelector('.content-panel');
 const contentCanvas = document.querySelector('.content-canvas');
 
@@ -15,7 +14,7 @@ const resizeHandleLeft = document.querySelector(".handle-left");
 const colorRanges = document.querySelectorAll('.animation-control[data-property-type="color"]');
 
 // ---------------
-// MARK: VARIABLES
+// MARK: Variables
 // ---------------
 let startY;
 let startX;
@@ -30,8 +29,9 @@ let isMoving = false;
 let startMoveX;
 let startMoveY;
 
+
 // ----------------------------------
-// MARK: TIMELINE DRAGGABLE CONTAINER
+// MARK: Timeline & items-panel draggable container
 // ----------------------------------
 // ** Functions for items **
 resizeHandleLeft.addEventListener("pointerdown", (e) => {
@@ -54,6 +54,7 @@ resizeHandleLeft.addEventListener("pointermove", (e) => {
     const minWidth = parseFloat(getComputedStyle(itemsContainer).minWidth);
     const maxWidth = parseFloat(getComputedStyle(itemsContainer).maxWidth);
 
+    // If the (new) width is bigger than maxWidth, then it gives the default cursor again.
     if (newWidth < minWidth || newWidth > maxWidth) {
         resizeHandleLeft.style.cursor = "default";
         newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth); // clamp instead of return
@@ -102,6 +103,7 @@ resizeHandleTop.addEventListener("pointermove", (e) => {
 
     document.documentElement.style.setProperty("--size-timeline", newHeight + "px");
 
+    // If the items-panel is scrolled all the way down and you resize the timeline, the items-panel moves with it.
     if (startScrollTop > 0) {
         itemsContainer.scrollTop = startScrollTop + deltaY;
     }
@@ -118,7 +120,7 @@ resizeHandleTop.addEventListener("pointerup", (e) => {
 
 
 // ------------------------
-// MARK: CONTENT AND CANVAS
+// MARK: Content and canvas
 // ------------------------
 // Returns the size and position of an element relative to the viewport - when page loads
 const rect = contentContainer.getBoundingClientRect();
@@ -134,7 +136,7 @@ gsap.set(contentCanvas, { x: contentX, y: contentY });
 contentContainer.addEventListener('wheel', e => {
     e.preventDefault();
 
-
+    // Makes zoom possible with ctrl+scroll up or down.
     if (e.ctrlKey) {
         let zoomContent;
         if (e.deltaY < 0) {
@@ -169,8 +171,10 @@ contentContainer.addEventListener('wheel', e => {
 
 
 // ----------------------------------
-// MARK: CONTENT AND CANVAS: DRAGGING
+// MARK: Dragging of content and canvas
 // ----------------------------------
+// Makes it possible to move the placement of the canvas with a mouse as well (not only trackpad)
+// By dragging and moving up/down/left/right you can move the position of the canvas.
 contentContainer.addEventListener("pointerdown", (e) => {
     const containerClicked = e.target === contentContainer;
     const canvasClicked = e.target === contentCanvas;
@@ -183,6 +187,7 @@ contentContainer.addEventListener("pointerdown", (e) => {
     startMoveY = e.clientY - contentY;
 
     contentContainer.setPointerCapture(e.pointerId);
+    // Changes cursor to a little hand when grabbing.
     contentContainer.style.cursor = "grabbing";
 });
 
@@ -192,6 +197,7 @@ contentContainer.addEventListener("pointermove", (e) => {
     contentX = e.clientX - startMoveX;
     contentY = e.clientY - startMoveY;
 
+    // https://gsap.com/docs/v3/GSAP/gsap.set()/
     gsap.set(contentCanvas, { x: contentX, y: contentY });
 });
 
@@ -201,7 +207,11 @@ contentContainer.addEventListener("pointerup", (e) => {
 });
 
 
+// ----------------------------------
+// MARK: Update of theme (light/dark)
+// ----------------------------------
 // https://dev.to/avinash_tare/how-to-detect-if-a-user-is-in-dark-mode-in-js-5hhp
+// https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
 function updateTheme() {
     const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 

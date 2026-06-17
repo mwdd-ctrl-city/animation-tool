@@ -2,6 +2,7 @@
  * @classdesc Domain class containing methods to manipulate and export animations
 */
 
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
 // class is used as a blueprint to make an Object/objects.
 // "export default" makes it possible to export it to different files (where you need to import this file).
 // "extends EventTarget" makes it possible to take EventTarget (custom event listener) to different files.
