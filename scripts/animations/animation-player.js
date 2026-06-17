@@ -74,6 +74,7 @@ export default class AnimationPlayer {
             this.#setupDraggable(el, id);
             this.#setupEditable(el, id);
 
+            // https://youtu.be/L1afzNAhI40?si=M-FbxvaYEhYHRBgb
             // split the element in lines, words and characters using GSAP's SplitText plugin, and store the split instance on the element for later reference in animations
             const split = new SplitText(el, {
                 type: "chars, words, lines",
