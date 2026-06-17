@@ -8,15 +8,16 @@ Welcome to the (Inter)play Animation Tool. This tool was designed and developed 
 - [Features](#features)
 - [For end users](#for-end-users)
 - [For developers](#for-developers)
-- [Embedding an Animation into Your Website](#embedding-an-animation-into-your-website)
+<!-- - [Embedding an Animation into Your Website](#embedding-an-animation-into-your-website) -->
 - [File Structure](#file-structure)
 - [JSON Structure](#json-structure)
 - [Recommendations](#recommendations)
 - [Collaborators](#collaborators)
 - [License](#license)
+- [sources](#sources)
 
 ## About this Project
-The goal of this tool is to make it easier to create animations for specific terms from Marjolijn Ruijg's PD project, *(Inter)facing the Hybrid City*. The tool was developed to support the visual exploration and communication of key concepts within the research.
+The goal of this tool is to make it easier to create animations for specific word definitions from Marjolijn Ruijg's PD project, *(Inter)facing the Hybrid City*. The tool was developed to support the visual exploration and communication of key concepts within the research.
 
 Several requirements guided the deisgn and development of the project:  
 - The visual style had to use black and white or grayscale gradients
@@ -27,8 +28,8 @@ Several requirements guided the deisgn and development of the project:
 This project was designed and developed between May and June 2026 by students from the Communication and Multimedia Design (CMD) program at the Amsterdam University of Applied Sciences. The project was completed in June, but may be further developed in the future.
 
 
-## Browser Compatibility?
-The animation tool was primarily developed and tested in Google Chrome, which providees the best adn most stable user experience. For this readon, Google Chrome is the recommended browser for using the tool.
+## Browser Compatibility
+The animation tool was primarily developed and tested in Google Chrome, which provides the best and most stable user experience. For this reason, Google Chrome is the recommended browser for using the tool.
 
 The tool has also been tested and found to work on the following browsers:
 - Safari 
@@ -39,7 +40,7 @@ The Tool is not compatible with firefox and may not function correctly in this b
 Other browsers were not tested during the development period.
 
 ## Features
-In the tool there are different functionalities: 
+*In the tool there are different functionalities:*
 - Save/Export the animation
 - Import the animation to work furhter
 - Undo/redo functionality
@@ -51,7 +52,7 @@ In the tool there are different functionalities:
 - Drag the text on the canvas
 - Watch a preview
 
-Animation functionalities:
+*Animation functionalities:*
 - Font-size
 - Font-weight
 - Opacity of the font
