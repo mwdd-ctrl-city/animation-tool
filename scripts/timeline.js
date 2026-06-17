@@ -832,7 +832,7 @@ export function updateScrollHint() {
 // MARK: Keyframe delete
 // -----------------------
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Backspace") {
+  if (e.key === "Backspace" && !player.isEditing) {
     deleteActiveKeyframe();
   }
 });

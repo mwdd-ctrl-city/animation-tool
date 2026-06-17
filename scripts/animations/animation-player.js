@@ -123,6 +123,8 @@ export default class AnimationPlayer {
 
             el.contentEditable = true;
             el.focus();
+
+            this.isEditing = true;
         })
 
         el.addEventListener("keydown", (e) => {
@@ -146,6 +148,7 @@ export default class AnimationPlayer {
         el.addEventListener("blur", () => {
             const formattedText = el.innerText;
             el.contentEditable = false;
+            this.isEditing = false;
 
             // const formattedText = el.textContent   // innerHTML gives: first<div><br></div><div><br></div><div>second</div>
             //     .replace(/<div>/g, "\n")  // Replace <div> with \n -> enter - /g makes global, so not just stop at / replace  first div
@@ -186,7 +189,7 @@ export default class AnimationPlayer {
 
             // Check whether the canvas is the target element. If so, use the canvas itself;
             // otherwise, find the target element within the canvas by its ID.
-            const domElement = 
+            const domElement =
                 this.#canvas.id === `el-${targetId}`
                     ? this.#canvas
                     : this.#canvas.querySelector(`#el-${targetId}`);
